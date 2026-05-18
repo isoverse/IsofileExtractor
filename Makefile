@@ -5,7 +5,7 @@ TEST_FILE := tests/data/continuous_flow_example.dxf
 
 # Watch for file changes and rerun automatically
 dev:
-	dotnet watch --project $(PROJECT) run -- $(TEST_FILE)
+	dotnet watch --project $(PROJECT) run -- $(TEST_FILE) --objects
 
 # Build in release mode
 build:

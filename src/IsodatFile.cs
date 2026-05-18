@@ -22,17 +22,23 @@ namespace IsodatReader;
 ///   value at which the class (or object) was originally registered, so we must
 ///   maintain the same counter to resolve them correctly.
 /// </summary>
-public sealed class IsodatArchive : IDisposable
+public sealed class IsodatFile : IDisposable
 {
     private readonly BinaryReader _reader;
     private readonly Dictionary<int, (string Name, int ArchiveVersion)> _classRegistry = new();
     private readonly List<string> _warnings = new();
+    private readonly List<ObjectLogEntry> _objectLog = new();
+    private readonly Stack<int> _containerStack = new();
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
 
-    public int LastArchiveVersion { get; private set; }
-    public string? LastClassName { get; private set; }
+    public IReadOnlyDictionary<int, (string Name, int ArchiveVersion)> ClassRegistry => _classRegistry;
+    public IReadOnlyList<ObjectLogEntry> ObjectLog => _objectLog;
 
-    public IsodatArchive(Stream stream)
+    internal int? CurrentContainerObjIdx => _containerStack.Count > 0 ? _containerStack.Peek() : null;
+    internal void PushContainer(int objIdx) => _containerStack.Push(objIdx);
+    internal void PopContainer()            { if (_containerStack.Count > 0) _containerStack.Pop(); }
+
+    public IsodatFile(Stream stream)
     {
         _reader = new BinaryReader(stream, Encoding.UTF8, leaveOpen: true);
     }
@@ -53,6 +59,7 @@ public sealed class IsodatArchive : IDisposable
     /// </returns>
     public string? ReadCRuntimeClass(string? expected = null)
     {
+        long startPos = _reader.BaseStream.Position;
         byte b0 = _reader.ReadByte();
         byte b1 = _reader.ReadByte();
 
@@ -74,25 +81,29 @@ public sealed class IsodatArchive : IDisposable
             ushort nameLen = _reader.ReadUInt16();
             className = Encoding.ASCII.GetString(_reader.ReadBytes(nameLen));
             _classRegistry[_mapCount] = (className, archiveVersion);
+            int classIdx = _mapCount;
+            int objIdx   = _mapCount + 1;
             _mapCount += 2;  // class slot + object slot
+            _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
         }
         else if (b0 == 0x7F && b1 == 0xFF)
         {
             int packed   = _reader.ReadInt32();
             int classIdx = packed & 0x7FFF_FFFF;
             (className, archiveVersion) = _classRegistry[classIdx];
+            int objIdx = _mapCount;
             _mapCount++;     // object slot only
+            _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
         }
         else
         {
             int packed   = b0 | (b1 << 8);
             int classIdx = packed & 0x7FFF;
             (className, archiveVersion) = _classRegistry[classIdx];
+            int objIdx = _mapCount;
             _mapCount++;     // object slot only
+            _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
         }
-
-        LastArchiveVersion = archiveVersion;
-        LastClassName = className;
 
         if (expected is not null && className != expected)
             throw new InvalidDataException(
@@ -121,17 +132,17 @@ public sealed class IsodatArchive : IDisposable
     // Primitive reads
     // -------------------------------------------------------------------------
 
-    public int    ReadInt32()   => _reader.ReadInt32();
-    public int    ReadUInt16()  => _reader.ReadUInt16();
-    public int    ReadUInt8()   => _reader.ReadByte();
-    public long   ReadUInt32()  => _reader.ReadUInt32();   // uint → long, no overflow
-    public double ReadDouble()  => _reader.ReadDouble();
-    public double ReadFloat()   => _reader.ReadSingle();
-    public bool   ReadBool32()  => _reader.ReadInt32() != 0;
-    public bool   ReadBool8()   => _reader.ReadByte() != 0;
+    public int ReadInt32() => _reader.ReadInt32();
+    public int ReadUInt16() => _reader.ReadUInt16();
+    public int ReadUInt8() => _reader.ReadByte();
+    public long ReadUInt32() => _reader.ReadUInt32();
+    public double ReadDouble() => _reader.ReadDouble();
+    public double ReadFloat() => _reader.ReadSingle();
+    public bool ReadBool32() => _reader.ReadInt32() != 0;
+    public bool ReadBool8() => _reader.ReadByte() != 0;
 
-    public byte[] ReadBytes(int n)  => _reader.ReadBytes(n);
-    public void   SkipBytes(int n)  => _reader.BaseStream.Seek(n, SeekOrigin.Current);
+    public byte[] ReadBytes(int n) => _reader.ReadBytes(n);
+    public void SkipBytes(int n) => _reader.BaseStream.Seek(n, SeekOrigin.Current);
 
     // COLORREF (0x00BBGGRR as int32 LE) → #rrggbb
     public string ReadColor()
@@ -223,3 +234,11 @@ public sealed class IsodatArchive : IDisposable
 
     public void Dispose() => _reader.Dispose();
 }
+
+public record ObjectLogEntry(
+    int    ClassIdx,
+    int    ObjIdx,
+    long   Start,
+    int?   ContainerObjIdx,
+    string ClassName,
+    int    ArchiveVersion);

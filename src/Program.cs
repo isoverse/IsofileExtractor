@@ -12,7 +12,16 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] <file.dxf|file.scn> [...]");
+    return 1;
+}
+
+bool dumpObjects = args.Contains("--objects");
+string[] files   = args.Where(a => !a.StartsWith("--")).ToArray();
+
+if (files.Length == 0)
+{
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] <file.dxf|file.scn> [...]");
     return 1;
 }
 
@@ -26,7 +35,7 @@ var options = new JsonSerializerOptions
 
 int exitCode = 0;
 
-Parallel.ForEach(args, inputArg =>
+Parallel.ForEach(files, inputArg =>
 {
     string inputPath = Path.GetFullPath(inputArg);
     if (!File.Exists(inputPath))
@@ -38,11 +47,11 @@ Parallel.ForEach(args, inputArg =>
 
     string outputPath = Path.ChangeExtension(inputPath, ".json");
 
+    using var stream  = File.OpenRead(inputPath);
+    using var archive = new IsodatFile(stream);
+
     try
     {
-        using var stream  = File.OpenRead(inputPath);
-        using var archive = new IsodatArchive(stream);
-
         var root = new JsonObject();
 
         string ext = Path.GetExtension(inputPath).ToLowerInvariant();
@@ -83,9 +92,24 @@ Parallel.ForEach(args, inputArg =>
     }
     catch (Exception ex)
     {
-        Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {ex}");
+        Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {ex.Message}");
         Interlocked.Exchange(ref exitCode, 1);
+    }
+    finally
+    {
+        if (dumpObjects)
+            DumpObjects(archive, inputPath);
     }
 });
 
 return exitCode;
+
+static void DumpObjects(IsodatFile archive, string inputPath)
+{
+    string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
+    using var writer = new StreamWriter(csvPath);
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version");
+    foreach (var e in archive.ObjectLog)
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion}");
+    Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
+}
