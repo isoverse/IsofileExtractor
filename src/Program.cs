@@ -17,11 +17,12 @@ if (args.Length == 0)
 }
 
 bool dumpObjects = args.Contains("--objects");
+bool dumpTree    = args.Contains("--tree");
 string[] files   = args.Where(a => !a.StartsWith("--")).ToArray();
 
 if (files.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] <file.dxf|file.scn> [...]");
     return 1;
 }
 
@@ -99,6 +100,8 @@ Parallel.ForEach(files, inputArg =>
     {
         if (dumpObjects)
             DumpObjects(archive, inputPath);
+        if (dumpTree)
+            DumpTree(archive, inputPath);
     }
 });
 
@@ -112,4 +115,58 @@ static void DumpObjects(IsodatFile archive, string inputPath)
     foreach (var e in archive.ObjectLog)
         writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion}");
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
+}
+
+static void DumpTree(IsodatFile archive, string inputPath)
+{
+    string treePath = Path.ChangeExtension(inputPath, ".tree.txt");
+
+    // Group entries by parent obj-index (-1 = root sentinel)
+    const int Root = -1;
+    var childrenOf = new Dictionary<int, List<ObjectLogEntry>>();
+    foreach (var e in archive.ObjectLog)
+    {
+        int key = e.ContainerObjIdx ?? Root;
+        if (!childrenOf.TryGetValue(key, out var list))
+            childrenOf[key] = list = new List<ObjectLogEntry>();
+        list.Add(e);
+    }
+
+    using var writer = new StreamWriter(treePath);
+    WriteTreeLevel(writer, childrenOf, parentObjIdx: Root, depth: 0);
+    Console.Error.WriteLine($"Tree written: {treePath}");
+}
+
+static void WriteTreeLevel(
+    StreamWriter writer,
+    Dictionary<int, List<ObjectLogEntry>> childrenOf,
+    int parentObjIdx,
+    int depth)
+{
+    if (!childrenOf.TryGetValue(parentObjIdx, out var siblings)) return;
+
+    string indent = new string(' ', depth * 2);
+    int i = 0;
+    while (i < siblings.Count)
+    {
+        var first = siblings[i];
+
+        // Count consecutive siblings with the same class name and archive version
+        int count = 1;
+        while (i + count < siblings.Count
+               && siblings[i + count].ClassName       == first.ClassName
+               && siblings[i + count].ArchiveVersion  == first.ArchiveVersion)
+            count++;
+
+        string prefix = count > 1 ? $"{count}x " : "";
+        string label  = $"{prefix}{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}";
+
+        writer.WriteLine($"{indent}{label}");
+
+        // Recurse into the first entry's children (representative for collapsed groups)
+        if (childrenOf.ContainsKey(first.ObjIdx))
+            WriteTreeLevel(writer, childrenOf, first.ObjIdx, depth + 1);
+
+        i += count;
+    }
 }
