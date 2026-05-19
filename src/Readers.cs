@@ -347,6 +347,9 @@ static class Readers
     }
 
     // Read one object into a CBlockData objects dict, keyed by snake_case class name.
+    // If the object is itself a raw CBlockData alias (CAcquistionBaseBlockData, CPort) with
+    // sub-children left in the stream, re-pushes its ObjIdx as container and recursively
+    // reads those sub-children so they nest correctly in the tree.
     // IsBlockObject is set in a finally block so it is always recorded even on parse errors.
     static void ReadBlockDataObject(JsonObject objects, IsodatFile isofile,
                                     string? expected = null, string? pattern = null)
@@ -354,7 +357,22 @@ static class Readers
         int before = isofile.ObjectLog.Count;
         try
         {
-            var child = ReadFully(isofile, expected, pattern);
+            var child = ReadObject(isofile, expected, pattern);
+            int n = NObjects(child);
+            if (n > 0)
+            {
+                isofile.PushContainer(isofile.ObjectLog[before].ObjIdx);
+                try
+                {
+                    var childObjects = child["objects"]!.AsObject();
+                    for (int i = 0; i < n; i++)
+                        ReadBlockDataObject(childObjects, isofile);
+                }
+                finally
+                {
+                    isofile.PopContainer();
+                }
+            }
             AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
         }
         finally
@@ -362,32 +380,6 @@ static class Readers
             if (before < isofile.ObjectLog.Count)
                 isofile.SetObjectLogIsBlockObject(before);
         }
-    }
-
-    // Read one object and recursively expand its CBlockData sub-children if it is a raw
-    // CBlockData alias (CAcquistionBaseBlockData, CPort) whose sub-children are left in the stream.
-    // Re-pushes the CBlockData's ObjIdx as container before the sub-child loop so sub-children
-    // are correctly nested under it rather than under the outer container.
-    static JsonObject ReadFully(IsodatFile isofile, string? expected = null, string? pattern = null)
-    {
-        int entryIndex = isofile.ObjectLog.Count;
-        var jo = ReadObject(isofile, expected, pattern);
-        int n = NObjects(jo);
-        if (n > 0)
-        {
-            isofile.PushContainer(isofile.ObjectLog[entryIndex].ObjIdx);
-            try
-            {
-                var objects = jo["objects"]!.AsObject();
-                for (int i = 0; i < n; i++)
-                    ReadBlockDataObject(objects, isofile);
-            }
-            finally
-            {
-                isofile.PopContainer();
-            }
-        }
-        return jo;
     }
 
     // Read N objects and collect into JsonArray
