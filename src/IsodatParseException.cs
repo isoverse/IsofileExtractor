@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace IsodatReader;
 
 /// <summary>
@@ -22,12 +24,16 @@ public sealed class IsodatParseException : Exception
     private IsodatParseException(IsodatParseException source)
         : base(source.InnerException!.Message, source.InnerException)
     {
-        _path    = new List<(string, long)>(source._path);
-        ErrorPos = source.ErrorPos;
+        _path         = new List<(string, long)>(source._path);
+        ErrorPos      = source.ErrorPos;
+        PartialResult = source.PartialResult;
     }
 
     /// <summary>Stream position (bytes) at the point the error was thrown.</summary>
     public long ErrorPos { get; }
+
+    /// <summary>Partially-built JSON result from the reader that failed, if available.</summary>
+    public JsonNode? PartialResult { get; internal set; }
 
     /// <summary>
     /// Returns a new exception with <paramref name="className"/> prepended to

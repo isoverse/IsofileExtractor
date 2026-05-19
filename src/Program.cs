@@ -4,9 +4,8 @@ using IsodatReader;
 
 if (args.Length == 1 && args[0] is "--version" or "-v")
 {
-    string version = System.Reflection.Assembly.GetExecutingAssembly()
-        .GetName().Version?.ToString() ?? "unknown";
-    Console.WriteLine(version);
+    Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly()
+        .GetName().Version?.ToString() ?? "unknown");
     return 0;
 }
 
@@ -34,6 +33,9 @@ var options = new JsonSerializerOptions
     TypeInfoResolver       = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
 };
 
+string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
+    .GetName().Version?.ToString() ?? "unknown";
+
 int exitCode = 0;
 
 Parallel.ForEach(files, inputArg =>
@@ -51,23 +53,30 @@ Parallel.ForEach(files, inputArg =>
     using var stream  = File.OpenRead(inputPath);
     using var archive = new IsodatFile(stream);
 
+    string ext = Path.GetExtension(inputPath).ToLowerInvariant();
+    string? dataClass = ext switch
+    {
+        ".dxf" => "CContiniousFlowBlockData",
+        ".scn" => "CScanStorage",
+        _      => null,
+    };
+
+    var meta = new JsonObject
+    {
+        ["reader_version"] = assemblyVersion,
+        ["file_type"]      = ext.TrimStart('.'),
+        ["file_size_bytes"] = new FileInfo(inputPath).Length,
+    };
+    var root = new JsonObject();
+    root["meta"] = meta;
+
+    Exception? caughtEx = null;
     try
     {
-        var root = new JsonObject();
-
-        string ext = Path.GetExtension(inputPath).ToLowerInvariant();
-        string? dataClass = ext switch
-        {
-            ".dxf" => "CContiniousFlowBlockData",
-            ".scn" => "CScanStorage",
-            _      => null,
-        };
-
         // DXF files have a CFileHeader; SCN files start directly with the data class
         if (ext == ".dxf")
             root["file_header"] = Readers.Dispatch(archive, "CFileHeader");
 
-        root["data_class"] = dataClass;
         try
         {
             if (dataClass is not null)
@@ -79,10 +88,15 @@ Parallel.ForEach(files, inputArg =>
         {
             // Some files contain only a file header
         }
-
-        string json = root.ToJsonString(options);
-        File.WriteAllText(outputPath, json);
-        Console.WriteLine($"Written: {outputPath}");
+    }
+    catch (Exception ex) { caughtEx = ex; }
+    finally
+    {
+        meta["complete"] = caughtEx is null;
+        if (caughtEx is not null && caughtEx is IsodatParseException ipe && ipe.PartialResult is not null)
+            root["data"] = ipe.PartialResult;
+        File.WriteAllText(outputPath, root.ToJsonString(options));
+        Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
 
         if (archive.Warnings.Count > 0)
         {
@@ -90,14 +104,12 @@ Parallel.ForEach(files, inputArg =>
             foreach (string w in archive.Warnings)
                 Console.Error.WriteLine($"  {w}");
         }
-    }
-    catch (Exception ex)
-    {
-        Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {ex.Message}");
-        Interlocked.Exchange(ref exitCode, 1);
-    }
-    finally
-    {
+        if (caughtEx is not null)
+        {
+            Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {caughtEx.Message}");
+            Interlocked.Exchange(ref exitCode, 1);
+        }
+        WriteIssuesLog(archive, inputPath, caughtEx);
         if (dumpObjects)
             DumpObjects(archive, inputPath);
         if (dumpTree)
@@ -115,6 +127,21 @@ static void DumpObjects(IsodatFile archive, string inputPath)
     foreach (var e in archive.ObjectLog)
         writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion}");
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
+}
+
+static void WriteIssuesLog(IsodatFile archive, string inputPath, Exception? error)
+{
+    string logPath = Path.ChangeExtension(inputPath, ".issues.log");
+    if (archive.Warnings.Count == 0 && error is null)
+    {
+        File.Delete(logPath);
+        return;
+    }
+    using var writer = new StreamWriter(logPath);
+    foreach (string w in archive.Warnings)
+        writer.WriteLine($"warning: {w}");
+    if (error is not null)
+        writer.WriteLine($"error: {error.Message}");
 }
 
 static void DumpTree(IsodatFile archive, string inputPath)
