@@ -36,7 +36,7 @@ public sealed class IsodatFile : IDisposable
 
     internal int? CurrentContainerObjIdx => _containerStack.Count > 0 ? _containerStack.Peek() : null;
     internal void PushContainer(int objIdx) => _containerStack.Push(objIdx);
-    internal void PopContainer()            { if (_containerStack.Count > 0) _containerStack.Pop(); }
+    internal void PopContainer() { if (_containerStack.Count > 0) _containerStack.Pop(); }
 
     public IsodatFile(Stream stream)
     {
@@ -82,24 +82,34 @@ public sealed class IsodatFile : IDisposable
             className = Encoding.ASCII.GetString(_reader.ReadBytes(nameLen));
             _classRegistry[_mapCount] = (className, archiveVersion);
             int classIdx = _mapCount;
-            int objIdx   = _mapCount + 1;
+            int objIdx = _mapCount + 1;
             _mapCount += 2;  // class slot + object slot
             _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
         }
         else if (b0 == 0x7F && b1 == 0xFF)
         {
-            int packed   = _reader.ReadInt32();
+            // cached object that has a long from ID (>32,767), doubt this will ever happen
+            int packed = _reader.ReadInt32();
             int classIdx = packed & 0x7FFF_FFFF;
-            (className, archiveVersion) = _classRegistry[classIdx];
+            if (!_classRegistry.TryGetValue(classIdx, out var entry))
+                throw new InvalidDataException(
+                    $"CRuntimeClass back-reference refers to map index {classIdx} " +
+                    $"which does not exist (current map count: {_mapCount})");
+            (className, archiveVersion) = entry;
             int objIdx = _mapCount;
             _mapCount++;     // object slot only
             _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
         }
         else
         {
-            int packed   = b0 | (b1 << 8);
+            // cached object with short form ID <= 32767
+            int packed = b0 | (b1 << 8);
             int classIdx = packed & 0x7FFF;
-            (className, archiveVersion) = _classRegistry[classIdx];
+            if (!_classRegistry.TryGetValue(classIdx, out var entry))
+                throw new InvalidDataException(
+                    $"CRuntimeClass back-reference refers to map index {classIdx} " +
+                    $"which does not exist (current map count: {_mapCount})");
+            (className, archiveVersion) = entry;
             int objIdx = _mapCount;
             _mapCount++;     // object slot only
             _objectLog.Add(new ObjectLogEntry(classIdx, objIdx, startPos, CurrentContainerObjIdx, className, archiveVersion));
@@ -242,12 +252,12 @@ public sealed class IsodatFile : IDisposable
 }
 
 public record ObjectLogEntry(
-    int    ClassIdx,
-    int    ObjIdx,
-    long   Start,
-    int?   ContainerObjIdx,
+    int ClassIdx,
+    int ObjIdx,
+    long Start,
+    int? ContainerObjIdx,
     string ClassName,
-    int    ArchiveVersion)
+    int ArchiveVersion)
 {
     public string? Value { get; internal set; }
     public bool IsBlockObject { get; internal set; }
