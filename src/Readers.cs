@@ -862,8 +862,10 @@ static class Readers
         var jo = new JsonObject();
         jo["parent"] = ReadCData(isofile);
         jo["v"] = isofile.ReadSchemaVersion("CBlockData", 2);
-        jo["n_objects"] = isofile.ReadInt32();
+        int n = isofile.ReadInt32();
+        jo["n_objects"] = n;
         jo["objects"] = new JsonObject();
+        isofile.SetObjectLogNObjects(isofile.ObjectLog.Count - 1, n);
         return jo;
     }
 

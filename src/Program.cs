@@ -16,9 +16,9 @@ if (args.Length == 0)
 }
 
 bool dumpObjects = args.Contains("--objects");
-bool dumpTree    = args.Contains("--tree");
+bool dumpTree = args.Contains("--tree");
 Readers.Unabridged = args.Contains("--unabridged");
-string[] files   = args.Where(a => !a.StartsWith("--")).ToArray();
+string[] files = args.Where(a => !a.StartsWith("--")).ToArray();
 
 if (files.Length == 0)
 {
@@ -28,10 +28,10 @@ if (files.Length == 0)
 
 var options = new JsonSerializerOptions
 {
-    WriteIndented          = true,
+    WriteIndented = true,
     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-    PropertyNamingPolicy   = JsonNamingPolicy.SnakeCaseLower,
-    TypeInfoResolver       = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
+    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+    TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
 };
 
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
@@ -51,7 +51,7 @@ Parallel.ForEach(files, inputArg =>
 
     string outputPath = Path.ChangeExtension(inputPath, ".json");
 
-    using var stream  = File.OpenRead(inputPath);
+    using var stream = File.OpenRead(inputPath);
     using var archive = new IsodatFile(stream);
 
     string ext = Path.GetExtension(inputPath).ToLowerInvariant();
@@ -59,7 +59,7 @@ Parallel.ForEach(files, inputArg =>
     var meta = new JsonObject
     {
         ["reader_version"] = assemblyVersion,
-        ["file_type"]      = ext.TrimStart('.'),
+        ["file_type"] = ext.TrimStart('.'),
         ["file_size_bytes"] = new FileInfo(inputPath).Length,
     };
     var root = new JsonObject();
@@ -70,7 +70,7 @@ Parallel.ForEach(files, inputArg =>
     void ReadInto(string key, string className)
     {
         if (caughtEx is not null) return;
-        try   { root[key] = Readers.ReadObject(archive, className); }
+        try { root[key] = Readers.ReadObject(archive, className); }
         catch (IsodatParseException ipe)
         {
             if (ipe.PartialResult is not null) root[key] = ipe.PartialResult;
@@ -126,9 +126,14 @@ static void DumpObjects(IsodatFile archive, string inputPath)
 {
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,value");
+    var nObjectsByObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx, e => e.NObjects);
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_object_idx,block_object_idx,block_object_total,value");
     foreach (var e in archive.ObjectLog)
-        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},\"{e.Value ?? ""}\"");
+    {
+        int? blockObjectTotal = e.ContainerObjIdx is int cid
+            && nObjectsByObjIdx.TryGetValue(cid, out var pn) ? pn : null;
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{blockObjectTotal?.ToString() ?? ""},\"{e.Value ?? ""}\"");
+    }
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
 }
 
@@ -162,14 +167,18 @@ static void DumpTree(IsodatFile archive, string inputPath)
         list.Add(e);
     }
 
+    // Build ObjIdx → entry lookup so WriteTreeLevel can find a parent's declared NObjects.
+    var byObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx);
+
     using var writer = new StreamWriter(treePath);
-    WriteTreeLevel(writer, childrenOf, parentObjIdx: Root, depth: 0);
+    WriteTreeLevel(writer, childrenOf, byObjIdx, parentObjIdx: Root, depth: 0);
     Console.Error.WriteLine($"Tree written: {treePath}");
 }
 
 static void WriteTreeLevel(
     StreamWriter writer,
     Dictionary<int, List<ObjectLogEntry>> childrenOf,
+    Dictionary<int, ObjectLogEntry> byObjIdx,
     int parentObjIdx,
     int depth)
 {
@@ -177,8 +186,10 @@ static void WriteTreeLevel(
 
     string indent = new string(' ', depth * 2);
 
-    // Pre-compute the total size of each block-object run so we can emit k/n: prefixes.
-    // runTotal[i] = total count of the block-object run that sibling i belongs to (0 for non-block).
+    // Use n_objects declared in the parent's binary header as the denominator for k/N: prefixes.
+    // Falls back to the actual parsed sibling count when n_objects is not available.
+    int? parentNObjects = byObjIdx.TryGetValue(parentObjIdx, out var parentEntry) ? parentEntry.NObjects : null;
+
     int[] runTotal = new int[siblings.Count];
     for (int j = 0; j < siblings.Count; j++)
     {
@@ -186,7 +197,8 @@ static void WriteTreeLevel(
         if (j > 0 && siblings[j - 1].IsBlockObject) continue; // already counted
         int n = 0;
         while (j + n < siblings.Count && siblings[j + n].IsBlockObject) n++;
-        for (int k = j; k < j + n; k++) runTotal[k] = n;
+        int declared = parentNObjects ?? n;
+        for (int k = j; k < j + n; k++) runTotal[k] = declared;
     }
 
     int i = 0;
@@ -203,16 +215,16 @@ static void WriteTreeLevel(
         // Block-object and non-block siblings are never collapsed together.
         int count = 1;
         while (i + count < siblings.Count
-               && siblings[i + count].ClassName      == first.ClassName
+               && siblings[i + count].ClassName == first.ClassName
                && siblings[i + count].ArchiveVersion == first.ArchiveVersion
-               && siblings[i + count].IsBlockObject  == first.IsBlockObject
+               && siblings[i + count].IsBlockObject == first.IsBlockObject
                && (first.ClassName != "CBlockData"
                    || siblings[i + count].Value == first.Value))
             count++;
 
-        string value  = (first.ClassName == "CBlockData" && first.Value is not null)
+        string value = (first.ClassName == "CBlockData" && first.Value is not null)
                         ? $" \"{first.Value}\"" : "";
-        string label  = $"{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
+        string label = $"{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
 
         string linePrefix = first.IsBlockObject
             ? (count > 1
@@ -224,7 +236,7 @@ static void WriteTreeLevel(
 
         // Recurse into the first entry's children (representative for collapsed groups)
         if (childrenOf.ContainsKey(first.ObjIdx))
-            WriteTreeLevel(writer, childrenOf, first.ObjIdx, depth + 1);
+            WriteTreeLevel(writer, childrenOf, byObjIdx, first.ObjIdx, depth + 1);
 
         if (first.IsBlockObject) blockSeq += count;
         i += count;

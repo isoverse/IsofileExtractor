@@ -29,6 +29,7 @@ public sealed class IsodatFile : IDisposable
     private readonly List<string> _warnings = new();
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
+    private readonly Dictionary<int, int> _blockObjectSeq = new();  // containerObjIdx → next seq
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
 
     public IReadOnlyDictionary<int, (string Name, int ArchiveVersion)> ClassRegistry => _classRegistry;
@@ -254,7 +255,15 @@ public sealed class IsodatFile : IDisposable
     }
 
     internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
-    internal void SetObjectLogIsBlockObject(int index) => _objectLog[index].IsBlockObject = true;
+    internal void SetObjectLogIsBlockObject(int index)
+    {
+        _objectLog[index].IsBlockObject = true;
+        int key = _objectLog[index].ContainerObjIdx ?? -1;
+        _blockObjectSeq.TryGetValue(key, out int seq);
+        _objectLog[index].BlockObjectIdx = ++seq;
+        _blockObjectSeq[key] = seq;
+    }
+    internal void SetObjectLogNObjects(int index, int n) => _objectLog[index].NObjects = n;
 
     public void Dispose() => _reader.Dispose();
 }
@@ -269,4 +278,6 @@ public record ObjectLogEntry(
 {
     public string? Value { get; internal set; }
     public bool IsBlockObject { get; internal set; }
+    public int? BlockObjectIdx { get; internal set; }
+    public int? NObjects { get; internal set; }
 }
