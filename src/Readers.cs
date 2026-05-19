@@ -299,7 +299,9 @@ static class Readers
         {
             popped = true;
             var partial = PartialStack.Pop();
-            // Embed inner partial into outer so the tree is as deep as possible
+            // Embed inner partial into outer so the tree is as deep as possible.
+            // ipe.PartialResult is null when ReadBlockDataObject already placed it in an objects
+            // dict (it nulls the field before rethrowing to prevent a second-parent violation).
             if (partial is not null && ipe.PartialResult is not null && ipe.PartialResultClassName is not null)
                 partial[ClassToJsonKey(ipe.PartialResultClassName)] = ipe.PartialResult;
             var enriched = ipe.PrependPath(className, headerPos);
@@ -350,6 +352,9 @@ static class Readers
     // If the object is itself a raw CBlockData alias (CAcquistionBaseBlockData, CPort) with
     // sub-children left in the stream, re-pushes its ObjIdx as container and recursively
     // reads those sub-children so they nest correctly in the tree.
+    // Partial-result aware: if ReadObject fails with a partial result it is added to the
+    // dict before rethrowing; if sub-child expansion fails the already-read child is added
+    // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     // IsBlockObject is set in a finally block so it is always recorded even on parse errors.
     static void ReadBlockDataObject(JsonObject objects, IsodatFile isofile,
                                     string? expected = null, string? pattern = null)
@@ -357,7 +362,29 @@ static class Readers
         int before = isofile.ObjectLog.Count;
         try
         {
-            var child = ReadObject(isofile, expected, pattern);
+            JsonObject child;
+            string childClassName;
+            try
+            {
+                child = ReadObject(isofile, expected, pattern);
+                childClassName = isofile.ObjectLog[before].ClassName;
+            }
+            catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
+            {
+                // ReadObject failed but captured a partial result; add it so it appears in output.
+                // Null out PartialResult so outer ReadObject frames don't try to embed this node
+                // again — it already has a parent from AddToObjectsDict.
+                AddToObjectsDict(objects,
+                    ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial);
+                ipe.PartialResult          = null;
+                ipe.PartialResultClassName = null;
+                throw;
+            }
+
+            // Add child immediately so it appears in output even if sub-child expansion fails.
+            // Sub-children populate child["objects"] in-place, so the dict entry stays current.
+            AddToObjectsDict(objects, childClassName, child);
+
             int n = NObjects(child);
             if (n > 0)
             {
@@ -373,7 +400,6 @@ static class Readers
                     isofile.PopContainer();
                 }
             }
-            AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
         }
         finally
         {
@@ -1132,6 +1158,7 @@ static class Readers
     static JsonObject ReadCConfiguration(IsodatFile isofile)
     {
         var jo = new JsonObject();
+        TrackPartial(jo);
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
@@ -1240,6 +1267,7 @@ static class Readers
         var jo = new JsonObject();
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
+        TrackPartial(jo);  // capture block objects even if loop or later fields fail
         var deviceBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
             ReadBlockDataObject(deviceBlockObjects, isofile);
@@ -1257,6 +1285,7 @@ static class Readers
     {
         var jo = new JsonObject();
         jo["parent"] = ReadCDevice(isofile);
+        TrackPartial(jo);  // replace CDevice's slot once parent is set
         int version = isofile.ReadSchemaVersion("CActiveDevice", 2);
         jo["v"] = version;
         if (version >= 2) jo["xec"] = isofile.ReadMfcString();
