@@ -176,32 +176,57 @@ static void WriteTreeLevel(
     if (!childrenOf.TryGetValue(parentObjIdx, out var siblings)) return;
 
     string indent = new string(' ', depth * 2);
+
+    // Pre-compute the total size of each block-object run so we can emit k/n: prefixes.
+    // runTotal[i] = total count of the block-object run that sibling i belongs to (0 for non-block).
+    int[] runTotal = new int[siblings.Count];
+    for (int j = 0; j < siblings.Count; j++)
+    {
+        if (!siblings[j].IsBlockObject) continue;
+        if (j > 0 && siblings[j - 1].IsBlockObject) continue; // already counted
+        int n = 0;
+        while (j + n < siblings.Count && siblings[j + n].IsBlockObject) n++;
+        for (int k = j; k < j + n; k++) runTotal[k] = n;
+    }
+
     int i = 0;
+    int blockSeq = 0; // sequential position within current block-object run
     while (i < siblings.Count)
     {
         var first = siblings[i];
 
+        if (first.IsBlockObject && (i == 0 || !siblings[i - 1].IsBlockObject))
+            blockSeq = 0; // entering a new run
+
         // Count consecutive siblings with the same class name and archive version.
         // CBlockData entries are only collapsed when their value is also identical.
+        // Block-object and non-block siblings are never collapsed together.
         int count = 1;
         while (i + count < siblings.Count
                && siblings[i + count].ClassName      == first.ClassName
                && siblings[i + count].ArchiveVersion == first.ArchiveVersion
+               && siblings[i + count].IsBlockObject  == first.IsBlockObject
                && (first.ClassName != "CBlockData"
                    || siblings[i + count].Value == first.Value))
             count++;
 
-        string prefix = count > 1 ? $"{count}x " : "";
         string value  = (first.ClassName == "CBlockData" && first.Value is not null)
                         ? $" \"{first.Value}\"" : "";
-        string label  = $"{prefix}{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
+        string label  = $"{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
 
-        writer.WriteLine($"{indent}{label}");
+        string linePrefix = first.IsBlockObject
+            ? (count > 1
+                ? $"{blockSeq + 1}-{blockSeq + count}/{runTotal[i]}: "
+                : $"{blockSeq + 1}/{runTotal[i]}: ")
+            : "";
+
+        writer.WriteLine($"{indent}{linePrefix}{label}");
 
         // Recurse into the first entry's children (representative for collapsed groups)
         if (childrenOf.ContainsKey(first.ObjIdx))
             WriteTreeLevel(writer, childrenOf, first.ObjIdx, depth + 1);
 
+        if (first.IsBlockObject) blockSeq += count;
         i += count;
     }
 }
