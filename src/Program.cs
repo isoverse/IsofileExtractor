@@ -67,10 +67,10 @@ Parallel.ForEach(files, inputArg =>
 
     Exception? caughtEx = null;
 
-    void DispatchTo(string key, string className)
+    void ReadInto(string key, string className)
     {
         if (caughtEx is not null) return;
-        try   { root[key] = Readers.Dispatch(archive, className); }
+        try   { root[key] = Readers.ReadObject(archive, className); }
         catch (IsodatParseException ipe)
         {
             if (ipe.PartialResult is not null) root[key] = ipe.PartialResult;
@@ -84,11 +84,11 @@ Parallel.ForEach(files, inputArg =>
         switch (ext)
         {
             case ".dxf":
-                DispatchTo("file_header", "CFileHeader");
-                DispatchTo("continious_flow_block_data", "CContiniousFlowBlockData");
+                ReadInto("file_header", "CFileHeader");
+                ReadInto("continious_flow_block_data", "CContiniousFlowBlockData");
                 break;
             case ".scn":
-                DispatchTo("scan_storage", "CScanStorage");
+                ReadInto("scan_storage", "CScanStorage");
                 break;
             default:
                 root["error"] = $"Unsupported file extension '{ext}'";

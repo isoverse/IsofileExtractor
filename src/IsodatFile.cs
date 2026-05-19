@@ -236,6 +236,7 @@ public sealed class IsodatFile : IDisposable
     }
 
     internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
+    internal void SetObjectLogIsBlockObject(int index) => _objectLog[index].IsBlockObject = true;
 
     public void Dispose() => _reader.Dispose();
 }
@@ -249,4 +250,5 @@ public record ObjectLogEntry(
     int    ArchiveVersion)
 {
     public string? Value { get; internal set; }
+    public bool IsBlockObject { get; internal set; }
 }
