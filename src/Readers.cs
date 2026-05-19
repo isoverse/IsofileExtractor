@@ -426,10 +426,10 @@ static class Readers
     // Direct CData reads (CBasicInterface, CGasConfPart, …) store it in ["value"].
     static string? ExtractCDataValue(JsonNode? result)
     {
-        if (result is not JsonObject jo) return null;
-        if (jo["parent"] is JsonObject p && p["value"] is JsonValue pv
-            && pv.TryGetValue<string>(out var ps)) return ps;
-        if (jo["value"] is JsonValue v && v.TryGetValue<string>(out var s)) return s;
+        // Walk the "parent" chain to find the CData "value" field (may be several levels deep
+        // for CBlockData-derived classes like CDevice → CBlockData → CData).
+        for (var node = result as JsonObject; node is not null; node = node["parent"] as JsonObject)
+            if (node["value"] is JsonValue v && v.TryGetValue<string>(out var s)) return s;
         return null;
     }
 

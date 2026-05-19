@@ -49,7 +49,7 @@ Parallel.ForEach(files, inputArg =>
         return;
     }
 
-    string outputPath = Path.ChangeExtension(inputPath, ".json");
+    string outputPath = inputPath + ".json";
 
     using var stream = File.OpenRead(inputPath);
     using var archive = new IsodatFile(stream);
@@ -190,6 +190,7 @@ static void WriteTreeLevel(
     // Falls back to the actual parsed sibling count when n_objects is not available.
     int? parentNObjects = byObjIdx.TryGetValue(parentObjIdx, out var parentEntry) ? parentEntry.NObjects : null;
 
+    // Compute the declared run total for each block-object position.
     int[] runTotal = new int[siblings.Count];
     for (int j = 0; j < siblings.Count; j++)
     {
@@ -201,44 +202,35 @@ static void WriteTreeLevel(
         for (int k = j; k < j + n; k++) runTotal[k] = declared;
     }
 
-    int i = 0;
-    int blockSeq = 0; // sequential position within current block-object run
-    while (i < siblings.Count)
+    for (int i = 0; i < siblings.Count; )
     {
         var first = siblings[i];
+        string? effVal = string.IsNullOrEmpty(first.Value) ? null : first.Value;
 
-        if (first.IsBlockObject && (i == 0 || !siblings[i - 1].IsBlockObject))
-            blockSeq = 0; // entering a new run
-
-        // Count consecutive siblings with the same class name and archive version.
-        // CBlockData entries are only collapsed when their value is also identical.
-        // Block-object and non-block siblings are never collapsed together.
+        // Collapse consecutive siblings with same class/version/blockness and same effective value.
+        // Siblings with distinct non-empty values are kept on separate lines.
         int count = 1;
-        while (i + count < siblings.Count
-               && siblings[i + count].ClassName == first.ClassName
-               && siblings[i + count].ArchiveVersion == first.ArchiveVersion
-               && siblings[i + count].IsBlockObject == first.IsBlockObject
-               && (first.ClassName != "CBlockData"
-                   || siblings[i + count].Value == first.Value))
+        while (i + count < siblings.Count)
+        {
+            var next = siblings[i + count];
+            if (next.ClassName != first.ClassName
+                || next.ArchiveVersion != first.ArchiveVersion
+                || next.IsBlockObject != first.IsBlockObject
+                || (string.IsNullOrEmpty(next.Value) ? null : next.Value) != effVal)
+                break;
             count++;
+        }
 
-        string value = (first.ClassName == "CBlockData" && first.Value is not null)
-                        ? $" \"{first.Value}\"" : "";
+        string value = effVal is not null ? $" \"{effVal}\"" : "";
         string label = $"{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
-
         string linePrefix = first.IsBlockObject
             ? (count > 1
-                ? $"{blockSeq + 1}-{blockSeq + count}/{runTotal[i]}: "
-                : $"{blockSeq + 1}/{runTotal[i]}: ")
+                ? $"{first.BlockObjectIdx}-{(first.BlockObjectIdx ?? 0) + count - 1}/{runTotal[i]}: "
+                : $"{first.BlockObjectIdx}/{runTotal[i]}: ")
             : "";
-
         writer.WriteLine($"{indent}{linePrefix}{label}");
-
-        // Recurse into the first entry's children (representative for collapsed groups)
         if (childrenOf.ContainsKey(first.ObjIdx))
             WriteTreeLevel(writer, childrenOf, byObjIdx, first.ObjIdx, depth + 1);
-
-        if (first.IsBlockObject) blockSeq += count;
         i += count;
     }
 }
