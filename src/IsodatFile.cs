@@ -90,6 +90,10 @@ public sealed class IsodatFile : IDisposable
         {
             // cached object that has a long from ID (>32,767), doubt this will ever happen
             int packed = _reader.ReadInt32();
+            if ((packed & unchecked((int)0x8000_0000)) == 0)
+                throw new InvalidDataException(
+                    $"expected class reference with high-bit flag set, " +
+                    $"but raw value 0x{packed:x8} has bit 31 clear — likely stream misalignment");
             int classIdx = packed & 0x7FFF_FFFF;
             if (!_classRegistry.TryGetValue(classIdx, out var entry))
                 throw new InvalidDataException(
@@ -104,6 +108,10 @@ public sealed class IsodatFile : IDisposable
         {
             // cached object with short form ID <= 32767
             int packed = b0 | (b1 << 8);
+            if ((packed & 0x8000) == 0)
+                throw new InvalidDataException(
+                    $"expected class reference with high-bit flag set, " +
+                    $"but raw value 0x{packed:x4} has bit 15 clear — likely stream misalignment");
             int classIdx = packed & 0x7FFF;
             if (!_classRegistry.TryGetValue(classIdx, out var entry))
                 throw new InvalidDataException(
