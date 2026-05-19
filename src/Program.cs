@@ -84,11 +84,11 @@ Parallel.ForEach(files, inputArg =>
         switch (ext)
         {
             case ".dxf":
-                ReadInto("file_header", "CFileHeader");
-                ReadInto("continious_flow_block_data", "CContiniousFlowBlockData");
+                ReadInto("CFileHeader", "CFileHeader");
+                ReadInto("CContiniousFlowBlockData", "CContiniousFlowBlockData");
                 break;
             case ".scn":
-                ReadInto("scan_storage", "CScanStorage");
+                ReadInto("CScanStorage", "CScanStorage");
                 break;
             default:
                 root["error"] = $"Unsupported file extension '{ext}'";

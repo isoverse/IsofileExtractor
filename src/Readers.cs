@@ -31,20 +31,7 @@ static class Readers
         if (PartialStack.Count > 0) { PartialStack.Pop(); PartialStack.Push(jo); }
     }
 
-    // Converts a C++ class name to a JSON key: strips leading 'C', snake_cases the rest.
-    // "CMethod" → "method", "CGasConfiguration" → "gas_configuration"
-    static string ClassToJsonKey(string className)
-    {
-        ReadOnlySpan<char> name = (className.Length > 1 && className[0] == 'C' && char.IsUpper(className[1]))
-            ? className.AsSpan(1) : className.AsSpan();
-        var sb = new System.Text.StringBuilder(name.Length + 4);
-        foreach (char c in name)
-        {
-            if (sb.Length > 0 && char.IsUpper(c)) sb.Append('_');
-            sb.Append(char.ToLower(c));
-        }
-        return sb.ToString();
-    }
+    static string ClassToJsonKey(string className) => className;
 
     // =======================================================================
     // Registry: class name → reader function
@@ -448,28 +435,7 @@ static class Readers
                 $"Expected CBlockData value '{expected}', got '{actual}'");
     }
 
-    // CClassName  → class_name (strip leading 'C' prefix, PascalCase/acronym → snake_case)
-    static string ToSnakeKey(string className)
-    {
-        string name = className.Length > 1 && className[0] == 'C' && char.IsUpper(className[1])
-                      ? className[1..] : className;
-        var sb = new StringBuilder();
-        for (int i = 0; i < name.Length; i++)
-        {
-            char c = name[i];
-            if (char.IsUpper(c))
-            {
-                bool prevLower = i > 0 && char.IsLower(name[i - 1]);
-                bool nextLower = i + 1 < name.Length && char.IsLower(name[i + 1]);
-                bool prevUpper = i > 0 && char.IsUpper(name[i - 1]);
-                if (i > 0 && (prevLower || (nextLower && prevUpper)))
-                    sb.Append('_');
-                sb.Append(char.ToLowerInvariant(c));
-            }
-            else sb.Append(c);
-        }
-        return sb.ToString();
-    }
+    static string ToSnakeKey(string className) => className;
 
     // Add node to the grouped objects dict under its snake_case class key.
     // Single occurrence → direct value.  Multiple → converted to JsonArray.
@@ -536,7 +502,7 @@ static class Readers
 
         if (version >= 4)
         {
-            jo["data_index"] = ReadObject(isofile, "CDataIndex");
+            jo["CDataIndex"] = ReadObject(isofile, "CDataIndex");
         }
 
         if (version >= 5)
@@ -580,8 +546,8 @@ static class Readers
         jo["x98"] = isofile.ReadDouble();
         if (version >= 3)
         {
-            jo["x_a0"] = isofile.ReadDouble();
-            jo["x_a8"] = isofile.ReadDouble();
+            jo["xa0"] = isofile.ReadDouble();
+            jo["xa8"] = isofile.ReadDouble();
         }
         return jo;
     }
@@ -743,7 +709,7 @@ static class Readers
     {
         var jo = new JsonObject();
         jo["x94"] = isofile.ReadInt32();
-        jo["trace_lin_col"] = ReadObject(isofile, "CTraceLinCol");
+        jo["CTraceLinCol"] = ReadObject(isofile, "CTraceLinCol");
         return jo;
     }
 
@@ -888,12 +854,12 @@ static class Readers
             ReadBlockDataObject(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
         jo["v"] = version;
-        jo["x_a8"] = isofile.ReadUInt8();
-        jo["x_ac"] = isofile.ReadMfcString();
-        jo["x_b0"] = isofile.ReadTimestamp();
+        jo["xa8"] = isofile.ReadUInt8();
+        jo["xac"] = isofile.ReadMfcString();
+        jo["xb0"] = isofile.ReadTimestamp();
         if (version < 5) isofile.ReadDouble(); // legacy
-        jo["x_bc"] = isofile.ReadInt32();
-        if (version >= 3) jo["x_c0"] = isofile.ReadUInt8();
+        jo["xbc"] = isofile.ReadInt32();
+        if (version >= 3) jo["xc0"] = isofile.ReadUInt8();
         if (version >= 4)
         {
             var splines = new JsonArray();
@@ -925,9 +891,9 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CVisualisationData", 8);
         jo["v"] = version;
 
-        jo["x_a8"] = ReadIntArray(isofile, 4);
-        jo["x_b8"] = ReadIntArray(isofile, 10);
-        jo["x_e0"] = ReadIntArray(isofile, 10);
+        jo["xa8"] = ReadIntArray(isofile, 4);
+        jo["xb8"] = ReadIntArray(isofile, 10);
+        jo["xe0"] = ReadIntArray(isofile, 10);
 
         if (version >= 2)
         {
@@ -1035,7 +1001,7 @@ static class Readers
         jo["x110"] = isofile.ReadInt32();
         jo["x114"] = isofile.ReadInt32();
         jo["x118"] = isofile.ReadInt32();
-        jo["view_colors"] = ReadObject(isofile, "CViewColors");
+        jo["CViewColors"] = ReadObject(isofile, "CViewColors");
         if (version == 2)
         {
             isofile.AddWarning("CWinSettings v2: reading legacy object (untested)");
@@ -1070,12 +1036,12 @@ static class Readers
             ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CGasSettings", 5);
         jo["v"] = version;
-        jo["pk_data_item_list"] = ReadObject(isofile, "CPkDataItemList");
+        jo["CPkDataItemList"] = ReadObject(isofile, "CPkDataItemList");
         if (version >= 2) jo["gas"] = isofile.ReadMfcString();
         if (version >= 3)
         {
             int hasShrink = isofile.ReadInt32();
-            if (hasShrink != 0) jo["shrink_info"] = ReadObject(isofile, "CShrinkInfo");
+            if (hasShrink != 0) jo["CShrinkInfo"] = ReadObject(isofile, "CShrinkInfo");
         }
         if (version >= 4) jo["eval_list"] = isofile.ReadMfcString();
         if (version >= 5) jo["ampere_calc_flag"] = isofile.ReadInt32();
@@ -1122,7 +1088,7 @@ static class Readers
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
         jo["v"] = version;
-        jo["configuration"] = ReadObject(isofile, "CConfiguration");
+        jo["CConfiguration"] = ReadObject(isofile, "CConfiguration");
         jo["x9c"] = isofile.ReadMfcString();
         jo["xa0"] = isofile.ReadMfcString();
         jo["xa4"] = isofile.ReadMfcString();
@@ -1224,7 +1190,7 @@ static class Readers
         jo["parent"] = block;
         int version = isofile.ReadSchemaVersion("CActionScript", 5);
         jo["v"] = version;
-        if (version >= 3) jo["application_data"] = ReadObject(isofile, "CApplicationData");
+        if (version >= 3) jo["CApplicationData"] = ReadObject(isofile, "CApplicationData");
         if (version >= 4) jo["x168"] = isofile.ReadUInt32();
         if (version >= 5) { jo["x1c0"] = isofile.ReadMfcString(); jo["x1c4"] = isofile.ReadUInt32(); }
         return jo;
@@ -1354,7 +1320,7 @@ static class Readers
         var jo = new JsonObject();
         jo["p_iso_gc_eval_data"] = ReadIsoGCEvalData(isofile);
         jo["v"] = isofile.ReadSchemaVersion("CGCData", 1);
-        jo["eval_gc_data"] = ReadObject(isofile, "CEvalGCData");
+        jo["CEvalGCData"] = ReadObject(isofile, "CEvalGCData");
         return jo;
     }
 
@@ -1373,10 +1339,10 @@ static class Readers
         jo["n_masses"] = nMasses;
         if (nMasses > 0) jo["masses"] = ReadIntArray(isofile, nMasses);
 
-        jo["all_molecule_weights"] = ReadObject(isofile, "CAllMoleculeWeights");
+        jo["CAllMoleculeWeights"] = ReadObject(isofile, "CAllMoleculeWeights");
 
         if (version > 2) jo["x1048"] = isofile.ReadInt32();
-        if (version > 3) jo["string_array"] = ReadObject(isofile, "CStringArray");
+        if (version > 3) jo["CStringArray"] = ReadObject(isofile, "CStringArray");
         if (version > 4)
         {
             jo["xf88"] = isofile.ReadInt32();
@@ -1629,7 +1595,7 @@ static class Readers
             jo["xb8"] = isofile.ReadBool32();
             if (version >= 7)
             {
-                jo["visualisation_data"] = ReadObject(isofile, "CVisualisationData");
+                jo["CVisualisationData"] = ReadObject(isofile, "CVisualisationData");
                 jo["xc8"] = isofile.ReadDouble();
                 jo["xbc"] = isofile.ReadInt32();
                 if (version >= 9)
@@ -1817,13 +1783,13 @@ static class Readers
         jo["x_label"] = isofile.ReadMfcString();
         jo["y_label"] = isofile.ReadMfcString();
         jo["trace"] = isofile.ReadMfcString();
-        jo["trace_info"] = ReadObject(isofile, "CTraceInfo");
+        jo["CTraceInfo"] = ReadObject(isofile, "CTraceInfo");
         jo["plot_range"] = ReadObject(isofile, "CPlotRange");
         jo["plot_range_zoom"] = ReadObject(isofile, "CPlotRange");
         if (version > 1) { jo["x08"] = isofile.ReadInt32(); jo["x0c"] = isofile.ReadInt32(); }
         jo["plot_range_zoom2"] = ReadCPlotRange(isofile);
         jo["plot_range2"] = ReadCPlotRange(isofile);
-        int nTraces = jo["trace_info"]?["n_traces"]?.GetValue<int>() ?? 0;
+        int nTraces = jo["CTraceInfo"]?["n_traces"]?.GetValue<int>() ?? 0;
         if (nTraces > 0)
         {
             var labels = new JsonArray();
@@ -1958,7 +1924,7 @@ static class Readers
         jo["v"] = isofile.ReadSchemaVersion("CActionSubScript", 3);
         string xb8 = isofile.ReadMfcString();
         jo["xb8"] = xb8;
-        if (xb8 == "") jo["action_script"] = ReadObject(isofile, "CActionScript");
+        if (xb8 == "") jo["CActionScript"] = ReadObject(isofile, "CActionScript");
         return jo;
     }
 
@@ -2029,7 +1995,7 @@ static class Readers
     {
         var jo = new JsonObject();
         jo["parent"] = ReadCEvaluationPart(isofile);
-        jo["component_list"] = ReadObject(isofile, "CComponentList");
+        jo["CComponentList"] = ReadObject(isofile, "CComponentList");
         return jo;
     }
 
@@ -2039,7 +2005,7 @@ static class Readers
     {
         var jo = new JsonObject();
         jo["parent"] = ReadCEvaluationPart(isofile);
-        jo["time_event_list"] = ReadObject(isofile, "CTimeEventList");
+        jo["CTimeEventList"] = ReadObject(isofile, "CTimeEventList");
         return jo;
     }
 
@@ -2253,7 +2219,7 @@ static class Readers
         jo["v"] = version;
         jo["xb0"] = isofile.ReadUInt32();
         jo["xac"] = isofile.ReadUInt8();
-        jo["action_peak_center"] = ReadObject(isofile, "CActionPeakCenter");
+        jo["CActionPeakCenter"] = ReadObject(isofile, "CActionPeakCenter");
         if (version >= 2) jo["xb8"] = isofile.ReadUInt32();
         if (version >= 3) jo["xbc"] = isofile.ReadUInt8();
         return jo;
@@ -2445,7 +2411,7 @@ static class Readers
     {
         var jo = new JsonObject();
         ReadScrBase(isofile, jo);
-        jo["dyn_external"] = ReadObject(isofile, "CDynExternal");
+        jo["CDynExternal"] = ReadObject(isofile, "CDynExternal");
         return jo;
     }
 
@@ -2453,7 +2419,7 @@ static class Readers
     {
         var jo = new JsonObject();
         ReadScrBase(isofile, jo);
-        jo["numeric_value"] = ReadObject(isofile, "CNumericValue");
+        jo["CNumericValue"] = ReadObject(isofile, "CNumericValue");
         return jo;
     }
 
@@ -2478,7 +2444,7 @@ static class Readers
         // 7 descriptor uint16 values
         var desc = new JsonArray();
         for (int i = 0; i < 7; i++) desc.Add(isofile.ReadUInt16());
-        jo["x_desc"] = desc;
+        jo["xdesc"] = desc;
         jo["xf0"] = isofile.ReadMfcString();   // category (e.g. "parameters")
         jo["xf4"] = isofile.ReadMfcString();   // unit (empty)
         jo["xf8"] = isofile.ReadInt32();        // limit (-1)
