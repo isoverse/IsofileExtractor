@@ -367,6 +367,7 @@ static class Readers
             if (n > 0)
             {
                 var sub = new JsonObject();
+                jo["objects"] = sub;
                 for (int i = 0; i < n; i++)
                 {
                     int before = isofile.ObjectLog.Count;
@@ -374,7 +375,6 @@ static class Readers
                     if (child is not null && before < isofile.ObjectLog.Count)
                         AddToObjectsDict(sub, isofile.ObjectLog[before].ClassName, child);
                 }
-                jo["objects"] = sub;
             }
         }
         return node;
@@ -1097,6 +1097,7 @@ static class Readers
         if (nChildren > 0)
         {
             var objects = new JsonObject();
+            block["objects"] = objects;
             for (int ci = 0; ci < nChildren; ci++)
             {
                 int before = isofile.ObjectLog.Count;
@@ -1104,7 +1105,6 @@ static class Readers
                 if (child is not null && before < isofile.ObjectLog.Count)
                     AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
             }
-            block["objects"] = objects;
         }
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
@@ -1257,6 +1257,7 @@ static class Readers
         if (nChildren > 0)
         {
             var objects = new JsonObject();
+            block["objects"] = objects;
             for (int i = 0; i < nChildren; i++)
             {
                 int before = isofile.ObjectLog.Count;
@@ -1264,7 +1265,6 @@ static class Readers
                 if (child is not null && before < isofile.ObjectLog.Count)
                     AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
             }
-            block["objects"] = objects;
         }
         int version = isofile.ReadSchemaVersion("CDevice", 5);
         jo["v"] = version;
@@ -1295,6 +1295,7 @@ static class Readers
         if (nChildren > 0)
         {
             var objects = new JsonObject();
+            block["objects"] = objects;
             for (int i = 0; i < nChildren; i++)
             {
                 int before = isofile.ObjectLog.Count;
@@ -1302,7 +1303,6 @@ static class Readers
                 if (child is not null && before < isofile.ObjectLog.Count)
                     AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
             }
-            block["objects"] = objects;
         }
         int version = isofile.ReadSchemaVersion("CActivePort", 2);
         jo["v"] = version;
@@ -2538,41 +2538,21 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-
-        jo["parent"] = ReadCBlockData(isofile);  // CAcquistionBaseBlockData inline
-
-        jo["measurment_infos"] = Dispatch(isofile, "CMeasurmentInfos");
-        jo["measurment_errors"] = Dispatch(isofile, "CMeasurmentErrors");
-
-        var plotBlock = EnterBlock(isofile, "Plot Settings");
-        plotBlock["objects"] = DispatchGrouped(isofile, NObjects(plotBlock), "CPlotSettings");
-        jo["plot_settings"] = plotBlock;
-        isofile.PopContainer();
-
-        var rawBlock = EnterBlock(isofile, "RawDataBlock");
-        int nRaw = NObjects(rawBlock);
-        rawBlock["objects"] = DispatchGrouped(isofile, nRaw, "CRawData");
-        jo["raw_data"] = rawBlock;
-        isofile.PopContainer();
-
-        var origBlock = EnterBlock(isofile, "OrigDataBlock");
-        origBlock["objects"] = DispatchGrouped(isofile, nRaw, "CRawData");
-        jo["original_data"] = origBlock;
-        isofile.PopContainer();
-
-        var h3Block = EnterBlock(isofile, "Calculated H3 Factor");
-        jo["h3_factor"] = h3Block;
-        isofile.PopContainer();
-
-        var primStdBlock = EnterBlock(isofile, "Prim Std");
-        jo["prim_std"] = primStdBlock;
-        isofile.PopContainer();
-
-        var methodBlock = EnterBlock(isofile, "Method");
-        methodBlock["objects"] = DispatchGrouped(isofile, NObjects(methodBlock), "CMethod");
-        jo["method"] = methodBlock;
-        isofile.PopContainer();
-
+        var parent = ReadCBlockData(isofile);
+        jo["parent"] = parent;
+        int n = NObjects(parent);
+        if (n > 0)
+        {
+            var objects = new JsonObject();
+            parent["objects"] = objects;
+            for (int i = 0; i < n; i++)
+            {
+                int before = isofile.ObjectLog.Count;
+                var child = DispatchFully(isofile);
+                if (child is not null && before < isofile.ObjectLog.Count)
+                    AddToObjectsDict(objects, isofile.ObjectLog[before].ClassName, child);
+            }
+        }
         return jo;
     }
 
