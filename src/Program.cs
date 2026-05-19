@@ -11,17 +11,18 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] <file.dxf|file.scn> [...]");
     return 1;
 }
 
 bool dumpObjects = args.Contains("--objects");
 bool dumpTree    = args.Contains("--tree");
+Readers.Unabridged = args.Contains("--unabridged");
 string[] files   = args.Where(a => !a.StartsWith("--")).ToArray();
 
 if (files.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] <file.dxf|file.scn> [...]");
     return 1;
 }
 
@@ -123,9 +124,9 @@ static void DumpObjects(IsodatFile archive, string inputPath)
 {
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version");
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,value");
     foreach (var e in archive.ObjectLog)
-        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion}");
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},\"{e.Value ?? ""}\"");
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
 }
 
@@ -178,15 +179,20 @@ static void WriteTreeLevel(
     {
         var first = siblings[i];
 
-        // Count consecutive siblings with the same class name and archive version
+        // Count consecutive siblings with the same class name and archive version.
+        // CBlockData entries are only collapsed when their value is also identical.
         int count = 1;
         while (i + count < siblings.Count
-               && siblings[i + count].ClassName       == first.ClassName
-               && siblings[i + count].ArchiveVersion  == first.ArchiveVersion)
+               && siblings[i + count].ClassName      == first.ClassName
+               && siblings[i + count].ArchiveVersion == first.ArchiveVersion
+               && (first.ClassName != "CBlockData"
+                   || siblings[i + count].Value == first.Value))
             count++;
 
         string prefix = count > 1 ? $"{count}x " : "";
-        string label  = $"{prefix}{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}";
+        string value  = (first.ClassName == "CBlockData" && first.Value is not null)
+                        ? $" \"{first.Value}\"" : "";
+        string label  = $"{prefix}{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
 
         writer.WriteLine($"{indent}{label}");
 

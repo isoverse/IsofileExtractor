@@ -24,9 +24,10 @@ public sealed class IsodatParseException : Exception
     private IsodatParseException(IsodatParseException source)
         : base(source.InnerException!.Message, source.InnerException)
     {
-        _path         = new List<(string, long)>(source._path);
-        ErrorPos      = source.ErrorPos;
-        PartialResult = source.PartialResult;
+        _path                  = new List<(string, long)>(source._path);
+        ErrorPos               = source.ErrorPos;
+        PartialResult          = source.PartialResult;
+        PartialResultClassName = source.PartialResultClassName;
     }
 
     /// <summary>Stream position (bytes) at the point the error was thrown.</summary>
@@ -34,6 +35,9 @@ public sealed class IsodatParseException : Exception
 
     /// <summary>Partially-built JSON result from the reader that failed, if available.</summary>
     public JsonNode? PartialResult { get; internal set; }
+
+    /// <summary>Class name of the reader whose partial result is stored in PartialResult.</summary>
+    public string? PartialResultClassName { get; internal set; }
 
     /// <summary>
     /// Returns a new exception with <paramref name="className"/> prepended to

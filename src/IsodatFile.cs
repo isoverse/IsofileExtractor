@@ -119,6 +119,9 @@ public sealed class IsodatFile : IDisposable
     public int ReadSchemaVersion(string className, int maxSupported)
     {
         int v = _reader.ReadInt32();
+        if (v <= 0)
+            throw new InvalidDataException(
+                $"{className} schema version {v} is invalid (stream misaligned?)");
         if (v > maxSupported)
             _warnings.Add(
                 $"{className} schema version v{v} is newer than supported v{maxSupported}; " +
@@ -232,6 +235,8 @@ public sealed class IsodatFile : IDisposable
         Console.Error.WriteLine($"  bytes: {string.Join(" ", bytes.Select(b => b.ToString("x2")))}");
     }
 
+    internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
+
     public void Dispose() => _reader.Dispose();
 }
 
@@ -241,4 +246,7 @@ public record ObjectLogEntry(
     long   Start,
     int?   ContainerObjIdx,
     string ClassName,
-    int    ArchiveVersion);
+    int    ArchiveVersion)
+{
+    public string? Value { get; internal set; }
+}
