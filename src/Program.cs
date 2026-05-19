@@ -55,12 +55,6 @@ Parallel.ForEach(files, inputArg =>
     using var archive = new IsodatFile(stream);
 
     string ext = Path.GetExtension(inputPath).ToLowerInvariant();
-    string? dataClass = ext switch
-    {
-        ".dxf" => "CContiniousFlowBlockData",
-        ".scn" => "CScanStorage",
-        _      => null,
-    };
 
     var meta = new JsonObject
     {
@@ -72,30 +66,38 @@ Parallel.ForEach(files, inputArg =>
     root["meta"] = meta;
 
     Exception? caughtEx = null;
+
+    void DispatchTo(string key, string className)
+    {
+        if (caughtEx is not null) return;
+        try   { root[key] = Readers.Dispatch(archive, className); }
+        catch (IsodatParseException ipe)
+        {
+            if (ipe.PartialResult is not null) root[key] = ipe.PartialResult;
+            caughtEx = ipe;
+        }
+        catch (Exception ex) { caughtEx = ex; }
+    }
+
     try
     {
-        // DXF files have a CFileHeader; SCN files start directly with the data class
-        if (ext == ".dxf")
-            root["file_header"] = Readers.Dispatch(archive, "CFileHeader");
-
-        try
+        switch (ext)
         {
-            if (dataClass is not null)
-                root["data"] = Readers.Dispatch(archive, dataClass);
-            else
-                root["data"] = new JsonObject { ["error"] = $"Unsupported file extension '{ext}'" };
-        }
-        catch (EndOfStreamException)
-        {
-            // Some files contain only a file header
+            case ".dxf":
+                DispatchTo("file_header", "CFileHeader");
+                DispatchTo("continious_flow_block_data", "CContiniousFlowBlockData");
+                break;
+            case ".scn":
+                DispatchTo("scan_storage", "CScanStorage");
+                break;
+            default:
+                root["error"] = $"Unsupported file extension '{ext}'";
+                break;
         }
     }
-    catch (Exception ex) { caughtEx = ex; }
     finally
     {
         meta["complete"] = caughtEx is null;
-        if (caughtEx is not null && caughtEx is IsodatParseException ipe && ipe.PartialResult is not null)
-            root["data"] = ipe.PartialResult;
         File.WriteAllText(outputPath, root.ToJsonString(options));
         Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
 
