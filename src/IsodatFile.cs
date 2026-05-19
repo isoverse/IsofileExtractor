@@ -30,6 +30,7 @@ public sealed class IsodatFile : IDisposable
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
     private readonly Dictionary<int, int> _blockObjectSeq = new();  // containerObjIdx → next seq
+    private readonly Dictionary<string, int> _schemaVersions = new();  // className → first-seen schema version
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
 
     public IReadOnlyDictionary<int, (string Name, int ArchiveVersion)> ClassRegistry => _classRegistry;
@@ -145,6 +146,17 @@ public sealed class IsodatFile : IDisposable
             _warnings.Add(
                 $"{className} schema version v{v} is newer than supported v{maxSupported}; " +
                 "fields added after that version will not be read");
+        if (_schemaVersions.TryGetValue(className, out int prev))
+        {
+            if (v != prev)
+                throw new InvalidDataException(
+                    $"{className} schema version mismatch: first instance had v{prev}, " +
+                    $"this instance has v{v} — stream is likely misaligned");
+        }
+        else
+        {
+            _schemaVersions[className] = v;
+        }
         return v;
     }
 
