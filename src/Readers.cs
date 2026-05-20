@@ -2132,7 +2132,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
         jo["n_actions"] = n;
-        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
+        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, groupTag: 1, groupDeclaredSize: n);
         if (version >= 2) jo["xdc"] = isofile.ReadUInt32();
         if (version >= 3) jo["xe8"] = isofile.ReadUInt32();
         return jo;
@@ -2386,7 +2386,7 @@ static class Readers
         else
         {
             int n = isofile.ReadInt32();
-            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
+            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, groupTag: 1, groupDeclaredSize: n);
         }
     }
 
@@ -2494,7 +2494,7 @@ static class Readers
         else
         {
             int n = isofile.ReadInt32();
-            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
+            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, groupTag: 1, groupDeclaredSize: n);
         }
     }
 
