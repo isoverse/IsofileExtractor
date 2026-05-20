@@ -291,7 +291,7 @@ static class Readers
             popped = true;
             var partial = PartialStack.Pop();
             // Embed inner partial into outer so the tree is as deep as possible.
-            // ipe.PartialResult is null when ReadBlockDataObject already placed it in an objects
+            // ipe.PartialResult is null when ReadObjectInto already placed it in an objects
             // dict (it nulls the field before rethrowing to prevent a second-parent violation).
             if (partial is not null && ipe.PartialResult is not null && ipe.PartialResultClassName is not null)
                 partial[ClassToJsonKey(ipe.PartialResultClassName)] = ipe.PartialResult;
@@ -347,7 +347,7 @@ static class Readers
     // dict before rethrowing; if sub-child expansion fails the already-read child is added
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     // IsBlockObject is set in a finally block so it is always recorded even on parse errors.
-    static void ReadBlockDataObject(JsonObject objects, IsodatFile isofile,
+    static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null)
     {
         int before = isofile.ObjectLog.Count;
@@ -365,7 +365,7 @@ static class Readers
                 // ReadObject failed but captured a partial result; add it so it appears in output.
                 // Null out PartialResult so outer ReadObject frames don't try to embed this node
                 // again — it already has a parent from AddToObjectsDict.
-                AddToObjectsDict(objects,
+                AddToObjectsDict(container,
                     ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial);
                 ipe.PartialResult = null;
                 ipe.PartialResultClassName = null;
@@ -374,7 +374,7 @@ static class Readers
 
             // Add child immediately so it appears in output even if sub-child expansion fails.
             // Sub-children populate child["objects"] in-place, so the dict entry stays current.
-            AddToObjectsDict(objects, childClassName, child);
+            AddToObjectsDict(container, childClassName, child);
 
             int n = NObjects(child);
             if (n > 0)
@@ -382,9 +382,9 @@ static class Readers
                 isofile.PushContainer(isofile.ObjectLog[before].ObjIdx);
                 try
                 {
-                    var childObjects = child["objects"]!.AsObject();
+                    var childContainer = child["objects"]!.AsObject();
                     for (int i = 0; i < n; i++)
-                        ReadBlockDataObject(childObjects, isofile);
+                        ReadObjectInto(childContainer, isofile);
                 }
                 finally
                 {
@@ -396,28 +396,6 @@ static class Readers
         {
             if (before < isofile.ObjectLog.Count)
                 isofile.SetObjectLogIsBlockObject(before);
-        }
-    }
-
-    // Read N objects and collect into JsonArray
-    // Pre-assigns jo[key] = new JsonArray() before the loop so the array appears in partial output
-    // even when reading stops on an error mid-way through. Partial results from failed elements
-    // are embedded in the array (like ReadBlockDataObject) before the exception is rethrown.
-    static void ReadNObjectsInto(JsonObject jo, string key, IsodatFile isofile, int n,
-                                  string? expected = null, string? pattern = null)
-    {
-        var arr = new JsonArray();
-        jo[key] = arr;
-        for (int i = 0; i < n; i++)
-        {
-            try { arr.Add(ReadObject(isofile, expected, pattern)); }
-            catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
-            {
-                arr.Add(partial);
-                ipe.PartialResult = null;
-                ipe.PartialResultClassName = null;
-                throw;
-            }
         }
     }
 
@@ -437,7 +415,7 @@ static class Readers
     }
 
     // Action/fill overload: for parent readers that may internally null ipe.PartialResult
-    // (i.e., those with ReadBlockDataObject or ReadNObjectsInto loops).
+    // (i.e., those with ReadObjectInto loops).
     // Pre-assigns jo["parent"] = new JsonObject() before calling fill so any data written
     // to parent during fill is preserved even when fill throws with ipe.PartialResult = null.
     static void ReadParent(JsonObject jo, IsodatFile isofile, Action<IsodatFile, JsonObject> fill)
@@ -538,9 +516,9 @@ static class Readers
             var block = ReadCBlockData(isofile);
             jo["parent"] = block;
             ValidateBlockNObjects(block, 2);
-            var objects = block["objects"]!.AsObject();
-            ReadBlockDataObject(objects, isofile, "CTimeObject");
-            ReadBlockDataObject(objects, isofile, "CStr");
+            var container = block["objects"]!.AsObject();
+            ReadObjectInto(container, isofile, "CTimeObject");
+            ReadObjectInto(container, isofile, "CStr");
         }
 
         if (version >= 4)
@@ -733,7 +711,7 @@ static class Readers
         var block = ReadObject(isofile, "CBlockData");
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile, "CTraceLinCol");
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CTraceLinCol");
         return jo;
     }
 
@@ -931,7 +909,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
         if (Unabridged) jo["version"] = version;
         jo["xa8"] = isofile.ReadUInt8();
@@ -1014,7 +992,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CGasConfiguration", 3);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["timestamp"] = isofile.ReadTimestamp();
@@ -1028,7 +1006,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
     }
@@ -1040,7 +1018,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
     }
@@ -1052,7 +1030,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPlotSettings", 5);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) { jo["xb0"] = isofile.ReadMfcString(); jo["configuration_name"] = isofile.ReadMfcString(); }
@@ -1069,7 +1047,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CWinSettings", 4);
         if (Unabridged) jo["version"] = version;
         jo["min_val_a"] = isofile.ReadDouble();
@@ -1105,7 +1083,7 @@ static class Readers
         jo["parent"] = block;
         ValidateBlockNObjects(block, 3);
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         jo["xa8"] = isofile.ReadColor();
         jo["xac"] = isofile.ReadColor();
         jo["xb0"] = isofile.ReadColor();
@@ -1121,7 +1099,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CGasSettings", 5);
         if (Unabridged) jo["version"] = version;
         jo["CPkDataItemList"] = ReadObject(isofile, "CPkDataItemList");
@@ -1143,7 +1121,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPkDataItemList", 1);
         if (Unabridged) jo["version"] = version;
         jo["xa8"] = isofile.ReadInt32();
@@ -1175,7 +1153,7 @@ static class Readers
         jo["parent"] = block;
         var methodBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(methodBlockObjects, isofile);
+            ReadObjectInto(methodBlockObjects, isofile);
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
         if (Unabridged) jo["version"] = version;
@@ -1187,14 +1165,14 @@ static class Readers
         // N CDeviceMethodPart objects (polymorphic — concrete subclass in stream)
         int nDeviceParts = isofile.ReadInt32();
         jo["n_device_parts"] = nDeviceParts;
-        if (nDeviceParts > 0)
-            ReadNObjectsInto(jo, "device_method_parts", isofile, nDeviceParts, pattern: "DeviceMethodPart");
+        for (int i = 0; i < nDeviceParts; i++)
+            ReadObjectInto(jo, isofile, pattern: "DeviceMethodPart");
 
         if (version >= 2)
         {
             int nEvalParts = isofile.ReadInt32();
-            if (nEvalParts > 0)
-                ReadNObjectsInto(jo, "device_eval_parts", isofile, nEvalParts, pattern: "DeviceEvaluationPart");
+            for (int i = 0; i < nEvalParts; i++)
+                ReadObjectInto(jo, isofile, pattern: "DeviceEvaluationPart");
         }
 
         if (version >= 3) jo["acq_type"] = isofile.ReadInt32();
@@ -1203,8 +1181,8 @@ static class Readers
         if (version >= 5)
         {
             int nSubMethods = isofile.ReadInt32();
-            if (nSubMethods > 0)
-                ReadNObjectsInto(jo, "CMethod", isofile, nSubMethods, "CMethod");
+            for (int i = 0; i < nSubMethods; i++)
+                ReadObjectInto(jo, isofile, "CMethod");
         }
 
         if (version >= 6) jo["xd0"] = isofile.ReadMfcString();
@@ -1222,7 +1200,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CConfiguration", 7);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["xa8"] = isofile.ReadInt32();
@@ -1240,7 +1218,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CComponentList", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1254,7 +1232,7 @@ static class Readers
         jo["parent"] = block;
         // children are CParsedEvaluationString objects
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CParsedEvaluationStringArray", 4);
         if (Unabridged) jo["version"] = version;
         jo["xa8"] = isofile.ReadMfcString();
@@ -1271,7 +1249,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CResultArray", 2);
         if (Unabridged) jo["version"] = version;
         jo["xa8"] = isofile.ReadUInt32();
@@ -1286,7 +1264,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CActionScript", 5);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["CApplicationData"] = ReadObject(isofile, "CApplicationData");
@@ -1314,7 +1292,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32();  // constant 1, discarded on load (no schema version in Serialize)
         return jo;
     }
@@ -1326,7 +1304,7 @@ static class Readers
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CEvalDataItemListTransferPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1344,7 +1322,7 @@ static class Readers
         jo["parent"] = block;
         var deviceBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(deviceBlockObjects, isofile);
+            ReadObjectInto(deviceBlockObjects, isofile);
         int version = isofile.ReadSchemaVersion("CDevice", 5);
         if (Unabridged) jo["version"] = version;
         jo["xac"] = isofile.ReadUInt32();
@@ -1394,7 +1372,7 @@ static class Readers
         jo["parent"] = block;
         var portBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(portBlockObjects, isofile);
+            ReadObjectInto(portBlockObjects, isofile);
         int version = isofile.ReadSchemaVersion("CActivePort", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) jo["xa8"] = isofile.ReadMfcString();
@@ -1613,7 +1591,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadUInt8();
         jo["n_configs"] = n;
-        if (n > 0) ReadNObjectsInto(jo, "CChannelGasConfPart", isofile, n, "CChannelGasConfPart");
+        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, "CChannelGasConfPart");
         return jo;
     }
 
@@ -1891,10 +1869,10 @@ static class Readers
         }
         int nCups = isofile.ReadUInt8();
         jo["n_cups"] = nCups;
-        if (nCups > 0) ReadNObjectsInto(jo, "CCupHardwarePart", isofile, nCups, "CCupHardwarePart");
+        for (int i = 0; i < nCups; i++) ReadObjectInto(jo, isofile, "CCupHardwarePart");
         int nChan = isofile.ReadUInt8();
         jo["n_channels"] = nChan;
-        if (nChan > 0) ReadNObjectsInto(jo, "CChannelHardwarePart", isofile, nChan, "CChannelHardwarePart");
+        for (int i = 0; i < nChan; i++) ReadObjectInto(jo, isofile, "CChannelHardwarePart");
         if (version >= 3) { jo["x1a8"] = isofile.ReadBool32(); jo["x1ac"] = isofile.ReadBool32(); }
         return jo;
     }
@@ -1980,7 +1958,7 @@ static class Readers
         jo["x04"] = isofile.ReadInt32();
         int nTraces = isofile.ReadUInt8();
         jo["n_traces"] = nTraces;
-        if (nTraces > 0) ReadNObjectsInto(jo, "CTraceInfoEntry", isofile, nTraces, "CTraceInfoEntry");
+        for (int i = 0; i < nTraces; i++) ReadObjectInto(jo, isofile, "CTraceInfoEntry");
         jo["n_traces"] = isofile.ReadUInt8();  // read again
         if (nTraces > 0)
         {
@@ -2154,7 +2132,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
         jo["n_actions"] = n;
-        if (n > 0) ReadNObjectsInto(jo, "actions", isofile, n); // polymorphic without common naming pattern
+        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
         if (version >= 2) jo["xdc"] = isofile.ReadUInt32();
         if (version >= 3) jo["xe8"] = isofile.ReadUInt32();
         return jo;
@@ -2403,12 +2381,12 @@ static class Readers
             var inner = ReadObject(isofile, "CBlockData");
             jo["parent"] = inner;
             for (int i = 0; i < NObjects(inner); i++)
-                ReadBlockDataObject(inner["objects"]!.AsObject(), isofile);
+                ReadObjectInto(inner["objects"]!.AsObject(), isofile);
         }
         else
         {
             int n = isofile.ReadInt32();
-            if (n > 0) ReadNObjectsInto(jo, "method_parts", isofile, n);
+            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
         }
     }
 
@@ -2511,12 +2489,12 @@ static class Readers
             var inner = ReadObject(isofile, "CBlockData");
             jo["parent"] = inner;
             for (int i = 0; i < NObjects(inner); i++)
-                ReadBlockDataObject(inner["objects"]!.AsObject(), isofile);
+                ReadObjectInto(inner["objects"]!.AsObject(), isofile);
         }
         else
         {
             int n = isofile.ReadInt32();
-            if (n > 0) ReadNObjectsInto(jo, "method_parts", isofile, n);
+            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile);
         }
     }
 
@@ -2762,7 +2740,7 @@ static class Readers
         jo["parent"] = block;
         var cfBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
-            ReadBlockDataObject(cfBlockObjects, isofile);
+            ReadObjectInto(cfBlockObjects, isofile);
         return jo;
     }
 
