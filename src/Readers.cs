@@ -110,8 +110,8 @@ static class Readers
             ["CGenericGcDevice"] = ReadCGenericGcDevice,
             ["CFlashEA_Device"] = ReadCFlashEA_Device,
             ["CConFloDevice"] = ReadCConFloDevice,
-            ["CMultiReferenceDevice"] = ReadCActiveDevice,
-            ["CUserDevice"] = ReadCActiveDevice,
+            ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
+            ["CUserDevice"] = ReadCBufferedRefillDevice,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -1273,6 +1273,15 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CActiveDevice", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) jo["xec"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CBufferedRefillDevice::Serialize = CActiveDevice::Serialize + one int32 (always written as 1, discarded on read)
+    static JsonObject ReadCBufferedRefillDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        jo["parent"] = ReadCActiveDevice(isofile);
+        jo["xf0"] = isofile.ReadInt32();
         return jo;
     }
 

@@ -92,12 +92,13 @@
 
 ## CData::CBlockData::CDevice (DONE)
 - CActiveDevice (DONE)
+  - CBufferedRefillDevice (DONE)
+    - CMultiReferenceDevice (DONE)
+    - CUserDevice (DONE)
   - CConFloDevice (DONE)
   - CGenericGcDevice (DONE)
     - CFlashEA_Device (DONE)
     - CTraceGcDevice
-  - CMultiReferenceDevice (DONE)
-  - CUserDevice (DONE)
 - CCarbonateDevice
 - CMsDevice (DONE)
 - CSamplerDevice
