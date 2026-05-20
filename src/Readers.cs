@@ -135,6 +135,7 @@ static class Readers
             ["CTransferPart"] = ReadCTransferPart,
             ["CAdcTransferPart"] = ReadCAdcTransferPart,
             ["CDioTransferPart"] = ReadCAdcTransferPart,
+            ["CValveTransferPart"] = ReadCAdcTransferPart,
             ["CDacTransferPart"] = ReadCAdcTransferPart,
             ["CBasicHvTransferPart"] = ReadCAdcTransferPart,
             ["CCalculatingDacTransferPart"] = ReadCAdcTransferPart,

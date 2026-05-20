@@ -53,7 +53,7 @@
 
 ## CData::CBlockData (DONE)
 - CActionScript (DONE)
-- CAcquistionBaseBlockData
+- CAcquistionBaseBlockData (DONE)
   - CDualInletBlockData
   - CContiniousFlowBlockData (DONE)
 - CAllMoleculeWeights (DONE)
@@ -115,6 +115,7 @@
 - CTransferPart (DONE)
   - CAdcTransferPart (DONE)
     - CDioTransferPart (DONE)
+      - CValveTransferPart (DONE)
   - CDacTransferPart (DONE)
     - CBasicHvTransferPart (DONE)
       - CCalculatingDacTransferPart (DONE)
