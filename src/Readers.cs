@@ -2364,8 +2364,10 @@ static class Readers
     // CDeviceMethodPart chain
     // =======================================================================
 
-    static void FillCDeviceMethodPart(IsodatFile isofile, JsonObject jo)
+    static JsonObject ReadCDeviceMethodPart(IsodatFile isofile)
     {
+        var jo = new JsonObject();
+        TrackPartial(jo);
         ReadParent(jo, isofile, "CEvaluationPart");
         int version = isofile.ReadSchemaVersion("CDeviceMethodPart", 2);
         if (Unabridged) jo["version"] = version;
@@ -2381,13 +2383,6 @@ static class Readers
             int n = isofile.ReadInt32();
             for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, groupTag: 1, groupDeclaredSize: n);
         }
-    }
-
-    static JsonObject ReadCDeviceMethodPart(IsodatFile isofile)
-    {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        FillCDeviceMethodPart(isofile, jo);
         return jo;
     }
 
@@ -2430,20 +2425,15 @@ static class Readers
         return jo;
     }
 
-    static void FillCGenericGcDeviceMethodPart(IsodatFile isofile, JsonObject jo)
+    static JsonObject ReadCGenericGcDeviceMethodPart(IsodatFile isofile)
     {
+        var jo = new JsonObject();
+        TrackPartial(jo);
         ReadParent(jo, isofile, "CDeviceMethodPart");
         int version = isofile.ReadSchemaVersion("CGenericGcDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         isofile.ReadUInt32(); // discarded
         jo["xb0"] = isofile.ReadUInt32();
-    }
-
-    static JsonObject ReadCGenericGcDeviceMethodPart(IsodatFile isofile)
-    {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        FillCGenericGcDeviceMethodPart(isofile, jo);
         return jo;
     }
 
@@ -2472,8 +2462,10 @@ static class Readers
     // CDeviceEvaluationPart chain
     // =======================================================================
 
-    static void FillCDeviceEvaluationPart(IsodatFile isofile, JsonObject jo)
+    static JsonObject ReadCDeviceEvaluationPart(IsodatFile isofile)
     {
+        var jo = new JsonObject();
+        TrackPartial(jo);
         ReadParent(jo, isofile, "CEvaluationPart");
         int version = isofile.ReadSchemaVersion("CDeviceEvaluationPart", 2);
         if (Unabridged) jo["version"] = version;
@@ -2489,13 +2481,6 @@ static class Readers
             int n = isofile.ReadInt32();
             for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, groupTag: 1, groupDeclaredSize: n);
         }
-    }
-
-    static JsonObject ReadCDeviceEvaluationPart(IsodatFile isofile)
-    {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        FillCDeviceEvaluationPart(isofile, jo);
         return jo;
     }
 
