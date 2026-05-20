@@ -29,7 +29,7 @@ public sealed class IsodatFile : IDisposable
     private readonly List<string> _warnings = new();
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
-    private readonly Dictionary<int, int> _blockObjectSeq = new();  // containerObjIdx → next seq
+    private readonly Dictionary<long, int> _blockObjectSeq = new();  // (containerObjIdx << 16 | groupTag) → next seq
     private readonly Dictionary<string, (int Version, long Pos)> _schemaVersions = new();  // className → first-seen schema version + position
     private readonly Dictionary<string, int> _archiveVersions = new();    // className → CRuntimeClass archive version
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
@@ -158,10 +158,6 @@ public sealed class IsodatFile : IDisposable
         }
         else
         {
-            if (_archiveVersions.TryGetValue(className, out int archv) && v != archv)
-                throw new InvalidDataException(
-                    $"{className} schema version v{v} does not match CRuntimeClass archive version v{archv} " +
-                    $"— stream is likely misaligned");
             _schemaVersions[className] = (v, pos);
         }
         return v;
@@ -274,14 +270,19 @@ public sealed class IsodatFile : IDisposable
     }
 
     internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
-    internal void SetObjectLogIsBlockObject(int index)
+    internal void SetObjectLogIsBlockObject(int index) => SetObjectLogIsGroupObject(index, 0, null);
+
+    internal void SetObjectLogIsGroupObject(int index, int groupTag, int? groupDeclaredSize)
     {
         _objectLog[index].IsBlockObject = true;
-        int key = _objectLog[index].ContainerObjIdx ?? -1;
+        _objectLog[index].GroupTag = groupTag;
+        _objectLog[index].GroupDeclaredSize = groupDeclaredSize;
+        long key = ((long)(_objectLog[index].ContainerObjIdx ?? -1) << 16) | (uint)groupTag;
         _blockObjectSeq.TryGetValue(key, out int seq);
         _objectLog[index].BlockObjectIdx = ++seq;
         _blockObjectSeq[key] = seq;
     }
+
     internal void SetObjectLogNObjects(int index, int n) => _objectLog[index].NObjects = n;
 
     public void Dispose() => _reader.Dispose();
@@ -299,4 +300,6 @@ public record ObjectLogEntry(
     public bool IsBlockObject { get; internal set; }
     public int? BlockObjectIdx { get; internal set; }
     public int? NObjects { get; internal set; }
+    public int GroupTag { get; internal set; }          // 0 = block-data objects; >0 = named group
+    public int? GroupDeclaredSize { get; internal set; } // declared count for GroupTag > 0
 }

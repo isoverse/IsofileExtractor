@@ -127,12 +127,13 @@ static void DumpObjects(IsodatFile archive, string inputPath)
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
     var nObjectsByObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx, e => e.NObjects);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_objects,block_object_idx,block_object_total,value");
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_objects,object_list_idx,object_list_total,value");
     foreach (var e in archive.ObjectLog)
     {
-        int? blockObjectTotal = e.ContainerObjIdx is int cid
-            && nObjectsByObjIdx.TryGetValue(cid, out var pn) ? pn : null;
-        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{blockObjectTotal?.ToString() ?? ""},\"{e.Value ?? ""}\"");
+        int? objectListTotal = e.GroupTag > 0
+            ? e.GroupDeclaredSize
+            : (e.ContainerObjIdx is int cid && nObjectsByObjIdx.TryGetValue(cid, out var pn) ? pn : null);
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{objectListTotal?.ToString() ?? ""},\"{e.Value ?? ""}\"");
     }
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
 }
@@ -191,14 +192,19 @@ static void WriteTreeLevel(
     int? parentNObjects = byObjIdx.TryGetValue(parentObjIdx, out var parentEntry) ? parentEntry.NObjects : null;
 
     // Compute the declared run total for each block-object position.
+    // GroupTag=0 → block-data objects (denominator = parentNObjects).
+    // GroupTag>0 → named group (denominator = GroupDeclaredSize of first entry in run).
+    // Runs break on GroupTag change even within consecutive block objects.
     int[] runTotal = new int[siblings.Count];
     for (int j = 0; j < siblings.Count; j++)
     {
         if (!siblings[j].IsBlockObject) continue;
-        if (j > 0 && siblings[j - 1].IsBlockObject) continue; // already counted
+        if (j > 0 && siblings[j - 1].IsBlockObject && siblings[j - 1].GroupTag == siblings[j].GroupTag) continue;
         int n = 0;
-        while (j + n < siblings.Count && siblings[j + n].IsBlockObject) n++;
-        int declared = parentNObjects ?? n;
+        while (j + n < siblings.Count && siblings[j + n].IsBlockObject && siblings[j + n].GroupTag == siblings[j].GroupTag) n++;
+        int declared = siblings[j].GroupTag == 0
+            ? (parentNObjects ?? n)
+            : (siblings[j].GroupDeclaredSize ?? n);
         for (int k = j; k < j + n; k++) runTotal[k] = declared;
     }
 
@@ -207,7 +213,7 @@ static void WriteTreeLevel(
         var first = siblings[i];
         string? effVal = string.IsNullOrEmpty(first.Value) ? null : first.Value;
 
-        // Collapse consecutive siblings with same class/version/blockness and same effective value.
+        // Collapse consecutive siblings with same class/version/blockness/group and same effective value.
         // Siblings with distinct non-empty values are kept on separate lines.
         int count = 1;
         while (i + count < siblings.Count)
@@ -216,6 +222,7 @@ static void WriteTreeLevel(
             if (next.ClassName != first.ClassName
                 || next.ArchiveVersion != first.ArchiveVersion
                 || next.IsBlockObject != first.IsBlockObject
+                || next.GroupTag != first.GroupTag
                 || (string.IsNullOrEmpty(next.Value) ? null : next.Value) != effVal)
                 break;
             count++;

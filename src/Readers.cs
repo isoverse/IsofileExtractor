@@ -348,7 +348,8 @@ static class Readers
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     // IsBlockObject is set in a finally block so it is always recorded even on parse errors.
     static void ReadObjectInto(JsonObject container, IsodatFile isofile,
-                                    string? expected = null, string? pattern = null)
+                                    string? expected = null, string? pattern = null,
+                                    int groupTag = 0, int? groupDeclaredSize = null)
     {
         int before = isofile.ObjectLog.Count;
         try
@@ -395,7 +396,7 @@ static class Readers
         finally
         {
             if (before < isofile.ObjectLog.Count)
-                isofile.SetObjectLogIsBlockObject(before);
+                isofile.SetObjectLogIsGroupObject(before, groupTag, groupDeclaredSize);
         }
     }
 
@@ -1151,9 +1152,8 @@ static class Readers
         TrackPartial(jo);
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
-        var methodBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
-            ReadObjectInto(methodBlockObjects, isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
         if (Unabridged) jo["version"] = version;
@@ -1166,13 +1166,13 @@ static class Readers
         int nDeviceParts = isofile.ReadInt32();
         jo["n_device_parts"] = nDeviceParts;
         for (int i = 0; i < nDeviceParts; i++)
-            ReadObjectInto(jo, isofile, pattern: "DeviceMethodPart");
+            ReadObjectInto(jo, isofile, pattern: "DeviceMethodPart", groupTag: 1, groupDeclaredSize: nDeviceParts);
 
         if (version >= 2)
         {
             int nEvalParts = isofile.ReadInt32();
             for (int i = 0; i < nEvalParts; i++)
-                ReadObjectInto(jo, isofile, pattern: "DeviceEvaluationPart");
+                ReadObjectInto(jo, isofile, pattern: "DeviceEvaluationPart", groupTag: 2, groupDeclaredSize: nEvalParts);
         }
 
         if (version >= 3) jo["acq_type"] = isofile.ReadInt32();
@@ -1182,7 +1182,7 @@ static class Readers
         {
             int nSubMethods = isofile.ReadInt32();
             for (int i = 0; i < nSubMethods; i++)
-                ReadObjectInto(jo, isofile, "CMethod");
+                ReadObjectInto(jo, isofile, "CMethod", groupTag: 3, groupDeclaredSize: nSubMethods);
         }
 
         if (version >= 6) jo["xd0"] = isofile.ReadMfcString();
@@ -1869,10 +1869,10 @@ static class Readers
         }
         int nCups = isofile.ReadUInt8();
         jo["n_cups"] = nCups;
-        for (int i = 0; i < nCups; i++) ReadObjectInto(jo, isofile, "CCupHardwarePart");
+        for (int i = 0; i < nCups; i++) ReadObjectInto(jo, isofile, "CCupHardwarePart", groupTag: 1, groupDeclaredSize: nCups);
         int nChan = isofile.ReadUInt8();
         jo["n_channels"] = nChan;
-        for (int i = 0; i < nChan; i++) ReadObjectInto(jo, isofile, "CChannelHardwarePart");
+        for (int i = 0; i < nChan; i++) ReadObjectInto(jo, isofile, "CChannelHardwarePart", groupTag: 2, groupDeclaredSize: nChan);
         if (version >= 3) { jo["x1a8"] = isofile.ReadBool32(); jo["x1ac"] = isofile.ReadBool32(); }
         return jo;
     }
@@ -2105,7 +2105,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        isofile.AddWarning("CActionInterpreter: Serialize unknown, returning empty");
+        ReadParent(jo, isofile, ReadCAction);
         return jo;
     }
 
