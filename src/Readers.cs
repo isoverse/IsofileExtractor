@@ -1246,6 +1246,8 @@ static class Readers
         TrackPartial(jo);
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
+        for (int i = 0; i < NObjects(block); i++)
+            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CActionScript", 5);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["CApplicationData"] = ReadObject(isofile, "CApplicationData");
@@ -2073,8 +2075,13 @@ static class Readers
 
     static JsonObject ReadCDelay(IsodatFile isofile)
     {
-        isofile.AddWarning("CDelay: only CAction parent read (stub)");
-        return new JsonObject { ["parent"] = ReadCAction(isofile) };
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        jo["parent"] = ReadCAction(isofile);
+        int version = isofile.ReadSchemaVersion("CCounter", 2);
+        if (Unabridged) jo["version"] = version;
+        jo["counts"] = isofile.ReadInt32();  // CCounter::GetCounts/SetCounts; delay time value for CDelay (DDX_Time)
+        return jo;
     }
 
     static JsonObject ReadCActionInterpreter(IsodatFile isofile)

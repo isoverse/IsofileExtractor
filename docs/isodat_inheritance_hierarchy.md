@@ -45,7 +45,8 @@
 - CActionPeakCenter (DONE)
 - CActionPressAdjust
 - CActionSubScript (DONE)
-- CDelay (DONE, stub)
+- CCounter (DONE)
+  - CDelay (DONE)
 - CMethodSwitcher (DONE)
 - CTimeEventList (DONE)
 
