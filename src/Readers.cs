@@ -2336,10 +2336,10 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         if (version >= 2)
         {
-            var inner = ReadObject(isofile, "CBlockData");
-            jo["parent"] = inner;
-            for (int i = 0; i < NObjects(inner); i++)
-                ReadObjectInto(inner["objects"]!.AsObject(), isofile);
+            var block = ReadObject(isofile, "CBlockData");
+            jo["CBlockData"] = block;
+            for (int i = 0; i < NObjects(block); i++)
+                ReadObjectInto(block["objects"]!.AsObject(), isofile);
         }
         else
         {
@@ -2434,10 +2434,10 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         if (version >= 2)
         {
-            var inner = ReadObject(isofile, "CBlockData");
-            jo["parent"] = inner;
-            for (int i = 0; i < NObjects(inner); i++)
-                ReadObjectInto(inner["objects"]!.AsObject(), isofile);
+            var block = ReadObject(isofile, "CBlockData");
+            jo["CBlockData"] = block;
+            for (int i = 0; i < NObjects(block); i++)
+                ReadObjectInto(block["objects"]!.AsObject(), isofile);
         }
         else
         {
