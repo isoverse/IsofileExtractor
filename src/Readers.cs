@@ -2106,6 +2106,10 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, ReadCAction);
+        // Serialize = CActionCommand::Serialize (inherited via vftable)
+        int version = isofile.ReadSchemaVersion("CActionInterpreter", 1);
+        if (Unabridged) jo["version"] = version;
+        jo["xb4"] = isofile.ReadMfcString();
         return jo;
     }
 

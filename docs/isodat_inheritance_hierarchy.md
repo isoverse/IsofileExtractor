@@ -40,8 +40,9 @@
 
 ## CData::CAction (DONE)
 - CActionBackground
+- CActionCommand (DONE)
+  - CActionInterpreter (DONE)
 - CActionHwTransferContainer (DONE)
-- CActionInterpreter (DONE, stub)
 - CActionPeakCenter (DONE)
 - CActionPressAdjust
 - CActionSubScript (DONE)
