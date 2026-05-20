@@ -401,11 +401,11 @@ static class Readers
         }
     }
 
-    static void ReadParent(JsonObject jo, IsodatFile isofile, string parentClass)
+    static JsonObject ReadParent(JsonObject jo, IsodatFile isofile, string parentClass)
     {
         if (!_registry.TryGetValue(parentClass, out var reader))
             throw new InvalidDataException($"No reader registered for parent class '{parentClass}'");
-        try { jo["parent"] = reader(isofile); }
+        try { var result = reader(isofile); jo["parent"] = result; return result; }
         catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
         {
             jo["parent"] = partial;
@@ -472,19 +472,6 @@ static class Readers
         }
     }
 
-    // Read n objects and collect into a grouped JsonObject dict keyed by snake_case class name.
-
-    // Reads a CBlockData wrapper, validates its label, then pushes the block's
-    // ObjIdx as the active tree container so subsequent reads become its children.
-    // Caller must call isofile.PopContainer() to close the block.
-    static JsonObject EnterBlock(IsodatFile isofile, string expectedLabel)
-    {
-        var block = ReadObject(isofile, "CBlockData");
-        ValidateBlockValue(block, expectedLabel);
-        isofile.PushContainer(isofile.ObjectLog[^1].ObjIdx);
-        return block;
-    }
-
     // =======================================================================
     // CFileHeader
     // =======================================================================
@@ -503,8 +490,7 @@ static class Readers
 
         if (version >= 3)
         {
-            var block = ReadCBlockData(isofile);
-            jo["parent"] = block;
+            var block = ReadParent(jo, isofile, "CBlockData");
             ValidateBlockNObjects(block, 2);
             var container = block["objects"]!.AsObject();
             ReadObjectInto(container, isofile, "CTimeObject");
@@ -693,13 +679,13 @@ static class Readers
         return jo;
     }
 
-    // CWinColor: Serialize does NOT call CData::Serialize; has embedded CBlockData via WriteObject
     static JsonObject ReadCWinColor(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
+        // Serialize does NOT call parent CData::Serialize but has an embedded CBlockData
         var block = ReadObject(isofile, "CBlockData");
-        jo["parent"] = block;
+        jo["CBlockData"] = block;
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, "CTraceLinCol");
         return jo;
@@ -885,10 +871,9 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
+        var block = ReadParent(jo, isofile, "CBlockData");
         ValidateBlockNObjects(block, 0);
         isofile.ReadInt32(); // trailing sentinel (always 1)
-        jo["parent"] = block;
         return jo;
     }
 
@@ -896,8 +881,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
@@ -934,8 +918,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         ValidateBlockNObjects(block, 0);
         int version = isofile.ReadSchemaVersion("CVisualisationData", 8);
         if (Unabridged) jo["version"] = version;
@@ -979,8 +962,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CGasConfiguration", 3);
@@ -993,8 +975,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32(); // trailing sentinel (always 1)
@@ -1005,8 +986,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32(); // trailing sentinel (always 1)
@@ -1017,8 +997,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPlotSettings", 5);
@@ -1034,8 +1013,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CWinSettings", 4);
@@ -1069,8 +1047,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         ValidateBlockNObjects(block, 3);
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
@@ -1086,8 +1063,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CGasSettings", 5);
@@ -1108,8 +1084,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPkDataItemList", 1);
@@ -1122,8 +1097,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         ValidateBlockNObjects(block, 0);
         int version = isofile.ReadSchemaVersion("CAllMoleculeWeights", 2);
         if (Unabridged) jo["version"] = version;
@@ -1139,8 +1113,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
 
@@ -1186,8 +1159,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CConfiguration", 7);
@@ -1204,8 +1176,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CComponentList", 1);
@@ -1217,8 +1188,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         // children are CParsedEvaluationString objects
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
@@ -1235,8 +1205,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CResultArray", 2);
@@ -1250,8 +1219,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CActionScript", 5);
@@ -1267,8 +1235,7 @@ static class Readers
         isofile.AddWarning("CGCPeakList: only CBlockData parent + version read (stub)");
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         int version = isofile.ReadSchemaVersion("CGCPeakList", 6);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1278,8 +1245,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32();  // constant 1, discarded on load (no schema version in Serialize)
@@ -1290,8 +1256,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CEvalDataItemListTransferPart", 1);
@@ -1307,8 +1272,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         var deviceBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(deviceBlockObjects, isofile);
@@ -1357,8 +1321,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile); // CPort = CBlockData
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         var portBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(portBlockObjects, isofile);
@@ -1620,7 +1583,7 @@ static class Readers
         jo["scan_part_1"] = ReadObject(isofile, pattern: "ScanPart");
         jo["scan_part_2"] = ReadObject(isofile, pattern: "ScanPart");
         var block = ReadObject(isofile, "CBlockData");
-        jo["block_data"] = block;
+        jo["CBlockData"] = block;
         ValidateBlockNObjects(block, 0);
         jo["x04"] = isofile.ReadInt32();
         jo["xa4"] = isofile.ReadInt32();
@@ -2714,8 +2677,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        var block = ReadCBlockData(isofile);
-        jo["parent"] = block;
+        var block = ReadParent(jo, isofile, "CBlockData");
         var cfBlockObjects = block["objects"]!.AsObject();
         for (int i = 0; i < NObjects(block); i++)
             ReadObjectInto(cfBlockObjects, isofile);
