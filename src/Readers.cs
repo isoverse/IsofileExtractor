@@ -2395,7 +2395,6 @@ static class Readers
         ReadParent(jo, isofile, "CDeviceMethodPart");
         int version = isofile.ReadSchemaVersion("CGenericGcDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
-        isofile.ReadUInt32(); // discarded
         jo["xb0"] = isofile.ReadUInt32();
         return jo;
     }
