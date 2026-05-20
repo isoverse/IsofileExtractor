@@ -145,10 +145,13 @@ public sealed class IsodatFile : IDisposable
         if (v <= 0)
             throw new InvalidDataException(
                 $"{className} schema version {v} is invalid (stream misaligned?)");
+        if (v > maxSupported + 5)
+            throw new InvalidDataException(
+                $"{className} schema version v{v} is implausibly higher than the supported v{maxSupported} — stream is likely misaligned");
         if (v > maxSupported)
             _warnings.Add(
                 $"{className} schema version v{v} is newer than supported v{maxSupported}; " +
-                "fields added after that version will not be read");
+                "fields added after that version will not be read and may lead to misalignment");
         if (_schemaVersions.TryGetValue(className, out var prev))
         {
             if (v != prev.Version)
