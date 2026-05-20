@@ -1108,6 +1108,7 @@ static class Readers
 
         // N CDeviceMethodPart objects (polymorphic — concrete subclass in stream)
         int nDeviceParts = isofile.ReadInt32();
+        jo["n_device_parts"] = nDeviceParts;
         if (nDeviceParts > 0)
             jo["device_method_parts"] = ReadNObjects(isofile, nDeviceParts, pattern: "DeviceMethodPart");
 
@@ -1226,8 +1227,9 @@ static class Readers
         var jo = new JsonObject();
         var block = ReadCBlockData(isofile);
         jo["parent"] = block;
-        int version = isofile.ReadSchemaVersion("CVisualisationDialogNamesBlockData", 1);
-        if (Unabridged) jo["version"] = version;
+        for (int i = 0; i < NObjects(block); i++)
+            ReadBlockDataObject(block["objects"]!.AsObject(), isofile);
+        isofile.ReadInt32();  // constant 1, discarded on load (no schema version in Serialize)
         return jo;
     }
 
