@@ -400,12 +400,51 @@ static class Readers
     }
 
     // Read N objects and collect into JsonArray
-    static JsonArray ReadNObjects(IsodatFile isofile, int n, string? expected = null, string? pattern = null)
+    // Pre-assigns jo[key] = new JsonArray() before the loop so the array appears in partial output
+    // even when reading stops on an error mid-way through. Partial results from failed elements
+    // are embedded in the array (like ReadBlockDataObject) before the exception is rethrown.
+    static void ReadNObjectsInto(JsonObject jo, string key, IsodatFile isofile, int n,
+                                  string? expected = null, string? pattern = null)
     {
         var arr = new JsonArray();
+        jo[key] = arr;
         for (int i = 0; i < n; i++)
-            arr.Add(ReadObject(isofile, expected, pattern));
-        return arr;
+        {
+            try { arr.Add(ReadObject(isofile, expected, pattern)); }
+            catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
+            {
+                arr.Add(partial);
+                ipe.PartialResult = null;
+                ipe.PartialResultClassName = null;
+                throw;
+            }
+        }
+    }
+
+    // Func overload: for parent readers that propagate ipe.PartialResult correctly on failure.
+    // On success assigns result to jo["parent"]. On failure with a partial captured by an inner
+    // ReadObject frame, assigns that partial to jo["parent"] and nulls it to prevent re-embedding.
+    static void ReadParent(JsonObject jo, IsodatFile isofile, Func<IsodatFile, JsonObject> reader)
+    {
+        try { jo["parent"] = reader(isofile); }
+        catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
+        {
+            jo["parent"] = partial;
+            ipe.PartialResult = null;
+            ipe.PartialResultClassName = null;
+            throw;
+        }
+    }
+
+    // Action/fill overload: for parent readers that may internally null ipe.PartialResult
+    // (i.e., those with ReadBlockDataObject or ReadNObjectsInto loops).
+    // Pre-assigns jo["parent"] = new JsonObject() before calling fill so any data written
+    // to parent during fill is preserved even when fill throws with ipe.PartialResult = null.
+    static void ReadParent(JsonObject jo, IsodatFile isofile, Action<IsodatFile, JsonObject> fill)
+    {
+        var parent = new JsonObject();
+        jo["parent"] = parent;
+        fill(isofile, parent);
     }
 
     // Helper: get n_objects from a CBlockData-like JsonObject
@@ -545,7 +584,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CCalibrationPoint", 3);
         if (Unabridged) jo["version"] = version;
         jo["x94"] = isofile.ReadInt32();
@@ -562,7 +601,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CMolecule", 1);
         if (Unabridged) jo["version"] = version;
         jo["molecule"] = isofile.ReadMfcString();
@@ -573,7 +612,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CTimeObject", 1);
         if (Unabridged) jo["version"] = version;
         jo["datetime"] = isofile.ReadTimestamp();
@@ -584,7 +623,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CISLScriptMessageData", 1);
         if (Unabridged) jo["version"] = version;
         jo["display_text"] = isofile.ReadMfcString();
@@ -601,7 +640,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CComponent", 1);
         if (Unabridged) jo["version"] = version;
         jo["x94"] = isofile.ReadInt32();
@@ -615,7 +654,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CEvalIntegrationUnitHWInfo", 1);
         if (Unabridged) jo["version"] = version;
         jo["mass"] = isofile.ReadDouble();
@@ -656,7 +695,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CEvalDataItemTransferPart", 8);
         if (Unabridged) jo["version"] = version;
         jo["id"] = isofile.ReadMfcString();
@@ -677,7 +716,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataItemTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataItemTransferPart);
         int version = isofile.ReadSchemaVersion("CPeakDataItem", 1);
         if (Unabridged) jo["version"] = version;
         isofile.ReadMfcString(); // ID recomputed at runtime, discard
@@ -740,7 +779,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CH3FactorResult", 4);
         if (Unabridged) jo["version"] = version;
         jo["x98_x9c"] = isofile.ReadDouble();
@@ -755,7 +794,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CApplicationData", 2);
         if (Unabridged) jo["version"] = version;
         jo["x94"] = isofile.ReadUInt32();
@@ -773,7 +812,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CResultForGas", 1);
         if (Unabridged) jo["version"] = version;
         jo["x94"] = isofile.ReadMfcString();
@@ -792,7 +831,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CMRI_DilutionList", 1);
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
@@ -824,7 +863,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCSimple(isofile);
+        ReadParent(jo, isofile, ReadCSimple);
         int version = isofile.ReadSchemaVersion("CStr", 2);
         if (Unabridged) jo["version"] = version;
         jo["value"] = isofile.ReadMfcString();
@@ -835,7 +874,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCSimple(isofile);
+        ReadParent(jo, isofile, ReadCSimple);
         int version = isofile.ReadSchemaVersion("CDword", 2);
         if (Unabridged) jo["version"] = version;
         jo["value"] = isofile.ReadInt32();
@@ -846,7 +885,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCSimple(isofile);
+        ReadParent(jo, isofile, ReadCSimple);
         int version = isofile.ReadSchemaVersion("CBinary", 2);
         if (Unabridged) jo["version"] = version;
         int nBytes = isofile.ReadInt32();
@@ -864,7 +903,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CBlockData", 2);
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
@@ -1149,13 +1188,13 @@ static class Readers
         int nDeviceParts = isofile.ReadInt32();
         jo["n_device_parts"] = nDeviceParts;
         if (nDeviceParts > 0)
-            jo["device_method_parts"] = ReadNObjects(isofile, nDeviceParts, pattern: "DeviceMethodPart");
+            ReadNObjectsInto(jo, "device_method_parts", isofile, nDeviceParts, pattern: "DeviceMethodPart");
 
         if (version >= 2)
         {
             int nEvalParts = isofile.ReadInt32();
             if (nEvalParts > 0)
-                jo["device_eval_parts"] = ReadNObjects(isofile, nEvalParts, pattern: "DeviceEvaluationPart");
+                ReadNObjectsInto(jo, "device_eval_parts", isofile, nEvalParts, pattern: "DeviceEvaluationPart");
         }
 
         if (version >= 3) jo["acq_type"] = isofile.ReadInt32();
@@ -1165,7 +1204,7 @@ static class Readers
         {
             int nSubMethods = isofile.ReadInt32();
             if (nSubMethods > 0)
-                jo["sub_methods"] = ReadNObjects(isofile, nSubMethods, "CMethod");
+                ReadNObjectsInto(jo, "CMethod", isofile, nSubMethods, "CMethod");
         }
 
         if (version >= 6) jo["xd0"] = isofile.ReadMfcString();
@@ -1320,7 +1359,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDevice(isofile);
+        ReadParent(jo, isofile, ReadCDevice);
         int version = isofile.ReadSchemaVersion("CActiveDevice", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) jo["xec"] = isofile.ReadMfcString();
@@ -1332,7 +1371,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCActiveDevice(isofile);
+        ReadParent(jo, isofile, ReadCActiveDevice);
         jo["xf0"] = isofile.ReadInt32();
         return jo;
     }
@@ -1341,7 +1380,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCActiveDevice(isofile);
+        ReadParent(jo, isofile, ReadCActiveDevice);
         int version = isofile.ReadSchemaVersion("CConFloDevice", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1366,7 +1405,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCActiveDevice(isofile);
+        ReadParent(jo, isofile, ReadCActiveDevice);
         int version = isofile.ReadSchemaVersion("CMsDevice", 2);
         if (Unabridged) jo["version"] = version;
         jo["xfc"] = isofile.ReadUInt32();
@@ -1378,7 +1417,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCActiveDevice(isofile);
+        ReadParent(jo, isofile, ReadCActiveDevice);
         int version = isofile.ReadSchemaVersion("CGenericGcDevice", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) jo["xfc"] = isofile.ReadUInt32();
@@ -1389,7 +1428,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCGenericGcDevice(isofile);
+        ReadParent(jo, isofile, ReadCGenericGcDevice);
         int version = isofile.ReadSchemaVersion("CFlashEA_Device", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1403,7 +1442,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("IsoGCEvalData", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1424,7 +1463,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCGCData(isofile);
+        ReadParent(jo, isofile, ReadCGCData);
         int version = isofile.ReadSchemaVersion("CRawData", 5);
         if (Unabridged) jo["version"] = version;
 
@@ -1473,7 +1512,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataStorage(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataStorage);
         int version = isofile.ReadSchemaVersion("CEvalFakeData", 1);
         if (Unabridged) jo["version"] = version;
         jo["n_traces"] = isofile.ReadInt32();
@@ -1484,7 +1523,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalFakeData(isofile);
+        ReadParent(jo, isofile, ReadCEvalFakeData);
         int version = isofile.ReadSchemaVersion("CEvalGCData", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -1498,7 +1537,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CFinniganInterface", 6);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadInt32();
@@ -1516,7 +1555,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CGpibInterface", 3);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadUInt8();
@@ -1533,7 +1572,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CTransferPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadInt32();
@@ -1545,7 +1584,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCTransferPart);
         int version = isofile.ReadSchemaVersion("CAdcTransferPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["raw_value"] = isofile.ReadInt32();
@@ -1556,7 +1595,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAdcTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCAdcTransferPart);
         jo["xa8"] = isofile.ReadBool32();
         return jo;
     }
@@ -1569,12 +1608,12 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CIntegrationUnitGasConfPart", 2);
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadUInt8();
         jo["n_configs"] = n;
-        if (n > 0) jo["channel_gas_conf_part"] = ReadNObjects(isofile, n, "CChannelGasConfPart");
+        if (n > 0) ReadNObjectsInto(jo, "CChannelGasConfPart", isofile, n, "CChannelGasConfPart");
         return jo;
     }
 
@@ -1582,7 +1621,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CChannelGasConfPart", 4);
         if (Unabridged) jo["version"] = version;
         jo["cup"] = isofile.ReadUInt8();
@@ -1608,7 +1647,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CBasicScan", 4);
         if (Unabridged) jo["version"] = version;
         jo["scan_part_1"] = ReadObject(isofile, pattern: "ScanPart");
@@ -1626,7 +1665,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CScanPart", 3);
         if (Unabridged) jo["version"] = version;
         jo["hardware_part"] = ReadObject(isofile, pattern: "HardwarePart");
@@ -1640,7 +1679,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScanPart(isofile);
+        ReadParent(jo, isofile, ReadCScanPart);
         int version = isofile.ReadSchemaVersion("CClockScanPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["scan_time"] = isofile.ReadInt32();
@@ -1651,7 +1690,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScanPart(isofile);
+        ReadParent(jo, isofile, ReadCScanPart);
         int version = isofile.ReadSchemaVersion("CScaleHvScanPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["start"] = isofile.ReadInt32();
@@ -1665,7 +1704,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScanPart(isofile);
+        ReadParent(jo, isofile, ReadCScanPart);
         int version = isofile.ReadSchemaVersion("CMagnetCurrentScanPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["start"] = isofile.ReadInt32();
@@ -1679,7 +1718,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScanPart(isofile);
+        ReadParent(jo, isofile, ReadCScanPart);
         int version = isofile.ReadSchemaVersion("CIntegrationUnitScanPart", 3);
         if (Unabridged) jo["version"] = version;
         jo["xc0"] = isofile.ReadInt32();
@@ -1695,7 +1734,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CHardwarePart", 10);
         if (Unabridged) jo["version"] = version;
         jo["interface"] = ReadObject(isofile, pattern: "Interface");
@@ -1738,7 +1777,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCHardwarePart);
         int version = isofile.ReadSchemaVersion("CCupHardwarePart", 5);
         if (Unabridged) jo["version"] = version;
         jo["mode"] = isofile.ReadUInt8();
@@ -1756,7 +1795,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCHardwarePart);
         int version = isofile.ReadSchemaVersion("CChannelHardwarePart", 2);
         if (Unabridged) jo["version"] = version;
         jo["x120"] = isofile.ReadInt32();
@@ -1768,7 +1807,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCHardwarePart);
         int version = isofile.ReadSchemaVersion("CScaleHardwarePart", 12);
         if (Unabridged) jo["version"] = version;
         jo["units"] = isofile.ReadMfcString();
@@ -1821,7 +1860,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScaleHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCScaleHardwarePart);
         int version = isofile.ReadSchemaVersion("CClockHardwarePart", 2);
         if (Unabridged) jo["version"] = version;
         jo["x190"] = isofile.ReadUInt32();
@@ -1832,7 +1871,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScaleHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCScaleHardwarePart);
         int version = isofile.ReadSchemaVersion("CIntegrationUnitHardwarePart", 3);
         if (Unabridged) jo["version"] = version;
         // Serialization order from R source (offsets are struct layout, not serial order)
@@ -1852,10 +1891,10 @@ static class Readers
         }
         int nCups = isofile.ReadUInt8();
         jo["n_cups"] = nCups;
-        if (nCups > 0) jo["cup_hardware_part"] = ReadNObjects(isofile, nCups, "CCupHardwarePart");
+        if (nCups > 0) ReadNObjectsInto(jo, "CCupHardwarePart", isofile, nCups, "CCupHardwarePart");
         int nChan = isofile.ReadUInt8();
         jo["n_channels"] = nChan;
-        if (nChan > 0) jo["channel_hardware_part"] = ReadNObjects(isofile, nChan, "CChannelHardwarePart");
+        if (nChan > 0) ReadNObjectsInto(jo, "CChannelHardwarePart", isofile, nChan, "CChannelHardwarePart");
         if (version >= 3) { jo["x1a8"] = isofile.ReadBool32(); jo["x1ac"] = isofile.ReadBool32(); }
         return jo;
     }
@@ -1864,7 +1903,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCScaleHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCScaleHardwarePart);
         int version = isofile.ReadSchemaVersion("CDacHardwarePart", 3);
         if (Unabridged) jo["version"] = version;
         jo["x190"] = isofile.ReadUInt8(); jo["x191"] = isofile.ReadUInt8();
@@ -1877,7 +1916,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDacHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCDacHardwarePart);
         int version = isofile.ReadSchemaVersion("CScaleHvHardwarePart", 3);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["x198"] = isofile.ReadDouble();
@@ -1888,7 +1927,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDacHardwarePart(isofile);
+        ReadParent(jo, isofile, ReadCDacHardwarePart);
         int version = isofile.ReadSchemaVersion("CMagnetCurrentHardwarePart", 2);
         if (Unabridged) jo["version"] = version;
         jo["x198"] = isofile.ReadInt32();
@@ -1941,7 +1980,7 @@ static class Readers
         jo["x04"] = isofile.ReadInt32();
         int nTraces = isofile.ReadUInt8();
         jo["n_traces"] = nTraces;
-        if (nTraces > 0) jo["trace_info_entry"] = ReadNObjects(isofile, nTraces, "CTraceInfoEntry");
+        if (nTraces > 0) ReadNObjectsInto(jo, "CTraceInfoEntry", isofile, nTraces, "CTraceInfoEntry");
         jo["n_traces"] = isofile.ReadUInt8();  // read again
         if (nTraces > 0)
         {
@@ -2025,7 +2064,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CAction", 6);
         if (Unabridged) jo["version"] = version;
         if (version >= 3) jo["x94"] = isofile.ReadInt32();
@@ -2039,7 +2078,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CActionPeakCenter", 1);
         if (Unabridged) jo["version"] = version;
         jo["xbc"] = isofile.ReadUInt32();
@@ -2051,7 +2090,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CActionHwTransferContainer", 2);
         if (Unabridged) jo["version"] = version;
         jo["xb8"] = isofile.ReadUInt32();
@@ -2064,7 +2103,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CActionSubScript", 3);
         if (Unabridged) jo["version"] = version;
         string xb8 = isofile.ReadMfcString();
@@ -2077,7 +2116,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CCounter", 2);
         if (Unabridged) jo["version"] = version;
         jo["counts"] = isofile.ReadInt32();  // CCounter::GetCounts/SetCounts; delay time value for CDelay (DDX_Time)
@@ -2086,15 +2125,17 @@ static class Readers
 
     static JsonObject ReadCActionInterpreter(IsodatFile isofile)
     {
+        var jo = new JsonObject();
+        TrackPartial(jo);
         isofile.AddWarning("CActionInterpreter: Serialize unknown, returning empty");
-        return new JsonObject();
+        return jo;
     }
 
     static JsonObject ReadCMethodSwitcher(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CMethodSwitcher", 5);
         if (Unabridged) jo["version"] = version;
         jo["gas_conf_name"] = isofile.ReadMfcString();
@@ -2108,11 +2149,12 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCAction(isofile);
+        ReadParent(jo, isofile, ReadCAction);
         int version = isofile.ReadSchemaVersion("CTimeEventList", 3);
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
-        if (n > 0) jo["actions"] = ReadNObjects(isofile, n); // polymorphic without common naming pattern
+        jo["n_actions"] = n;
+        if (n > 0) ReadNObjectsInto(jo, "actions", isofile, n); // polymorphic without common naming pattern
         if (version >= 2) jo["xdc"] = isofile.ReadUInt32();
         if (version >= 3) jo["xe8"] = isofile.ReadUInt32();
         return jo;
@@ -2126,7 +2168,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CEvaluationPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadMfcString();
@@ -2137,7 +2179,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CMethodPrintoutDesc", 2);
         if (Unabridged) jo["version"] = version;
         jo["xa0"] = isofile.ReadMfcString();
@@ -2150,7 +2192,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         jo["CComponentList"] = ReadObject(isofile, "CComponentList");
         return jo;
     }
@@ -2161,7 +2203,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         jo["CTimeEventList"] = ReadObject(isofile, "CTimeEventList");
         return jo;
     }
@@ -2170,7 +2212,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CContiniousFlowStandardizationMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         jo["xa0"] = isofile.ReadUInt32();
@@ -2186,7 +2228,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CContiniousFlowStandardizationListMethodPart", 9);
         if (Unabridged) jo["version"] = version;
         jo["xac"] = isofile.ReadUInt32();
@@ -2209,7 +2251,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CPrimaryStandardMethodPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["xa0"] = isofile.ReadMfcString();
@@ -2223,7 +2265,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CSecondaryStandardMethodPart", 3);
         if (Unabridged) jo["version"] = version;
         jo["xa0"] = isofile.ReadMfcString();
@@ -2243,7 +2285,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
 
         int v = isofile.ReadSchemaVersion("CConFloMethodPart", 11);
         if (Unabridged) jo["version"] = v;
@@ -2314,7 +2356,7 @@ static class Readers
         isofile.AddWarning("CICA_BasicMethodPart: only CMethodPart parent + version read (stub)");
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CICA_BasicMethodPart", 12);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2330,7 +2372,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCPeakFindMethodPart(isofile);
+        ReadParent(jo, isofile, ReadCPeakFindMethodPart);
         int version = isofile.ReadSchemaVersion("CSimplePeakFindMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         jo["x128"] = isofile.ReadMfcString();
@@ -2341,7 +2383,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCPeakFindParameter(isofile);
+        ReadParent(jo, isofile, ReadCPeakFindParameter);
         int version = isofile.ReadSchemaVersion("CSimplePeakFindParameter", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2351,11 +2393,9 @@ static class Readers
     // CDeviceMethodPart chain
     // =======================================================================
 
-    static JsonObject ReadCDeviceMethodPart(IsodatFile isofile)
+    static void FillCDeviceMethodPart(IsodatFile isofile, JsonObject jo)
     {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CDeviceMethodPart", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2)
@@ -2368,8 +2408,15 @@ static class Readers
         else
         {
             int n = isofile.ReadInt32();
-            if (n > 0) jo["method_parts"] = ReadNObjects(isofile, n);
+            if (n > 0) ReadNObjectsInto(jo, "method_parts", isofile, n);
         }
+    }
+
+    static JsonObject ReadCDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        FillCDeviceMethodPart(isofile, jo);
         return jo;
     }
 
@@ -2377,7 +2424,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CConFloDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2387,7 +2434,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CMsDeviceMethodPart", 3);
         if (Unabridged) jo["version"] = version;
         jo["xb0"] = isofile.ReadUInt32();
@@ -2402,7 +2449,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CStandardDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         jo["xac"] = isofile.ReadMfcString();
@@ -2412,15 +2459,20 @@ static class Readers
         return jo;
     }
 
-    static JsonObject ReadCGenericGcDeviceMethodPart(IsodatFile isofile)
+    static void FillCGenericGcDeviceMethodPart(IsodatFile isofile, JsonObject jo)
     {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        jo["parent"] = ReadCDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CGenericGcDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         isofile.ReadUInt32(); // discarded
         jo["xb0"] = isofile.ReadUInt32();
+    }
+
+    static JsonObject ReadCGenericGcDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        FillCGenericGcDeviceMethodPart(isofile, jo);
         return jo;
     }
 
@@ -2428,7 +2480,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCGenericGcDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCGenericGcDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CFlashEA_DeviceMethodPart", 2);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2439,7 +2491,7 @@ static class Readers
         isofile.AddWarning("CMultiReferenceDeviceMethodPart: only CDeviceMethodPart parent + version read (stub)");
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceMethodPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceMethodPart);
         int version = isofile.ReadSchemaVersion("CMultiReferenceDeviceMethodPart", 7);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2449,11 +2501,9 @@ static class Readers
     // CDeviceEvaluationPart chain
     // =======================================================================
 
-    static JsonObject ReadCDeviceEvaluationPart(IsodatFile isofile)
+    static void FillCDeviceEvaluationPart(IsodatFile isofile, JsonObject jo)
     {
-        var jo = new JsonObject();
-        TrackPartial(jo);
-        jo["parent"] = ReadCEvaluationPart(isofile);
+        ReadParent(jo, isofile, ReadCEvaluationPart);
         int version = isofile.ReadSchemaVersion("CDeviceEvaluationPart", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2)
@@ -2466,8 +2516,15 @@ static class Readers
         else
         {
             int n = isofile.ReadInt32();
-            if (n > 0) jo["method_parts"] = ReadNObjects(isofile, n);
+            if (n > 0) ReadNObjectsInto(jo, "method_parts", isofile, n);
         }
+    }
+
+    static JsonObject ReadCDeviceEvaluationPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        FillCDeviceEvaluationPart(isofile, jo);
         return jo;
     }
 
@@ -2475,7 +2532,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceEvaluationPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceEvaluationPart);
         int version = isofile.ReadSchemaVersion("CConFloDeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2485,7 +2542,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceEvaluationPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceEvaluationPart);
         int version = isofile.ReadSchemaVersion("CMsDeviceEvaluationPart", 2);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2495,7 +2552,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCDeviceEvaluationPart(isofile);
+        ReadParent(jo, isofile, FillCDeviceEvaluationPart);
         int version = isofile.ReadSchemaVersion("CFlashEA_DeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2509,7 +2566,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataItemTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataItemTransferPart);
         int version = isofile.ReadSchemaVersion("CEvalDataTransferPart", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 1)
@@ -2525,7 +2582,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataTransferPart);
         int version = isofile.ReadSchemaVersion("CEvalDataDWORDTransferPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
@@ -2535,7 +2592,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataDWORDTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataDWORDTransferPart);
         int version = isofile.ReadSchemaVersion("CEvalDataSecStdTransferPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["standard_name"] = isofile.ReadMfcString();
@@ -2551,7 +2608,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCEvalDataTransferPart(isofile);
+        ReadParent(jo, isofile, ReadCEvalDataTransferPart);
         int version = isofile.ReadSchemaVersion("CEvalDataStringTransferPart", 1);
         if (Unabridged) jo["version"] = version;
         long n = isofile.ReadUInt32();
@@ -2589,7 +2646,7 @@ static class Readers
     // Helper: shared header common to CScrHeadLine and CScrNumber
     static void ReadScrBase(IsodatFile isofile, JsonObject jo)
     {
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CScrBase", 2);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadMfcString();   // headline / description
@@ -2628,7 +2685,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["parent"] = ReadCData(isofile);
+        ReadParent(jo, isofile, ReadCData);
         int version = isofile.ReadSchemaVersion("CDynExternal", 4);
         if (Unabridged) jo["version"] = version;
         jo["x9c"] = isofile.ReadMfcString();   // empty in observed files
