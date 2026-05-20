@@ -127,7 +127,7 @@ static void DumpObjects(IsodatFile archive, string inputPath)
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
     var nObjectsByObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx, e => e.NObjects);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_object_idx,block_object_idx,block_object_total,value");
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_objects,block_object_idx,block_object_total,value");
     foreach (var e in archive.ObjectLog)
     {
         int? blockObjectTotal = e.ContainerObjIdx is int cid
@@ -202,7 +202,7 @@ static void WriteTreeLevel(
         for (int k = j; k < j + n; k++) runTotal[k] = declared;
     }
 
-    for (int i = 0; i < siblings.Count; )
+    for (int i = 0; i < siblings.Count;)
     {
         var first = siblings[i];
         string? effVal = string.IsNullOrEmpty(first.Value) ? null : first.Value;
