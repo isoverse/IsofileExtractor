@@ -30,7 +30,7 @@ public sealed class IsodatFile : IDisposable
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
     private readonly Dictionary<int, int> _blockObjectSeq = new();  // containerObjIdx → next seq
-    private readonly Dictionary<string, int> _schemaVersions = new();     // className → first-seen schema version
+    private readonly Dictionary<string, (int Version, long Pos)> _schemaVersions = new();  // className → first-seen schema version + position
     private readonly Dictionary<string, int> _archiveVersions = new();    // className → CRuntimeClass archive version
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
 
@@ -140,6 +140,7 @@ public sealed class IsodatFile : IDisposable
 
     public int ReadSchemaVersion(string className, int maxSupported)
     {
+        long pos = _reader.BaseStream.Position;
         int v = _reader.ReadInt32();
         if (v <= 0)
             throw new InvalidDataException(
@@ -148,11 +149,11 @@ public sealed class IsodatFile : IDisposable
             _warnings.Add(
                 $"{className} schema version v{v} is newer than supported v{maxSupported}; " +
                 "fields added after that version will not be read");
-        if (_schemaVersions.TryGetValue(className, out int prev))
+        if (_schemaVersions.TryGetValue(className, out var prev))
         {
-            if (v != prev)
+            if (v != prev.Version)
                 throw new InvalidDataException(
-                    $"{className} schema version mismatch: first instance had v{prev}, " +
+                    $"{className} schema version mismatch: first instance had v{prev.Version} (0x{prev.Pos:x})," +
                     $"this instance has v{v} — stream is likely misaligned");
         }
         else
@@ -161,7 +162,7 @@ public sealed class IsodatFile : IDisposable
                 throw new InvalidDataException(
                     $"{className} schema version v{v} does not match CRuntimeClass archive version v{archv} " +
                     $"— stream is likely misaligned");
-            _schemaVersions[className] = v;
+            _schemaVersions[className] = (v, pos);
         }
         return v;
     }

@@ -222,7 +222,7 @@ static void WriteTreeLevel(
         }
 
         string value = effVal is not null ? $" \"{effVal}\"" : "";
-        string label = $"{first.ClassName} v{first.ArchiveVersion} @0x{first.Start:x}{value}";
+        string label = $"{first.ClassName} v{first.ArchiveVersion} 0x{first.Start:x}{value}";
         string linePrefix = first.IsBlockObject
             ? (count > 1
                 ? $"{first.BlockObjectIdx}-{(first.BlockObjectIdx ?? 0) + count - 1}/{runTotal[i]}: "

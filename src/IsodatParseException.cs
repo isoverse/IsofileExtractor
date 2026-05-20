@@ -55,8 +55,8 @@ public sealed class IsodatParseException : Exception
         get
         {
             string path = string.Join(" -> ",
-                _path.Select(p => $"{p.ClassName} (@0x{p.HeaderPos:x})"));
-            return $"{path}: {InnerException!.Message} (@0x{ErrorPos:x})";
+                _path.Select(p => $"{p.ClassName} (0x{p.HeaderPos:x})"));
+            return $"{path}: {InnerException!.Message} (0x{ErrorPos:x})";
         }
     }
 }
