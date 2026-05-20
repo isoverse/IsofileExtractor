@@ -2412,12 +2412,38 @@ static class Readers
 
     static JsonObject ReadCMultiReferenceDeviceMethodPart(IsodatFile isofile)
     {
-        isofile.AddWarning("CMultiReferenceDeviceMethodPart: only CDeviceMethodPart parent + version read (stub)");
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CDeviceMethodPart");
         int version = isofile.ReadSchemaVersion("CMultiReferenceDeviceMethodPart", 7);
         if (Unabridged) jo["version"] = version;
+        jo["xac"] = isofile.ReadMfcString();
+        jo["xb0"] = isofile.ReadDouble();
+        jo["xb8"] = isofile.ReadUInt32();
+        if (version == 3)
+        {
+            isofile.ReadDouble(); // pre-v3 layout remnant, discarded
+            jo["xc8"] = isofile.ReadDouble();
+            jo["xf8"] = isofile.ReadMfcString();
+            jo["xfc"] = isofile.ReadMfcString();
+        }
+        else
+        {
+            jo["xc8"] = isofile.ReadDouble();
+        }
+        if (version >= 5)
+        {
+            jo["xd0"] = isofile.ReadDouble();
+            jo["xe0"] = isofile.ReadDouble();
+            jo["xe8"] = isofile.ReadDouble();
+            jo["x100"] = isofile.ReadUInt32();
+        }
+        if (version >= 6) jo["x104"] = isofile.ReadUInt32();
+        if (version >= 7)
+        {
+            jo["xd8"] = isofile.ReadDouble();
+            jo["xf0"] = isofile.ReadDouble();
+        }
         return jo;
     }
 
