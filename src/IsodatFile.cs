@@ -30,7 +30,8 @@ public sealed class IsodatFile : IDisposable
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
     private readonly Dictionary<int, int> _blockObjectSeq = new();  // containerObjIdx → next seq
-    private readonly Dictionary<string, int> _schemaVersions = new();  // className → first-seen schema version
+    private readonly Dictionary<string, int> _schemaVersions = new();     // className → first-seen schema version
+    private readonly Dictionary<string, int> _archiveVersions = new();    // className → CRuntimeClass archive version
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
 
     public IReadOnlyDictionary<int, (string Name, int ArchiveVersion)> ClassRegistry => _classRegistry;
@@ -83,6 +84,7 @@ public sealed class IsodatFile : IDisposable
             ushort nameLen = _reader.ReadUInt16();
             className = Encoding.ASCII.GetString(_reader.ReadBytes(nameLen));
             _classRegistry[_mapCount] = (className, archiveVersion);
+            _archiveVersions[className] = archiveVersion;
             int classIdx = _mapCount;
             int objIdx = _mapCount + 1;
             _mapCount += 2;  // class slot + object slot
@@ -155,6 +157,10 @@ public sealed class IsodatFile : IDisposable
         }
         else
         {
+            if (_archiveVersions.TryGetValue(className, out int archv) && v != archv)
+                throw new InvalidDataException(
+                    $"{className} schema version v{v} does not match CRuntimeClass archive version v{archv} " +
+                    $"— stream is likely misaligned");
             _schemaVersions[className] = v;
         }
         return v;

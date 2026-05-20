@@ -109,7 +109,7 @@ static class Readers
             ["CMsDevice"] = ReadCMsDevice,
             ["CGenericGcDevice"] = ReadCGenericGcDevice,
             ["CFlashEA_Device"] = ReadCFlashEA_Device,
-            ["CConFloDevice"] = ReadCActiveDevice,
+            ["CConFloDevice"] = ReadCConFloDevice,
             ["CMultiReferenceDevice"] = ReadCActiveDevice,
             ["CUserDevice"] = ReadCActiveDevice,
 
@@ -363,7 +363,7 @@ static class Readers
                 // again — it already has a parent from AddToObjectsDict.
                 AddToObjectsDict(objects,
                     ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial);
-                ipe.PartialResult          = null;
+                ipe.PartialResult = null;
                 ipe.PartialResultClassName = null;
                 throw;
             }
@@ -1253,10 +1253,17 @@ static class Readers
     {
         var jo = new JsonObject();
         jo["parent"] = ReadCDevice(isofile);
-        TrackPartial(jo);  // replace CDevice's slot once parent is set
         int version = isofile.ReadSchemaVersion("CActiveDevice", 2);
         jo["v"] = version;
         if (version >= 2) jo["xec"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    static JsonObject ReadCConFloDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        jo["parent"] = ReadCActiveDevice(isofile);
+        jo["v"] = isofile.ReadSchemaVersion("CConFloDevice", 1);
         return jo;
     }
 
@@ -1430,7 +1437,7 @@ static class Readers
         jo["parent"] = ReadCData(isofile);
         jo["v"] = isofile.ReadSchemaVersion("CTransferPart", 2);
         jo["x9c"] = isofile.ReadInt32();
-        jo["xa0"] = isofile.ReadInt32();
+        jo["xa0"] = isofile.ReadInt32(); // seems it's always 0
         return jo;
     }
 
