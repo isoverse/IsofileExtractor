@@ -75,6 +75,7 @@ static class Readers
             ["CSimple"] = ReadCSimple,
             ["CStr"] = ReadCStr,
             ["CDword"] = ReadCDword,
+            ["CInt"] = ReadCInt,
             ["CPeakCenterOffset"] = ReadCDword,
             ["CBinary"] = ReadCBinary,
 
@@ -913,6 +914,17 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CSimple");
         int version = isofile.ReadSchemaVersion("CDword", 2);
+        if (Unabridged) jo["version"] = version;
+        jo["value"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    static JsonObject ReadCInt(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSimple");
+        int version = isofile.ReadSchemaVersion("CInt", 2);
         if (Unabridged) jo["version"] = version;
         jo["value"] = isofile.ReadInt32();
         return jo;

@@ -189,9 +189,11 @@
 
 ## CSimple (DONE)
 - CBinary (DONE)
+- CColorType
+  - CDword (DONE)
+    - CPeakCenterOffset (DONE)
+  - CInt (DONE)
 - CDouble
-- CDword (DONE)
-  - CPeakCenterOffset (DONE)
 - CStr (DONE)
 
 ## CEvalDataStorage (DONE)
