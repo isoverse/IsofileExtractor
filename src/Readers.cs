@@ -218,7 +218,7 @@ static class Readers
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
             ["CConFloDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
-            ["CGenericGcDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
+            ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
             ["CMultiReferenceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
 
@@ -1218,6 +1218,7 @@ static class Readers
         if (version >= 2)
         {
             int nEvalParts = isofile.ReadInt32();
+            jo["n_eval_parts"] = nEvalParts;
             for (int i = 0; i < nEvalParts; i++)
                 ReadObjectInto(jo, isofile, pattern: "DeviceEvaluationPart", groupTag: 2, groupDeclaredSize: nEvalParts);
         }
@@ -2641,7 +2642,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        ReadParent(jo, isofile, "CDeviceEvaluationPart");
+        ReadParent(jo, isofile, "CGenericGcDeviceEvaluationPart");
         int version = isofile.ReadSchemaVersion("CFlashEA_DeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
