@@ -2849,7 +2849,24 @@ static class Readers
         jo["slope"] = isofile.ReadDouble();
         jo["intercept"] = isofile.ReadDouble();
         jo["trace_idx"] = isofile.ReadUInt32();
-        jo["bgd_method"] = isofile.ReadUInt32();
+        long bgdMethodId = isofile.ReadUInt32();
+        if (Unabridged) jo["bgd_method_id"] = bgdMethodId;
+        jo["bgd_method"] = bgdMethodId switch
+        {
+            0  => "Uninitialized",
+            1  => "Single BGD",
+            2  => "Individual BGD",
+            3  => "TimeBased BGD",
+            4  => "Dynamic BGD",
+            5  => "Mean",
+            6  => "Slope",
+            8  => "Dynamic Invalid",
+            9  => "Timebased Invalid",
+            15 => "BaseFit BGD",
+            16 => "Skimmed BGD",
+            17 => "Individual RDA BGD",
+            _  => $"Unknown ({bgdMethodId})",
+        };
         if (v > 1)
             jo["mass"] = isofile.ReadUInt32();
         return jo;
