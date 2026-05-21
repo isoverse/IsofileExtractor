@@ -328,7 +328,7 @@ static class Readers
     static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null,
                                     int groupTag = 0, int? groupDeclaredSize = null,
-                                    bool maybeNull = false)
+                                    bool maybeNull = false, bool noIndex = false)
     {
         if (maybeNull)
         {
@@ -380,7 +380,7 @@ static class Readers
         }
         finally
         {
-            if (before < isofile.ObjectLog.Count)
+            if (!noIndex && before < isofile.ObjectLog.Count)
                 isofile.SetObjectLogIsGroupObject(before, groupTag, groupDeclaredSize);
         }
     }
@@ -1204,7 +1204,7 @@ static class Readers
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
         if (Unabridged) jo["version"] = version;
-        ReadObjectInto(jo, isofile, "CConfiguration");
+        ReadObjectInto(jo, isofile, "CConfiguration", noIndex: true);
         jo["gas_config_name"] = isofile.ReadMfcString(); // C++ xb4; from CGasConfiguration::GetActiveName
         jo["gas_name"] = isofile.ReadMfcString(); // C++ xb8; no named getter
         jo["description"] = isofile.ReadMfcString(); // C++ xbc; no named getter
