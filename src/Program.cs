@@ -11,24 +11,25 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] <file.dxf|file.scn> [...]");
     return 1;
 }
 
 bool dumpObjects = args.Contains("--objects");
 bool dumpTree = args.Contains("--tree");
+bool prettyJson = args.Contains("--prettyJSON");
 Readers.Unabridged = args.Contains("--unabridged");
 string[] files = args.Where(a => !a.StartsWith("--")).ToArray();
 
 if (files.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] <file.dxf|file.scn> [...]");
     return 1;
 }
 
 var options = new JsonSerializerOptions
 {
-    WriteIndented = true,
+    WriteIndented = prettyJson,
     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
     PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
     TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
