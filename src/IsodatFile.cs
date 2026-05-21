@@ -286,7 +286,7 @@ public sealed class IsodatFile : IDisposable
         _blockObjectSeq[key] = seq;
     }
 
-    internal void SetObjectLogNObjects(int index, int n) => _objectLog[index].NObjects = n;
+    internal void SetObjectLogNBlockObjects(int index, int n) => _objectLog[index].NObjects = n;
 
     public void Dispose() => _reader.Dispose();
 }
