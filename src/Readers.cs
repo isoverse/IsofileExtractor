@@ -2338,8 +2338,45 @@ static class Readers
 
     static JsonObject ReadCPeakFindMethodPart(IsodatFile isofile)
     {
-        isofile.AddWarning("CPeakFindMethodPart: only CMethodPart parent read (stub)");
-        return new JsonObject { ["parent"] = ReadCEvaluationPart(isofile) };
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CMethodPart");
+        int v = isofile.ReadSchemaVersion("CPeakFindMethodPart", 18);
+        if (Unabridged) jo["version"] = v;
+        jo["current_set_index"] = isofile.ReadUInt32();         // xc4; GetCurrentSetIndex
+        ReadObjectInto(jo, isofile, expected: "CBlockData");                            // xc0: parameter sets (CBlockData)
+        ReadObjectInto(jo, isofile, expected: "CGasConfiguration", maybeNull: true);           // xd0: gas configuration (nullable)
+        jo["xa8"] = isofile.ReadUInt32();
+        if (v == 3) isofile.ReadUInt32();                       // v3-only legacy field, discarded on load
+        jo["integration_time"] = isofile.ReadDouble();          // xc8; GetIntegrationTime
+        if (v >= 4)
+        {
+            ReadObjectInto(jo, isofile, maybeNull: true);       // xb0: h3 factor result (nullable)
+            jo["linearity_value"] = isofile.ReadDouble();       // xa0; GetLinearityValue
+        }
+        if (v >= 5)
+        {
+            jo["xe4"] = isofile.ReadUInt32();
+            jo["xfc"] = isofile.ReadUInt32();
+        }
+        if (v >= 6) ReadObjectInto(jo, isofile, maybeNull: true); // xe8 (nullable)
+        if (v >= 7) jo["xf0"] = isofile.ReadUInt32(); else jo["xf0"] = 1;
+        if (v >= 8) jo["xf4"] = isofile.ReadUInt32(); else jo["xf4"] = 1;
+        if (v >= 9) jo["xf8"] = isofile.ReadUInt32(); else jo["xf8"] = 1;  // xf8; EnableH3Correction
+        if (v >= 10) jo["x104"] = isofile.ReadUInt32(); else jo["x104"] = 0;
+        if (v >= 11) jo["gas_name"] = isofile.ReadMfcString();  // x108
+        if (v >= 12) jo["x100"] = isofile.ReadUInt32(); else jo["x100"] = 0;
+        if (v >= 13) jo["x10c"] = isofile.ReadMfcString();
+        if (v >= 14) jo["component_list_offset"] = isofile.ReadDouble(); // x110; GetComponentListOffset
+        if (v >= 15) jo["de_spike_flag"] = isofile.ReadUInt32();          // x118; GetDeSpikeFlage
+        if (v >= 16) jo["x11c"] = isofile.ReadUInt32();
+        if (v >= 17)
+        {
+            jo["x120"] = isofile.ReadDouble();
+            jo["xac"] = isofile.ReadUInt32();
+        }
+        if (v >= 18) jo["xb8"] = isofile.ReadUInt32();
+        return jo;
     }
 
     static JsonObject ReadCSimplePeakFindMethodPart(IsodatFile isofile)
