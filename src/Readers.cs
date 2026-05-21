@@ -792,8 +792,76 @@ static class Readers
 
     static JsonObject ReadCPeakFindParameter(IsodatFile isofile)
     {
-        isofile.AddWarning("CPeakFindParameter: only CData parent read (stub)");
-        return new JsonObject { ["parent"] = ReadCData(isofile) };
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CPeakFindParameter", 11);
+        if (Unabridged) jo["version"] = v;
+
+        // always present (v1+)
+        jo["calc_slope_algorithm"] = isofile.ReadMfcString();   // x94
+        jo["x98"] = isofile.ReadUInt32();                       // x98
+        jo["peak_find_algorithm"] = isofile.ReadMfcString();    // x9c
+        jo["int_peak_algorithm"] = isofile.ReadMfcString();     // xa0
+        jo["xa8"] = isofile.ReadDouble();                       // xa8
+        jo["xb0"] = isofile.ReadDouble();                       // xb0
+        jo["xb8"] = isofile.ReadDouble();                       // xb8
+        jo["xc0"] = isofile.ReadDouble();                       // xc0
+        jo["xc8"] = isofile.ReadDouble();                       // xc8
+        jo["xd0"] = isofile.ReadDouble();                       // xd0
+        jo["xd8"] = isofile.ReadUInt32();                       // xd8: detection trace
+        jo["xf8"] = isofile.ReadDouble();                       // xf8
+        jo["x100"] = isofile.ReadUInt32();                      // x100
+        jo["x108"] = isofile.ReadDouble();                      // x108
+        jo["x110"] = isofile.ReadDouble();                      // x110
+        jo["x118"] = isofile.ReadUInt32();                      // x118
+        jo["bgd_algorithm"] = isofile.ReadMfcString();          // x11c
+        jo["smoothing_algorithm"] = isofile.ReadMfcString();    // x120
+        int nTau = (int)isofile.ReadUInt32();                   // tau count (x150)
+        jo["n_tau"] = nTau;
+        jo["x148"] = isofile.ReadDouble();                      // x148
+        jo["x158"] = isofile.ReadDouble();                      // x158
+        jo["x160"] = isofile.ReadDouble();                      // x160
+
+        // version-dependent tau block
+        if (v == 2)
+        {
+            jo["x128"] = isofile.ReadDouble();                  // tau initial
+            jo["x130"] = isofile.ReadDouble();                  // tau default (all entries)
+        }
+        else if (v >= 3)
+        {
+            jo["x128"] = isofile.ReadDouble();                  // tau initial
+            var taus = new JsonArray();
+            for (int i = 0; i < nTau; i++) taus.Add(isofile.ReadDouble());
+            jo["tau_values"] = taus;                            // x138 array
+            jo["x13c"] = isofile.ReadUInt32();                  // tau mode
+            if (v >= 4)
+            {
+                jo["x170"] = isofile.ReadUInt32();
+                if (v > 5) jo["gas_name"] = isofile.ReadMfcString(); // x180
+            }
+        }
+
+        if (v > 6)
+        {
+            jo["square_pulse_detection_enabled"] = isofile.ReadUInt32(); // x190
+            jo["square_pulse_detection_factor"] = isofile.ReadDouble();  // x198
+        }
+        if (v > 7)
+        {
+            jo["x174"] = isofile.ReadUInt32();
+            jo["x178"] = isofile.ReadDouble();
+        }
+        if (v > 8)
+        {
+            jo["xe8"] = isofile.ReadDouble();
+            jo["xf0"] = isofile.ReadDouble();
+            jo["x184"] = isofile.ReadUInt32();
+        }
+        if (v > 9) jo["xe0"] = isofile.ReadDouble();
+        if (v > 10) jo["x140"] = isofile.ReadUInt32();
+        return jo;
     }
 
     static JsonObject ReadCMRI_DilutionList(IsodatFile isofile)
@@ -2351,7 +2419,7 @@ static class Readers
         jo["integration_time"] = isofile.ReadDouble();          // xc8; GetIntegrationTime
         if (v >= 4)
         {
-            ReadObjectInto(jo, isofile, maybeNull: true);       // xb0: h3 factor result (nullable)
+            ReadObjectInto(jo, isofile, expected: "CH3FactorResult", maybeNull: true);       // xb0: h3 factor result (nullable)
             jo["linearity_value"] = isofile.ReadDouble();       // xa0; GetLinearityValue
         }
         if (v >= 5)
@@ -2359,10 +2427,10 @@ static class Readers
             jo["xe4"] = isofile.ReadUInt32();
             jo["xfc"] = isofile.ReadUInt32();
         }
-        if (v >= 6) ReadObjectInto(jo, isofile, maybeNull: true); // xe8 (nullable)
+        if (v >= 6) ReadObjectInto(jo, isofile, maybeNull: true); // xe8 (nullable), deprecated object, not used anymore
         if (v >= 7) jo["xf0"] = isofile.ReadUInt32(); else jo["xf0"] = 1;
         if (v >= 8) jo["xf4"] = isofile.ReadUInt32(); else jo["xf4"] = 1;
-        if (v >= 9) jo["xf8"] = isofile.ReadUInt32(); else jo["xf8"] = 1;  // xf8; EnableH3Correction
+        if (v >= 9) jo["enable_H3_correction"] = isofile.ReadUInt32(); else jo["enable_H3_correction"] = 1;  // xf8; EnableH3Correction
         if (v >= 10) jo["x104"] = isofile.ReadUInt32(); else jo["x104"] = 0;
         if (v >= 11) jo["gas_name"] = isofile.ReadMfcString();  // x108
         if (v >= 12) jo["x100"] = isofile.ReadUInt32(); else jo["x100"] = 0;
