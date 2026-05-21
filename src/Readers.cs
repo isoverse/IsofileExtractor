@@ -992,7 +992,7 @@ static class Readers
                 cont = isofile.ReadBool32();
                 splines.Add(spline);
             }
-            jo["splines"] = splines;
+            if (Unabridged) jo["splines"] = splines;
         }
         return jo;
     }
