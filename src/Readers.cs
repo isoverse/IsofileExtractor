@@ -227,8 +227,8 @@ static class Readers
             ["CEvalDataDWORDTransferPart"] = ReadCEvalDataDWORDTransferPart,
             ["CEvalDataSecStdTransferPart"] = ReadCEvalDataSecStdTransferPart,
             ["CEvalDataStringTransferPart"] = ReadCEvalDataStringTransferPart,
-            ["CEvalDataIntTransferPart"] = ReadCEvalDataTransferPart,
-            ["CEvalDataDoubleTransferPart"] = ReadCEvalDataTransferPart,
+            ["CEvalDataIntTransferPart"] = ReadCEvalDataDWORDTransferPart,
+            ["CEvalDataDoubleTransferPart"] = ReadCEvalDataDWORDTransferPart,
 
             // --- Peak stubs ---
             ["CGCPeak"] = ReadCGCPeak,
@@ -2556,6 +2556,7 @@ static class Readers
         if (version >= 1)
         {
             long n = isofile.ReadUInt32();
+            jo["xc0_n_bytes"] = n;
             if (n > 0) jo["xc0_raw"] = Convert.ToBase64String(isofile.ReadBytes((int)n));
         }
         if (version >= 2) ReadObjectInto(jo, isofile, "CBlockData", maybeNull: true);
