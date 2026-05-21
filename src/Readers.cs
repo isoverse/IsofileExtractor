@@ -1330,12 +1330,24 @@ static class Readers
 
     static JsonObject ReadCGCPeakList(IsodatFile isofile)
     {
-        isofile.AddWarning("CGCPeakList: only CBlockData parent + version read (stub)");
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        int version = isofile.ReadSchemaVersion("CGCPeakList", 6);
-        if (Unabridged) jo["version"] = version;
+        for (int i = 0; i < NBlockObjects(block); i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
+        int v = isofile.ReadSchemaVersion("CGCPeakList", 6);
+        if (Unabridged) jo["version"] = v;
+        jo["xc4"] = isofile.ReadUInt32();
+        jo["n_traces"] = isofile.ReadUInt32();                  // xc8; InitList arg
+        if (v > 1) jo["highest_peak_number"] = isofile.ReadUInt32(); // xcc; GetHighestPeakNumber
+        if (v > 2)
+        {
+            jo["last_peak_number"] = isofile.ReadUInt32();      // xa8; set in AddPeak from GetPeakNumber
+            jo["xac"] = isofile.ReadMfcString();
+        }
+        if (v > 3) jo["xb0"] = isofile.ReadMfcString();
+        if (v > 4) jo["xb8"] = isofile.ReadMfcString();
+        if (v > 5) jo["xc0"] = isofile.ReadUInt32();
         return jo;
     }
 

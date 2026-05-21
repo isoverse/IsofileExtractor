@@ -72,7 +72,7 @@
 - CFileHeader (DONE)
 - CGasConfiguration (DONE)
 - CGasSettings (DONE)
-- CGCPeakList (DONE, stub)
+- CGCPeakList (DONE)
 - CMeasurmentErrors (DONE)
 - CMeasurmentInfos (DONE)
 - CMethod (DONE)
