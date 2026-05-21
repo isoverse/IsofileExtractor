@@ -81,7 +81,7 @@
 - CPkDataItemList (DONE)
 - CPlotSettings (DONE)
 - CResultArray (DONE)
-- CResultData
+- CResultData (DONE)
 - CResultDataList
 - CScanStorage (DONE)
 - CSequenceGridParam
@@ -223,5 +223,5 @@ pure virtual no-op Serialize; concrete subclasses used only as runtime mirrors, 
 ## CGCPeak (DONE, stub)
 parent class CGCBGDData not yet reverse-engineered
 
-## CSPeak (DONE, stub)
-parent class unknown
+## CSPeak (DONE)
+parent class CResultData

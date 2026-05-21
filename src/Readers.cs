@@ -231,7 +231,8 @@ static class Readers
             ["CEvalDataIntTransferPart"] = ReadCEvalDataDWORDTransferPart,
             ["CEvalDataDoubleTransferPart"] = ReadCEvalDataDWORDTransferPart,
 
-            // --- Peak stubs ---
+            // --- CResultData / CSPeak chain ---
+            ["CResultData"] = ReadCResultData,
             ["CGCPeak"] = ReadCGCPeak,
             ["CSPeak"] = ReadCSPeak,
 
@@ -1334,7 +1335,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CSPeak");
         int v = isofile.ReadSchemaVersion("CGCPeakList", 6);
         if (Unabridged) jo["version"] = v;
         jo["xc4"] = isofile.ReadUInt32();
@@ -2737,16 +2738,67 @@ static class Readers
     // Peak stubs
     // =======================================================================
 
+    // CResultData::Serialize (IsoPeakData.dll):
+    //   parent CBlockData + schema v6
+    //   0xa8 uint32 peak_id
+    //   0xac MFC string gas_name
+    //   0xbc WriteObject (CData-derived results object)
+    //   v>=2: 0xc4 uint32 eval_group (else computed via GetEvalGroup)
+    //   v>2:  0xb0 MFC string gas_name_list, 0xb4 MFC string converted_gas_name
+    //   v>=4: 0xb8 MFC string eval_name (else copies gas_name)
+    //   v>4:  0xc0 MFC string
+    //   v>5:  0xcc uint32
+    static JsonObject ReadCResultData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        for (int i = 0; i < NBlockObjects(block); i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CGCPeak");
+        int v = isofile.ReadSchemaVersion("CResultData", 6);
+        if (Unabridged) jo["version"] = v;
+        jo["peak_id"] = isofile.ReadUInt32();
+        jo["gas_name"] = isofile.ReadMfcString();
+        ReadObjectInto(jo, isofile);                      // 0xbc: embedded results WriteObject
+        if (v >= 2)
+            jo["eval_group"] = isofile.ReadUInt32();
+        if (v > 2)
+        {
+            jo["gas_name_list"] = isofile.ReadMfcString();
+            jo["converted_gas_name"] = isofile.ReadMfcString();
+        }
+        if (v >= 4)
+            jo["eval_name"] = isofile.ReadMfcString();
+        if (v > 4)
+            jo["xc0"] = isofile.ReadMfcString();
+        if (v > 5)
+            jo["xcc"] = isofile.ReadUInt32();
+        return jo;
+    }
+
     static JsonObject ReadCGCPeak(IsodatFile isofile)
     {
         isofile.AddWarning("CGCPeak: CGCBGDData parent Serialize unknown, returning empty");
         return new JsonObject();
     }
 
+    // CSPeak::Serialize (IsoPeakData.dll):
+    //   parent CResultData + schema v3
+    //   0xd8 uint32 bgd_method (BGD_METHOD enum)
+    //   0xd4 uint32 n_traces
+    //   v==2 only: 0xcc uint32 ampere_calculation (deprecated in v3, field absorbed by CResultData v6)
     static JsonObject ReadCSPeak(IsodatFile isofile)
     {
-        isofile.AddWarning("CSPeak: parent class and Serialize unknown, returning empty");
-        return new JsonObject();
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CResultData");
+        int v = isofile.ReadSchemaVersion("CSPeak", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["bgd_method"] = isofile.ReadUInt32();
+        jo["n_traces"] = isofile.ReadUInt32();
+        if (v == 2)
+            jo["ampere_calculation"] = isofile.ReadUInt32();
+        return jo;
     }
 
     // =======================================================================
