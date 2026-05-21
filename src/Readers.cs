@@ -231,8 +231,9 @@ static class Readers
             ["CEvalDataIntTransferPart"] = ReadCEvalDataDWORDTransferPart,
             ["CEvalDataDoubleTransferPart"] = ReadCEvalDataDWORDTransferPart,
 
-            // --- CResultData / CSPeak chain ---
+            // --- CResultData / CSPeak / CGCPeak chain ---
             ["CResultData"] = ReadCResultData,
+            ["CGCBGDData"] = ReadCGCBGDData,
             ["CGCPeak"] = ReadCGCPeak,
             ["CSPeak"] = ReadCSPeak,
 
@@ -2776,10 +2777,69 @@ static class Readers
         return jo;
     }
 
+    // CGCBGDData::Serialize (IsoPeakData.dll):
+    //   NO parent Serialize call (skips CData::Serialize entirely)
+    //   raw version uint32 (writes 2 currently)
+    //   SLOPE_BUFFER at 0xa8 (serialized subset): bgd0 (double), bgd1 (double), xc0 (uint32)
+    //   slope double (0x98), intercept double (0xa0)
+    //   trace_idx (0xcc), bgd_method (0xc8)
+    //   v>1: mass (0xd0)
+    static JsonObject ReadCGCBGDData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        int v = isofile.ReadSchemaVersion("CGCBGDData", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["bgd0"] = isofile.ReadDouble();
+        jo["bgd1"] = isofile.ReadDouble();
+        jo["xc0"] = isofile.ReadUInt32();
+        jo["slope"] = isofile.ReadDouble();
+        jo["intercept"] = isofile.ReadDouble();
+        jo["trace_idx"] = isofile.ReadUInt32();
+        jo["bgd_method"] = isofile.ReadUInt32();
+        if (v > 1)
+            jo["mass"] = isofile.ReadUInt32();
+        return jo;
+    }
+
+    // CGCPeak::Serialize (IsoPeakData.dll):
+    //   parent CGCBGDData + raw version uint32 (writes 3 currently)
+    //   peak_number (0xd8)
+    //   per SLOPE_BUFFER pattern (count uint32 + 2 doubles):
+    //     start_val: xf8 (0xf8), start_val_a (0xe0), start_val_b (0xe8)
+    //     top_val:   x118 (0x118), top_val_a (0x100), top_val_b (0x108)
+    //     end_val:   x138 (0x138), end_val_a (0x120), end_val_b (0x128)
+    //   raw_area (0x140), area (0x148)
+    //   valid (0x150), square_peak (0x154), as_standard (0x158)
+    //   v>1:  time_shift double (0x160)
+    //   v>=3: ampere_calculation (0x16c)
     static JsonObject ReadCGCPeak(IsodatFile isofile)
     {
-        isofile.AddWarning("CGCPeak: CGCBGDData parent Serialize unknown, returning empty");
-        return new JsonObject();
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGCBGDData");
+        int v = isofile.ReadSchemaVersion("CGCPeak", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["peak_number"] = isofile.ReadUInt32();
+        jo["xf8"] = isofile.ReadUInt32();
+        jo["start_val_a"] = isofile.ReadDouble();
+        jo["start_val_b"] = isofile.ReadDouble();
+        jo["x118"] = isofile.ReadUInt32();
+        jo["top_val_a"] = isofile.ReadDouble();
+        jo["top_val_b"] = isofile.ReadDouble();
+        jo["x138"] = isofile.ReadUInt32();
+        jo["end_val_a"] = isofile.ReadDouble();
+        jo["end_val_b"] = isofile.ReadDouble();
+        jo["raw_area"] = isofile.ReadDouble();
+        jo["area"] = isofile.ReadDouble();
+        jo["valid"] = isofile.ReadUInt32();
+        jo["square_peak"] = isofile.ReadUInt32();
+        jo["as_standard"] = isofile.ReadUInt32();
+        if (v > 1)
+            jo["time_shift"] = isofile.ReadDouble();
+        if (v >= 3)
+            jo["ampere_calculation"] = isofile.ReadUInt32();
+        return jo;
     }
 
     // CSPeak::Serialize (IsoPeakData.dll):

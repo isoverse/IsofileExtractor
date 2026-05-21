@@ -220,8 +220,11 @@
 ## CPartMirror (DONE)
 pure virtual no-op Serialize; concrete subclasses used only as runtime mirrors, not serialized
 
-## CGCPeak (DONE, stub)
-parent class CGCBGDData not yet reverse-engineered
+## CGCBGDData (DONE)
+CData-derived; no parent Serialize call
+
+## CGCPeak (DONE)
+parent class CGCBGDData
 
 ## CSPeak (DONE)
 parent class CResultData
