@@ -165,11 +165,11 @@
 - CDeviceEvaluationPart (DONE)
   - CCarbonateDeviceEvaluationPart
   - CConFloDeviceEvaluationPart (DONE)
+    - CMultiReferenceDeviceEvaluationPart (DONE)
   - CGenericGcDeviceEvaluationPart (DONE)
     - CFlashEA_DeviceEvaluationPart (DONE)
     - CTraceGcDeviceEvaluationPart
   - CMsDeviceEvaluationPart (DONE)
-  - CMultiReferenceDeviceEvaluationPart (DONE)
 
 ## CMethodPart / CEvaluationPart (DONE)
 - CICA_BasicMethodPart (DONE)

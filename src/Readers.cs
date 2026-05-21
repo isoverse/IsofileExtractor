@@ -220,7 +220,7 @@ static class Readers
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
             ["CGenericGcDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
-            ["CMultiReferenceDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
+            ["CMultiReferenceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
 
             // --- CEvalDataTransferPart chain ---
             ["CEvalDataTransferPart"] = ReadCEvalDataTransferPart,
