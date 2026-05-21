@@ -228,8 +228,8 @@ static class Readers
             ["CEvalDataDWORDTransferPart"] = ReadCEvalDataDWORDTransferPart,
             ["CEvalDataSecStdTransferPart"] = ReadCEvalDataSecStdTransferPart,
             ["CEvalDataStringTransferPart"] = ReadCEvalDataStringTransferPart,
-            ["CEvalDataIntTransferPart"] = ReadCEvalDataDWORDTransferPart,
-            ["CEvalDataDoubleTransferPart"] = ReadCEvalDataDWORDTransferPart,
+            ["CEvalDataIntTransferPart"] = ReadCEvalDataIntTransferPart,
+            ["CEvalDataDoubleTransferPart"] = ReadCEvalDataDoubleTransferPart,
 
             // --- CResultData / CSPeak / CGCPeak chain ---
             ["CResultData"] = ReadCResultData,
@@ -389,14 +389,14 @@ static class Readers
         }
     }
 
+    // Push null so the reader's TrackPartial can register its jo on the PartialStack.
+    // Without this the reader's TrackPartial is a no-op (top is already a non-null jo from
+    // the outer ReadObject), meaning a mid-parse failure leaves jo["parent"] unset and the
+    // containing class appears empty in the partial result.
     static JsonObject ReadParent(JsonObject jo, IsodatFile isofile, string parentClass)
     {
         if (!_registry.TryGetValue(parentClass, out var reader))
             throw new InvalidDataException($"No reader registered for parent class '{parentClass}'");
-        // Push null so the reader's TrackPartial can register its jo on the PartialStack.
-        // Without this the reader's TrackPartial is a no-op (top is already a non-null jo from
-        // the outer ReadObject), meaning a mid-parse failure leaves jo["parent"] unset and the
-        // containing class appears empty in the partial result.
         PartialStack.Push(null);
         bool popped = false;
         try
@@ -2707,15 +2707,47 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         if (version >= 1)
         {
-            long n = isofile.ReadUInt32();
-            jo["xc0_n_bytes"] = n;
-            if (n > 0) jo["xc0_raw"] = Convert.ToBase64String(isofile.ReadBytes((int)n));
+            long n = isofile.ReadUInt32();  // byte count
+            if (Unabridged) jo["n_bytes"] = n;
+            if (n > 0)
+            {
+                byte[] raw = isofile.ReadBytes((int)n);
+                if (Unabridged) jo["raw_data"] = Convert.ToBase64String(raw);
+                if (n == 4)
+                    jo["data"] = BitConverter.ToInt32(raw, 0);
+                else if (n == 8)
+                    jo["data"] = BitConverter.ToDouble(raw, 0);
+            }
         }
         if (version >= 2) ReadObjectInto(jo, isofile, "CBlockData", maybeNull: true);
         return jo;
     }
 
+    // CEvalDataDWORDTransferPart, CEvalDataDoubleTransferPart, CEvalDataIntTransferPart, and
+    // CEvalDataSecStdTransferPart all share the same stream layout (CEvalDataTransferPart parent
+    // + DWORD schema version). The data interpretation is handled by ReadCEvalDataTransferPart
+    // based on n_bytes (4 → int32, 8 → double).
     static JsonObject ReadCEvalDataDWORDTransferPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CEvalDataTransferPart");
+        int version = isofile.ReadSchemaVersion("CEvalDataDWORDTransferPart", 1);
+        if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    static JsonObject ReadCEvalDataDoubleTransferPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CEvalDataTransferPart");
+        int version = isofile.ReadSchemaVersion("CEvalDataDWORDTransferPart", 1);
+        if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    static JsonObject ReadCEvalDataIntTransferPart(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
@@ -2729,7 +2761,8 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        ReadParent(jo, isofile, "CEvalDataDWORDTransferPart");
+        ReadParent(jo, isofile, "CEvalDataTransferPart");
+        isofile.ReadSchemaVersion("CEvalDataDWORDTransferPart", 1);  // parent schema version
         int version = isofile.ReadSchemaVersion("CEvalDataSecStdTransferPart", 2);
         if (Unabridged) jo["version"] = version;
         jo["standard_name"] = isofile.ReadMfcString();
@@ -2841,15 +2874,15 @@ static class Readers
         int v = isofile.ReadSchemaVersion("CGCPeak", 3);
         if (Unabridged) jo["version"] = v;
         jo["peak_number"] = isofile.ReadUInt32();
-        jo["xf8"] = isofile.ReadUInt32();
-        jo["start_val_a"] = isofile.ReadDouble();
-        jo["start_val_b"] = isofile.ReadDouble();
-        jo["x118"] = isofile.ReadUInt32();
-        jo["top_val_a"] = isofile.ReadDouble();
-        jo["top_val_b"] = isofile.ReadDouble();
-        jo["x138"] = isofile.ReadUInt32();
-        jo["end_val_a"] = isofile.ReadDouble();
-        jo["end_val_b"] = isofile.ReadDouble();
+        jo["start_idx"] = isofile.ReadUInt32();
+        jo["start_rt"] = isofile.ReadDouble();
+        jo["start_signal"] = isofile.ReadDouble();
+        jo["apex_idx"] = isofile.ReadUInt32();
+        jo["apex_rt"] = isofile.ReadDouble();
+        jo["apex_signal"] = isofile.ReadDouble();
+        jo["end_idx"] = isofile.ReadUInt32();
+        jo["end_rt"] = isofile.ReadDouble();
+        jo["end_signal"] = isofile.ReadDouble();
         jo["raw_area"] = isofile.ReadDouble();
         jo["area"] = isofile.ReadDouble();
         jo["valid"] = isofile.ReadUInt32();
