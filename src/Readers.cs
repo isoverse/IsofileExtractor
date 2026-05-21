@@ -538,9 +538,8 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CFileHeader", 6);
         if (Unabridged) jo["version"] = version;
         jo["runtime_class"] = isofile.ReadMfcString();
-        jo["xac"] = isofile.ReadMfcString();
-
-        if (version >= 2) jo["xb0"] = isofile.ReadInt32();
+        jo["xac"] = isofile.ReadMfcString(); // no named getter; constructor arg3 = descriptive name
+        if (version >= 2) jo["xb0"] = isofile.ReadInt32(); // no named getter
 
         if (version >= 3)
         {
@@ -595,12 +594,12 @@ static class Readers
         ReadParent(jo, isofile, "CData");
         int version = isofile.ReadSchemaVersion("CCalibrationPoint", 3);
         if (Unabridged) jo["version"] = version;
-        jo["x94"] = isofile.ReadInt32();
-        jo["x98"] = isofile.ReadDouble();
+        jo["x94"] = isofile.ReadInt32(); // no named getter
+        jo["x98"] = isofile.ReadDouble(); // no named getter
         if (version >= 3)
         {
-            jo["xa0"] = isofile.ReadDouble();
-            jo["xa8"] = isofile.ReadDouble();
+            jo["xa0"] = isofile.ReadDouble(); // no named getter
+            jo["xa8"] = isofile.ReadDouble(); // no named getter
         }
         return jo;
     }
@@ -639,8 +638,8 @@ static class Readers
         // x9c = 0xFFFFFFFF (-1) and xa0 = 0x00000000 as plain int32 fields.
         // These bytes superficially resemble an MFC new-class header (ff ff ff ff 00 00)
         // but they are raw serialized data, not WriteObject calls.
-        jo["x9c"] = isofile.ReadInt32();
-        jo["xa0"] = isofile.ReadInt32();
+        jo["x9c"] = isofile.ReadInt32(); // no named getter; init 0xffffffff in constructor
+        jo["xa0"] = isofile.ReadInt32(); // no named getter; init 0 in constructor
         return jo;
     }
 
@@ -651,10 +650,10 @@ static class Readers
         ReadParent(jo, isofile, "CData");
         int version = isofile.ReadSchemaVersion("CComponent", 1);
         if (Unabridged) jo["version"] = version;
-        jo["x94"] = isofile.ReadInt32();
-        jo["x98"] = isofile.ReadInt32();
-        jo["xa0"] = isofile.ReadInt32();
-        jo["xa4"] = isofile.ReadInt32();
+        jo["x94"] = isofile.ReadInt32(); // no named getter; DDX_Time ctrl 0x3eb
+        jo["x98"] = isofile.ReadInt32(); // no named getter; DDX_Time ctrl 0x3ec
+        jo["xa0"] = isofile.ReadInt32(); // no named getter; low dword of double at xa0 (init ~pi)
+        jo["xa4"] = isofile.ReadInt32(); // no named getter; high dword of double at xa0
         return jo;
     }
 
@@ -694,7 +693,7 @@ static class Readers
             jo["divisor_mass"] = isofile.ReadInt32();
             jo["eval_list"] = isofile.ReadMfcString();
             jo["eval_name"] = isofile.ReadMfcString();
-            jo["xc4"] = isofile.ReadInt32();
+            jo["is_redundant"] = isofile.ReadInt32(); // IsRedundant
         }
         return jo;
     }
@@ -713,9 +712,9 @@ static class Readers
         jo["element_name"] = isofile.ReadMfcString();
         if (version >= 2) jo["units"] = isofile.ReadMfcString();
         if (version >= 3) jo["info"] = isofile.ReadMfcString();
-        if (version >= 5) jo["xb4"] = isofile.ReadInt32();
-        if (version >= 6) jo["xb0"] = isofile.ReadMfcString();
-        if (version >= 7) jo["xb8"] = isofile.ReadInt32();
+        if (version >= 5) jo["xb4"] = isofile.ReadInt32(); // no named getter
+        if (version >= 6) jo["free_info_string"] = isofile.ReadMfcString(); // GetFreeInfoString / SetFreeInfoString
+        if (version >= 7) jo["is_extended_data"] = isofile.ReadInt32(); // IsExtendedData
         if (version >= 8) jo["ampere_calculation"] = isofile.ReadInt32();
         return jo;
     }
@@ -728,8 +727,8 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CPeakDataItem", 1);
         if (Unabridged) jo["version"] = version;
         isofile.ReadMfcString(); // ID recomputed at runtime, discard
-        jo["xc0"] = isofile.ReadInt32();
-        jo["xc4"] = isofile.ReadInt32();
+        jo["item_idx"] = isofile.ReadInt32(); // SetItemIdx / GetItemIdx
+        jo["item_active"] = isofile.ReadInt32(); // SetItemActiv
         return jo;
     }
 
@@ -757,19 +756,21 @@ static class Readers
     }
 
     // CGridColors: Serialize does NOT call CData::Serialize; 9 COLORREF values
+    // All 9 fields form the GRIDCOLORS struct accessed via GetGridColors/SetGridColors;
+    // no individual getter names available for the COLORREF members.
     static JsonObject ReadCGridColors(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["x94"] = isofile.ReadColor();
-        jo["x98"] = isofile.ReadColor();
-        jo["x9c"] = isofile.ReadColor();
-        jo["xa0"] = isofile.ReadColor();
-        jo["xa4"] = isofile.ReadColor();
-        jo["xa8"] = isofile.ReadColor();
-        jo["xac"] = isofile.ReadColor();
-        jo["xb0"] = isofile.ReadColor();
-        jo["xb4"] = isofile.ReadColor();
+        jo["x94"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 0
+        jo["x98"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 1
+        jo["x9c"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 2
+        jo["xa0"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 3
+        jo["xa4"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 4
+        jo["xa8"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 5
+        jo["xac"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 6
+        jo["xb0"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 7
+        jo["xb4"] = isofile.ReadColor(); // no named getter; GRIDCOLORS member 8
         return jo;
     }
 
@@ -778,7 +779,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["x94"] = isofile.ReadInt32();
+        jo["x94"] = isofile.ReadInt32(); // no named getter; init 0 in Init()
         ReadField(jo, "CTraceLinCol", isofile, "CTraceLinCol");
         return jo;
     }
@@ -790,11 +791,11 @@ static class Readers
         ReadParent(jo, isofile, "CData");
         int version = isofile.ReadSchemaVersion("CH3FactorResult", 4);
         if (Unabridged) jo["version"] = version;
-        jo["x98_x9c"] = isofile.ReadDouble();
-        jo["xa0_xa4"] = isofile.ReadDouble();
-        if (version >= 2) jo["xa8"] = isofile.ReadUInt32();
-        if (version >= 3) { jo["xac"] = isofile.ReadMfcString(); jo["xb8"] = isofile.ReadInt32(); }
-        if (version >= 4) { jo["xb0"] = isofile.ReadMfcString(); jo["xb4"] = isofile.ReadMfcString(); jo["xbc"] = isofile.ReadInt32(); }
+        jo["h3_factor"] = isofile.ReadDouble(); // no named getter; double at x98+x9c
+        jo["sigma"] = isofile.ReadDouble(); // no named getter; double at xa0+xa4
+        if (version >= 2) jo["timestamp"] = isofile.ReadUInt32(); // no named getter; xa8 = CTime
+        if (version >= 3) { jo["comment"] = isofile.ReadMfcString(); jo["is_checked"] = isofile.ReadInt32(); } // no named getters; xac, xb8 DDX_Check
+        if (version >= 4) { jo["gas_name_1"] = isofile.ReadMfcString(); jo["gas_name_2"] = isofile.ReadMfcString(); jo["xbc"] = isofile.ReadInt32(); } // gas_name_1/2 init "Unknown"; xbc no named getter
         return jo;
     }
 
@@ -805,14 +806,14 @@ static class Readers
         ReadParent(jo, isofile, "CData");
         int version = isofile.ReadSchemaVersion("CApplicationData", 2);
         if (Unabridged) jo["version"] = version;
-        jo["x94"] = isofile.ReadUInt32();
-        jo["x98"] = isofile.ReadUInt32();
-        jo["x9c"] = isofile.ReadUInt32();
-        jo["xa0"] = isofile.ReadUInt16();
-        jo["xa4"] = isofile.ReadUInt32();
-        jo["xa8"] = isofile.ReadUInt32();
-        jo["xac"] = isofile.ReadUInt32();
-        jo["xb0"] = isofile.ReadUInt32();
+        jo["x94"] = isofile.ReadUInt32(); // no named getter
+        jo["app_id"] = isofile.ReadUInt32(); // Name() = UTIL_GetAppNameFromID(x98)
+        jo["x9c"] = isofile.ReadUInt32(); // no named getter
+        jo["xa0"] = isofile.ReadUInt16(); // no named getter
+        jo["xa4"] = isofile.ReadUInt32(); // no named getter
+        jo["xa8"] = isofile.ReadUInt32(); // no named getter
+        jo["xac"] = isofile.ReadUInt32(); // no named getter
+        jo["xb0"] = isofile.ReadUInt32(); // no named getter
         return jo;
     }
 
@@ -823,8 +824,8 @@ static class Readers
         ReadParent(jo, isofile, "CData");
         int version = isofile.ReadSchemaVersion("CResultForGas", 1);
         if (Unabridged) jo["version"] = version;
-        jo["x94"] = isofile.ReadMfcString();
-        jo["x98"] = isofile.ReadMfcString();
+        jo["eval_name"] = isofile.ReadMfcString(); // GetEvalName
+        jo["eval_list"] = isofile.ReadMfcString(); // GetEvalList
         ReadField(jo, "data_xa4", isofile);
         return jo;
     }
@@ -940,12 +941,12 @@ static class Readers
             ReadObjectInto(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
         if (Unabridged) jo["version"] = version;
-        jo["xa8"] = isofile.ReadUInt8();
-        jo["xac"] = isofile.ReadMfcString();
+        jo["cal_type"] = isofile.ReadUInt8(); // no named getter; DDX_Text ctrl 0x3eb
+        jo["description"] = isofile.ReadMfcString(); // no named getter; DDX_Text ctrl 0x3ec
         jo["xb0"] = isofile.ReadTimestamp();
         if (version < 5) isofile.ReadDouble(); // legacy
-        jo["xbc"] = isofile.ReadInt32();
-        if (version >= 3) jo["xc0"] = isofile.ReadUInt8();
+        jo["xbc"] = isofile.ReadInt32(); // no named getter
+        if (version >= 3) jo["xc0"] = isofile.ReadUInt8(); // no named getter; DDX_Text ctrl 0x3ee
         if (version >= 4)
         {
             var splines = new JsonArray();
@@ -977,32 +978,32 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CVisualisationData", 8);
         if (Unabridged) jo["version"] = version;
 
-        jo["xa8"] = ReadIntArray(isofile, 4);
-        jo["xb8"] = ReadIntArray(isofile, 10);
-        jo["xe0"] = ReadIntArray(isofile, 10);
+        jo["plot_rect"] = ReadIntArray(isofile, 4); // no named getter; RECT at xa8 (init 0,0,100,100)
+        jo["trace_flags"] = ReadIntArray(isofile, 10); // no named getter; int[10] at xb8 (init all 1)
+        jo["plot_flags"] = ReadIntArray(isofile, 10); // no named getter; int[10] at xe0
 
         if (version >= 2)
         {
             jo["font"] = isofile.ReadMfcString();
-            jo["x10c"] = isofile.ReadMfcString();
-            jo["x110"] = isofile.ReadMfcString();
+            jo["x10c"] = isofile.ReadMfcString(); // no named getter
+            jo["x110"] = isofile.ReadMfcString(); // no named getter
             if (version >= 3)
             {
-                jo["x120"] = isofile.ReadInt32();
+                jo["x120"] = isofile.ReadInt32(); // no named getter
                 if (version >= 4)
                 {
-                    jo["x124"] = isofile.ReadInt32();
+                    jo["x124"] = isofile.ReadInt32(); // no named getter
                     if (version >= 5)
                     {
-                        jo["x148"] = isofile.ReadMfcString();
+                        jo["x148"] = isofile.ReadMfcString(); // no named getter
                         if (version >= 6)
                         {
-                            jo["x11c"] = isofile.ReadInt32();
+                            jo["x11c"] = isofile.ReadInt32(); // no named getter
                             if (version >= 7)
                             {
-                                jo["x128"] = isofile.ReadInt32();
+                                jo["x128"] = isofile.ReadInt32(); // no named getter
                                 if (version >= 8)
-                                    jo["x12c"] = isofile.ReadInt32();
+                                    jo["x12c"] = isofile.ReadInt32(); // no named getter
                             }
                         }
                     }
@@ -1056,7 +1057,7 @@ static class Readers
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPlotSettings", 5);
         if (Unabridged) jo["version"] = version;
-        if (version >= 2) { jo["xb0"] = isofile.ReadMfcString(); jo["configuration_name"] = isofile.ReadMfcString(); }
+        if (version >= 2) { jo["xb0"] = isofile.ReadMfcString(); jo["configuration_name"] = isofile.ReadMfcString(); } // xb0: no named getter; configuration_name: GetConfigurationName
         if (version >= 3) jo["peak_labelling"] = isofile.ReadInt32();
         if (version >= 4) jo["refresh_data_grid"] = isofile.ReadInt32();
         if (version >= 5) jo["ampere_calc_flag"] = isofile.ReadInt32();
@@ -1083,17 +1084,17 @@ static class Readers
         jo["min_perc_y_alt"] = isofile.ReadInt32();
         jo["max_perc_y_alt"] = isofile.ReadInt32();
         jo["trace_type"] = isofile.ReadInt32();
-        jo["x10c"] = isofile.ReadInt32();
-        jo["x110"] = isofile.ReadInt32();
-        jo["x114"] = isofile.ReadInt32();
-        jo["x118"] = isofile.ReadInt32();
+        jo["x10c"] = isofile.ReadInt32(); // no named getter; init 0
+        jo["x110"] = isofile.ReadInt32(); // no named getter; init 0
+        jo["x114"] = isofile.ReadInt32(); // no named getter; init 0
+        jo["x118"] = isofile.ReadInt32(); // no named getter; init 0
         ReadField(jo, "CViewColors", isofile, "CViewColors");
         if (version == 2)
         {
             isofile.AddWarning("CWinSettings v2: reading legacy object (untested)");
             ReadObject(isofile); // discard
         }
-        if (version >= 4) jo["x128"] = isofile.ReadInt32();
+        if (version >= 4) jo["ampere_calc_flag"] = isofile.ReadInt32(); // GetAmpereCalcFlag / SetAmpereCalcFlag
         return jo;
     }
 
@@ -1105,11 +1106,13 @@ static class Readers
         ValidateBlockNBlockObjects(block, 3);
         for (int i = 0; i < NBlockObjects(block); i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
-        jo["xa8"] = isofile.ReadColor();
-        jo["xac"] = isofile.ReadColor();
-        jo["xb0"] = isofile.ReadColor();
-        jo["xb4"] = isofile.ReadColor();
-        jo["xb8"] = isofile.ReadColor();
+        // 5 COLORREF values form the PLOT_COLORS struct (GetPlotColors/SetPlotColors);
+        // no individual getter names available.
+        jo["xa8"] = isofile.ReadColor(); // no named getter; PLOT_COLORS member 0
+        jo["xac"] = isofile.ReadColor(); // no named getter; PLOT_COLORS member 1
+        jo["xb0"] = isofile.ReadColor(); // no named getter; PLOT_COLORS member 2
+        jo["xb4"] = isofile.ReadColor(); // no named getter; PLOT_COLORS member 3
+        jo["xb8"] = isofile.ReadColor(); // no named getter; PLOT_COLORS member 4
         return jo;
     }
 
@@ -1143,7 +1146,7 @@ static class Readers
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CPkDataItemList", 1);
         if (Unabridged) jo["version"] = version;
-        jo["xa8"] = isofile.ReadInt32();
+        jo["current_item_idx"] = isofile.ReadInt32(); // iterator cursor used in GetNextItem; init -1
         return jo;
     }
 
@@ -1174,9 +1177,9 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CMethod", 10);
         if (Unabridged) jo["version"] = version;
         ReadField(jo, "CConfiguration", isofile, "CConfiguration");
-        jo["x9c"] = isofile.ReadMfcString();
-        jo["xa0"] = isofile.ReadMfcString();
-        jo["xa4"] = isofile.ReadMfcString();
+        jo["gas_config_name"] = isofile.ReadMfcString(); // C++ xb4; from CGasConfiguration::GetActiveName
+        jo["gas_name"] = isofile.ReadMfcString(); // C++ xb8; no named getter
+        jo["description"] = isofile.ReadMfcString(); // C++ xbc; no named getter
 
         // N CDeviceMethodPart objects (polymorphic — concrete subclass in stream)
         int nDeviceParts = isofile.ReadInt32();
@@ -1192,7 +1195,7 @@ static class Readers
         }
 
         if (version >= 3) jo["acq_type"] = isofile.ReadInt32();
-        if (version >= 4) jo["xc4"] = isofile.ReadMfcString();
+        if (version >= 4) jo["acq_type_name"] = isofile.ReadMfcString(); // C++ xc0; from CDevice::GetAcqTypeName
 
         if (version >= 5)
         {
@@ -1201,10 +1204,10 @@ static class Readers
                 ReadObjectInto(jo, isofile, "CMethod", groupTag: 3, groupDeclaredSize: nSubMethods);
         }
 
-        if (version >= 6) jo["xd0"] = isofile.ReadMfcString();
-        if (version >= 7) jo["xcc"] = isofile.ReadInt32();
-        if (version >= 9) { jo["xd4"] = isofile.ReadInt32(); jo["xd8"] = isofile.ReadInt32(); }
-        if (version >= 10) jo["xdc"] = isofile.ReadInt32();
+        if (version >= 6) jo["xd0"] = isofile.ReadMfcString(); // no named getter; C++ xd0
+        if (version >= 7) jo["correction_descriptors"] = isofile.ReadInt32(); // C++ xcc; CorrectionDescriptors_Update flag; init 0
+        if (version >= 9) { jo["xd4"] = isofile.ReadInt32(); jo["xd8"] = isofile.ReadInt32(); } // no named getters; C++ xd4, xd8; init 1
+        if (version >= 10) jo["xdc"] = isofile.ReadInt32(); // no named getter; C++ xdc; init 0
 
         return jo;
     }
@@ -1218,11 +1221,11 @@ static class Readers
             ReadObjectInto(block["objects"]!.AsObject(), isofile);
         int version = isofile.ReadSchemaVersion("CConfiguration", 7);
         if (Unabridged) jo["version"] = version;
-        if (version >= 3) jo["xa8"] = isofile.ReadInt32();
-        if (version >= 4) jo["xac"] = isofile.ReadInt32();
-        if (version >= 5) jo["xb0"] = isofile.ReadMfcString();
-        if (version >= 6) jo["xb4"] = isofile.ReadInt32();
-        if (version >= 7) jo["xb8"] = isofile.ReadInt32();
+        if (version >= 3) jo["acq_type"] = isofile.ReadInt32(); // GetAcqType / SetAcqType
+        if (version >= 4) jo["xac"] = isofile.ReadInt32(); // no named getter
+        if (version >= 5) jo["xb0"] = isofile.ReadMfcString(); // no named getter
+        if (version >= 6) jo["display_compound_ratios"] = isofile.ReadInt32(); // DisplayCompoundRatios
+        if (version >= 7) jo["application_mode_idx"] = isofile.ReadInt32(); // SetApplicationMode / GetApplicationMode; init -1 then searched
         return jo;
     }
 
@@ -1332,11 +1335,11 @@ static class Readers
             ReadObjectInto(deviceBlockObjects, isofile);
         int version = isofile.ReadSchemaVersion("CDevice", 5);
         if (Unabridged) jo["version"] = version;
-        jo["xac"] = isofile.ReadUInt32();
-        jo["xb0"] = isofile.ReadUInt32();
-        if (version >= 3) jo["xa8"] = isofile.ReadUInt32();
-        if (version >= 4) jo["xb4"] = isofile.ReadUInt32();
-        if (version >= 5) jo["xb8"] = isofile.ReadMfcString();
+        jo["xac"] = isofile.ReadUInt32(); // no named getter; v1+
+        jo["xb0"] = isofile.ReadUInt32(); // no named getter; v1+
+        if (version >= 3) jo["xa8"] = isofile.ReadUInt32(); // no named getter; v3+
+        if (version >= 4) jo["xb4"] = isofile.ReadUInt32(); // no named getter; v4+
+        if (version >= 5) jo["xb8"] = isofile.ReadMfcString(); // no named getter; v5+; CString (CDaoIndexFieldInfo at xb8)
         return jo;
     }
 
@@ -1347,7 +1350,7 @@ static class Readers
         ReadParent(jo, isofile, "CDevice");
         int version = isofile.ReadSchemaVersion("CActiveDevice", 2);
         if (Unabridged) jo["version"] = version;
-        if (version >= 2) jo["xec"] = isofile.ReadMfcString();
+        if (version >= 2) jo["calib_table_file_name"] = isofile.ReadMfcString(); // GetCalibTableFileName / SetCalibTableFileName
         return jo;
     }
 
@@ -1357,7 +1360,7 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CActiveDevice");
-        jo["xf0"] = isofile.ReadInt32();
+        jo["xf0"] = isofile.ReadInt32(); // no named getter; always 1
         return jo;
     }
 
@@ -1392,8 +1395,8 @@ static class Readers
         ReadParent(jo, isofile, "CActiveDevice");
         int version = isofile.ReadSchemaVersion("CMsDevice", 2);
         if (Unabridged) jo["version"] = version;
-        jo["xfc"] = isofile.ReadUInt32();
-        if (version >= 2) jo["x100"] = isofile.ReadUInt32();
+        jo["xfc"] = isofile.ReadUInt32(); // no named getter; ComboBox selection (init 2); DDX via combo at ctrl 0x411
+        if (version >= 2) jo["x100"] = isofile.ReadUInt32(); // no named getter; DDX_Check ctrl 0x40f (init 1)
         return jo;
     }
 
@@ -1404,7 +1407,7 @@ static class Readers
         ReadParent(jo, isofile, "CActiveDevice");
         int version = isofile.ReadSchemaVersion("CGenericGcDevice", 2);
         if (Unabridged) jo["version"] = version;
-        if (version >= 2) jo["xfc"] = isofile.ReadUInt32();
+        if (version >= 2) jo["device_start_time"] = isofile.ReadUInt32(); // SetDeviceStartTime (GetTickCount at init)
         return jo;
     }
 
