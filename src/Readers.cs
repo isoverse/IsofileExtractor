@@ -355,7 +355,8 @@ static class Readers
                 // Null out PartialResult so outer ReadObject frames don't try to embed this node
                 // again — it already has a parent from AddToObjectsDict.
                 AddToObjectsDict(container,
-                    ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial);
+                    ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial,
+                    setIdx: !noIndex);
                 ipe.PartialResult = null;
                 ipe.PartialResultClassName = null;
                 throw;
@@ -363,7 +364,7 @@ static class Readers
 
             // Add child immediately so it appears in output even if sub-child expansion fails.
             // Sub-children populate child["objects"] in-place, so the dict entry stays current.
-            AddToObjectsDict(container, childClassName, child);
+            AddToObjectsDict(container, childClassName, child, setIdx: !noIndex);
 
             int n = NBlockObjects(child);
             if (n > 0)
@@ -467,8 +468,27 @@ static class Readers
 
     // Add node to the grouped objects dict under its snake_case class key.
     // Single occurrence → direct value.  Multiple → converted to JsonArray.
-    static void AddToObjectsDict(JsonObject dict, string className, JsonNode? node)
+    // When setIdx is true, sets node["idx"] to the 1-based insertion position across ALL classes
+    // in the dict, preserving polymorphic ordering information that would otherwise be lost by
+    // grouping.  setIdx is false for noIndex reads (standalone embedded objects, not group members).
+    static void AddToObjectsDict(JsonObject dict, string className, JsonNode? node,
+                                  bool setIdx = true)
     {
+        if (setIdx && node is JsonObject jo)
+        {
+            int idx = 1;
+            foreach (var kvp in dict)
+            {
+                if (kvp.Value is JsonArray arr) idx += arr.Count;
+                else if (kvp.Value is JsonObject) idx += 1;
+            }
+            // Rebuild property order so idx appears first, before parent and any other field.
+            var props = jo.ToList();
+            jo.Clear();
+            jo["idx"] = idx;
+            foreach (var (k, v) in props) jo[k] = v;
+        }
+
         string key = ToSnakeKey(className);
         if (!dict.ContainsKey(key))
         {
@@ -515,7 +535,7 @@ static class Readers
 
         if (version >= 4)
         {
-            ReadObjectInto(jo, isofile, "CDataIndex");
+            ReadObjectInto(jo, isofile, "CDataIndex", noIndex: true);
         }
 
         if (version >= 5)
