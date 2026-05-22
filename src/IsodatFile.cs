@@ -276,7 +276,7 @@ public sealed class IsodatFile : IDisposable
 
     internal void SetObjectLogGroup(int index, int idx, int total)
     {
-        _objectLog[index].BlockObjectIdx = idx + 1;  // display is 1-based
+        _objectLog[index].BlockObjectIdx = idx;
         _objectLog[index].GroupTotal = total;
     }
 

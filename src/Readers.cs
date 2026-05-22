@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace IsodatReader;
 
@@ -345,7 +346,7 @@ static class Readers
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null,
-                                    bool maybeNull = false, int idx = -1, int groupTotal = 0)
+                                    bool maybeNull = false, int idx = 0, int groupTotal = 0)
     {
         if (maybeNull)
         {
@@ -380,7 +381,7 @@ static class Readers
             try
             {
                 var childContainer = child["objects"]!.AsObject();
-                for (int i = 0; i < n; i++)
+                for (int i = 1; i <= n; i++)
                     ReadObjectInto(childContainer, isofile, idx: i, groupTotal: n);
             }
             finally
@@ -469,21 +470,21 @@ static class Readers
 
     // Add node to the grouped objects dict under its snake_case class key.
     // Single occurrence → direct value.  Multiple → converted to JsonArray.
-    // When idx >= 0 (group member): stamps node["idx"] with the 1-based insertion position across
+    // When idx > 0 (group member): stamps node["idx"] with the 1-based insertion position across
     // ALL classes in the dict (preserving polymorphic ordering), and annotates the object-log entry
     // at logBefore with its group position and total.
     static void AddToObjectsDict(JsonObject dict, string className, JsonNode? node,
-                                  int idx = -1, int groupTotal = 0,
+                                  int idx = 0, int groupTotal = 0,
                                   IsodatFile? isofile = null, int logBefore = -1)
     {
-        if (idx >= 0)
+        if (idx > 0)
         {
             if (node is JsonObject jo)
             {
                 // Rebuild property order so idx appears first, before parent and any other field.
                 var props = jo.ToList();
                 jo.Clear();
-                jo["idx"] = idx + 1;
+                jo["idx"] = idx;
                 foreach (var (k, v) in props) jo[k] = v;
             }
             if (isofile != null && logBefore < isofile.ObjectLog.Count)
@@ -530,8 +531,8 @@ static class Readers
             var block = ReadParent(jo, isofile, "CBlockData");
             ValidateBlockNBlockObjects(block, 2);
             var container = block["objects"]!.AsObject();
-            ReadObjectInto(container, isofile, "CTimeObject");
-            ReadObjectInto(container, isofile, "CStr");
+            ReadObjectInto(container, isofile, "CTimeObject", idx: 1, groupTotal: 2);
+            ReadObjectInto(container, isofile, "CStr", idx: 2, groupTotal: 2);
         }
 
         if (version >= 4)
@@ -723,8 +724,9 @@ static class Readers
         // Serialize does NOT call parent CData::Serialize but has an embedded CBlockData
         var block = ReadObject(isofile, "CBlockData");
         jo["CBlockData"] = block;
-        for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CTraceLinCol");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CTraceLinCol", idx: i, groupTotal: blockN);
         return jo;
     }
 
@@ -1003,8 +1005,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CData", idx: i, groupTotal: blockN);
         isofile.ReadUInt32(); // CAcquisitionBaseRawDataBlock sentinel
         return jo;
     }
@@ -1015,8 +1018,8 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CSeqLineIndexData", idx: i, groupTotal: blockN);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
     }
@@ -1027,8 +1030,8 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN); // CCalibrationPoint/CCalibrationParameter/CDouble
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN); // no clear pattern in this one: can be CCalibrationPoint/CCalibrationParameter/CDouble
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
         if (Unabridged) jo["version"] = version;
         jo["cal_type"] = isofile.ReadUInt8(); // no named getter; DDX_Text ctrl 0x3eb
@@ -1166,7 +1169,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CGasConfiguration", 3);
         if (Unabridged) jo["version"] = version;
@@ -1180,7 +1183,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
@@ -1192,7 +1195,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
@@ -1204,7 +1207,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CPlotSettings", 5);
         if (Unabridged) jo["version"] = version;
@@ -1221,7 +1224,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CWinSettings", 4);
         if (Unabridged) jo["version"] = version;
@@ -1258,7 +1261,7 @@ static class Readers
         var block = ReadParent(jo, isofile, "CBlockData");
         ValidateBlockNBlockObjects(block, 3);
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         // 5 COLORREF values form the PLOT_COLORS struct (GetPlotColors/SetPlotColors);
         // no individual getter names available.
@@ -1276,7 +1279,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CGasSettings", 5);
         if (Unabridged) jo["version"] = version;
@@ -1302,7 +1305,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CPkDataItemList", 1);
         if (Unabridged) jo["version"] = version;
@@ -1332,7 +1335,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
 
         int version = isofile.ReadSchemaVersion("CMethod", 10);
@@ -1345,14 +1348,14 @@ static class Readers
         // N CDeviceMethodPart objects (polymorphic — concrete subclass in stream)
         int nDeviceParts = isofile.ReadInt32();
         jo["n_device_parts"] = nDeviceParts;
-        for (int i = 0; i < nDeviceParts; i++)
+        for (int i = 1; i <= nDeviceParts; i++)
             ReadObjectInto(jo, isofile, pattern: "DeviceMethodPart", idx: i, groupTotal: nDeviceParts);
 
         if (version >= 2)
         {
             int nEvalParts = isofile.ReadInt32();
             jo["n_eval_parts"] = nEvalParts;
-            for (int i = 0; i < nEvalParts; i++)
+            for (int i = 1; i <= nEvalParts; i++)
                 ReadObjectInto(jo, isofile, pattern: "DeviceEvaluationPart", idx: i, groupTotal: nEvalParts);
         }
 
@@ -1362,7 +1365,7 @@ static class Readers
         if (version >= 5)
         {
             int nSubMethods = isofile.ReadInt32();
-            for (int i = 0; i < nSubMethods; i++)
+            for (int i = 1; i <= nSubMethods; i++)
                 ReadObjectInto(jo, isofile, "CMethod", idx: i, groupTotal: nSubMethods);
         }
 
@@ -1380,7 +1383,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CConfiguration", 7);
         if (Unabridged) jo["version"] = version;
@@ -1398,7 +1401,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CComponentList", 1);
         if (Unabridged) jo["version"] = version;
@@ -1412,7 +1415,7 @@ static class Readers
         var block = ReadParent(jo, isofile, "CBlockData");
         // children are CParsedEvaluationString objects
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CParsedEvaluationStringArray", 4);
         if (Unabridged) jo["version"] = version;
@@ -1429,7 +1432,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CResultArray", 2);
         if (Unabridged) jo["version"] = version;
@@ -1444,7 +1447,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CActionScript", 5);
         if (Unabridged) jo["version"] = version;
@@ -1459,8 +1462,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CSPeak");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CSPeak", idx: i, groupTotal: blockN);
         int v = isofile.ReadSchemaVersion("CGCPeakList", 6);
         if (Unabridged) jo["version"] = v;
         jo["xc4"] = isofile.ReadUInt32();
@@ -1483,7 +1487,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         isofile.ReadInt32();  // constant 1, discarded on load (no schema version in Serialize)
         return jo;
@@ -1495,7 +1499,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
-        for (int i = 0; i < blockN; i++)
+        for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CEvalDataItemListTransferPart", 1);
         if (Unabridged) jo["version"] = version;
@@ -1511,8 +1515,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        var deviceBlockObjects = block["objects"]!.AsObject();
-        { int __n = NBlockObjects(block); for (int i = 0; i < __n; i++) ReadObjectInto(deviceBlockObjects, isofile, idx: i, groupTotal: __n); }
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CDevice", 5);
         if (Unabridged) jo["version"] = version;
         jo["xac"] = isofile.ReadUInt32(); // no named getter; v1+
@@ -1621,8 +1626,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        var portBlockObjects = block["objects"]!.AsObject();
-        { int __n = NBlockObjects(block); for (int i = 0; i < __n; i++) ReadObjectInto(portBlockObjects, isofile, idx: i, groupTotal: __n); }
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         int version = isofile.ReadSchemaVersion("CActivePort", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2) jo["xa8"] = isofile.ReadMfcString();
@@ -1863,7 +1869,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadUInt8();
         jo["n_configs"] = n;
-        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, "CChannelGasConfPart", idx: i, groupTotal: n);
+        for (int i = 1; i <= n; i++) ReadObjectInto(jo, isofile, "CChannelGasConfPart", idx: i, groupTotal: n);
         return jo;
     }
 
@@ -2141,10 +2147,10 @@ static class Readers
         }
         int nCups = isofile.ReadUInt8();
         jo["n_cups"] = nCups;
-        for (int i = 0; i < nCups; i++) ReadObjectInto(jo, isofile, "CCupHardwarePart", idx: i, groupTotal: nCups);
+        for (int i = 1; i <= nCups; i++) ReadObjectInto(jo, isofile, "CCupHardwarePart", idx: i, groupTotal: nCups);
         int nChan = isofile.ReadUInt8();
         jo["n_channels"] = nChan;
-        for (int i = 0; i < nChan; i++) ReadObjectInto(jo, isofile, "CChannelHardwarePart", idx: i, groupTotal: nChan);
+        for (int i = 1; i <= nChan; i++) ReadObjectInto(jo, isofile, "CChannelHardwarePart", idx: i, groupTotal: nChan);
         if (version >= 3) { jo["x1a8"] = isofile.ReadBool32(); jo["x1ac"] = isofile.ReadBool32(); }
         return jo;
     }
@@ -2241,7 +2247,7 @@ static class Readers
         jo["x04"] = isofile.ReadInt32();
         int nTraces = isofile.ReadUInt8();
         jo["n_traces"] = nTraces;
-        for (int i = 0; i < nTraces; i++) ReadObjectInto(jo, isofile, "CTraceInfoEntry");
+        for (int i = 1; i <= nTraces; i++) ReadObjectInto(jo, isofile, "CTraceInfoEntry", idx: i, groupTotal: nTraces);
         jo["n_traces"] = isofile.ReadUInt8();  // read again
         if (nTraces > 0)
         {
@@ -2419,7 +2425,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadInt32();
         jo["n_actions"] = n;
-        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
+        for (int i = 1; i <= n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
         if (version >= 2) jo["xdc"] = isofile.ReadUInt32();
         if (version >= 3) jo["xe8"] = isofile.ReadUInt32();
         return jo;
@@ -2724,13 +2730,14 @@ static class Readers
         {
             var block = ReadObject(isofile, "CBlockData");
             jo["CBlockData"] = block;
-            for (int i = 0; i < NBlockObjects(block); i++)
-                ReadObjectInto(block["objects"]!.AsObject(), isofile);
+            int blockN = NBlockObjects(block);
+            for (int i = 1; i <= blockN; i++)
+                ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         }
         else
         {
             int n = isofile.ReadInt32();
-            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
+            for (int i = 1; i <= n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
         }
         return jo;
     }
@@ -2859,13 +2866,14 @@ static class Readers
         {
             var block = ReadObject(isofile, "CBlockData");
             jo["CBlockData"] = block;
-            for (int i = 0; i < NBlockObjects(block); i++)
-                ReadObjectInto(block["objects"]!.AsObject(), isofile);
+            int blockN = NBlockObjects(block);
+            for (int i = 1; i <= blockN; i++)
+                ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         }
         else
         {
             int n = isofile.ReadInt32();
-            for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
+            for (int i = 1; i <= n; i++) ReadObjectInto(jo, isofile, idx: i, groupTotal: n);
         }
         return jo;
     }
@@ -3013,8 +3021,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CGCPeak");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CGCPeak", idx: i, groupTotal: blockN);
         int v = isofile.ReadSchemaVersion("CResultData", 6);
         if (Unabridged) jo["version"] = v;
         jo["peak_id"] = isofile.ReadUInt32();
@@ -3262,8 +3271,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        var cfBlockObjects = block["objects"]!.AsObject();
-        { int __n = NBlockObjects(block); for (int i = 0; i < __n; i++) ReadObjectInto(cfBlockObjects, isofile, idx: i, groupTotal: __n); }
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         return jo;
     }
 
@@ -3277,9 +3287,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
 
-        int nObjects = NBlockObjects(block);
-        if (nObjects > 0)
-            isofile.AddWarning($"CScanStorage: unexpected {nObjects} CBlockData child objects");
+        ValidateBlockNBlockObjects(block, 0);
 
         int version = isofile.ReadSchemaVersion("CScanStorage", 6);
         if (Unabridged) jo["version"] = version;
