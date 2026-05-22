@@ -172,6 +172,8 @@ static class Readers
             ["CCalculatingDacTransferPart"] = ReadCAdcTransferPart,
             ["CScaleHvTransferPart"] = ReadCAdcTransferPart,
             ["CMagnetCurrentTransferPart"] = ReadCMagnetCurrentTransferPart,
+            ["CIntensityData"] = ReadCIntensityData,
+            ["CIntegrationUnitBackGround"] = ReadCIntegrationUnitBackGround,
 
             // --- CGasConfPart chain ---
             ["CIntegrationUnitGasConfPart"] = ReadCIntegrationUnitGasConfPart,
@@ -2036,6 +2038,65 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CAdcTransferPart");
         jo["xa8"] = isofile.ReadBool32();
+        return jo;
+    }
+
+    static JsonObject ReadCIntensityData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CTransferPart");
+        int v = isofile.ReadSchemaVersion("CIntensityData", 6);
+        if (Unabridged) jo["version"] = v;
+        // vtable+0x1ac virtual call takes no archive args — skip
+        int nValues = isofile.ReadInt32();
+        jo["n_values"] = nValues;
+        var values = new JsonArray();
+        for (int i = 0; i < nValues; i++) values.Add(isofile.ReadDouble());
+        jo["values"] = values;
+        if (v >= 3) jo["xe0"] = isofile.ReadUInt16();
+        if (v >= 4)
+        {
+            int nWarnings = isofile.ReadInt32();
+            jo["n_warnings"] = nWarnings;
+            if (nWarnings > 0)
+            {
+                var items = new JsonArray();
+                for (int i = 0; i < nWarnings; i++)
+                {
+                    int id = isofile.ReadInt32();
+                    string name = isofile.ReadMfcString();
+                    int mode = (v >= 5) ? isofile.ReadInt32() : 2;
+                    items.Add(new JsonObject { ["id"] = id, ["name"] = name, ["mode"] = mode });
+                }
+                jo["warnings"] = items;
+            }
+            if (v >= 6)
+            {
+                int nOutlierFlags = isofile.ReadInt32();
+                jo["n_outlier_flags"] = nOutlierFlags;
+                if (nOutlierFlags > 0)
+                {
+                    var bytes = new JsonArray();
+                    for (int i = 0; i < nOutlierFlags; i++) bytes.Add(isofile.ReadUInt8());
+                    jo["outlier_flags"] = bytes;
+                }
+            }
+        }
+        return jo;
+    }
+
+    static JsonObject ReadCIntegrationUnitBackGround(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CIntensityData");
+        int v = isofile.ReadSchemaVersion("CIntegrationUnitBackGround", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xec"] = isofile.ReadMfcString();
+        jo["xe8"] = isofile.ReadFloat();
+        ReadObjectInto(jo, isofile, "CIntegrationUnitGasConfPart");
+        if (v >= 3) jo["x1a4"] = isofile.ReadInt32();
         return jo;
     }
 
