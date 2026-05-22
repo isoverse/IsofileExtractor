@@ -123,6 +123,7 @@ static class Readers
             ["CConFloDevice"] = ReadCConFloDevice,
             ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
             ["CUserDevice"] = ReadCBufferedRefillDevice,
+            ["CGCExtendedInterfaceDevice"] = ReadCBufferedRefillDevice,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,

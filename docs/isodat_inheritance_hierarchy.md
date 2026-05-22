@@ -4,7 +4,7 @@
 - CApplicationData (DONE)
 - CAxisPara (DONE)
 - CBasicScan (DONE)
-- CCalibrationParameter
+- CCalibrationParameter (DONE)
 - CCalibrationPoint (DONE)
 - CComponent (DONE)
 - CDynExternal (DONE)
@@ -96,6 +96,7 @@
 ## CData::CBlockData::CDevice (DONE)
 - CActiveDevice (DONE)
   - CBufferedRefillDevice (DONE)
+    - CGCExtendedInterfaceDevice (DONE)
     - CMultiReferenceDevice (DONE)
     - CUserDevice (DONE)
   - CConFloDevice (DONE)
