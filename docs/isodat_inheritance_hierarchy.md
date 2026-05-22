@@ -85,6 +85,7 @@
 - CResultData (DONE)
 - CResultDataList
 - CScanStorage (DONE)
+- CSeqLineIndexData (DONE)
 - CSequenceGridParam
   - CSequenceFlag
   - CSequenceText

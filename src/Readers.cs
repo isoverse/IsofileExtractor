@@ -89,6 +89,7 @@ static class Readers
             ["CBlockData"] = ReadCBlockData,
             ["CAcquistionBaseBlockData"] = ReadCBlockData,
             ["CPort"] = ReadCBlockData,
+            ["CSeqLineIndexData"] = ReadCSeqLineIndexData,
             ["CDataIndex"] = ReadCDataIndex,
             ["CCalibration"] = ReadCCalibration,
             ["CCalibrationParameter"] = ReadCCalibrationParameter,
@@ -1011,12 +1012,27 @@ static class Readers
         return jo;
     }
 
+    // CSeqLineIndexData::Serialize (AcquisitionBase_u.dll vftable → CAcquisitionBaseRawDataBlock::Serialize):
+    //   parent CBlockData + trailing uint32 sentinel (always 1 on write)
+    //   no child-object loop (CAcquisitionBaseRawDataBlock::Serialize has none)
+    static JsonObject ReadCSeqLineIndexData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        for (int i = 0; i < NBlockObjects(block); i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, expected: "CData");
+        isofile.ReadUInt32(); // CAcquisitionBaseRawDataBlock sentinel
+        return jo;
+    }
+
     public static JsonObject ReadCDataIndex(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        ValidateBlockNBlockObjects(block, 0);
+        for (int i = 0; i < NBlockObjects(block); i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
     }
