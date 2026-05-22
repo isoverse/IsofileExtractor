@@ -1500,7 +1500,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
-        isofile.ReadInt32();  // constant 1, discarded on load (no schema version in Serialize)
+        int v = isofile.ReadSchemaVersion("CVisualisationDialogNamesBlockData", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
@@ -1550,13 +1551,14 @@ static class Readers
         return jo;
     }
 
-    // CBufferedRefillDevice::Serialize = CActiveDevice::Serialize + one int32 (always written as 1, discarded on read)
+    // CBufferedRefillDevice::Serialize = CActiveDevice::Serialize + schema version (always v1)
     static JsonObject ReadCBufferedRefillDevice(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CActiveDevice");
-        jo["xf0"] = isofile.ReadInt32(); // no named getter; always 1
+        int v = isofile.ReadSchemaVersion("CBufferedRefillDevice", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
@@ -1589,36 +1591,39 @@ static class Readers
     }
 
     // CTraceBasicDevice::Serialize (TraceGcDll.dll):
-    //   parent CXCaliburDevice + sentinel uint32 (always 1)
+    //   parent CXCaliburDevice + schema version (always v1)
     static JsonObject ReadCTraceBasicDevice(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CXCaliburDevice");
-        jo["xcal_sentinel"] = isofile.ReadUInt32(); // always 1
+        int v = isofile.ReadSchemaVersion("CTraceBasicDevice", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
     // CTrace_II_Device::Serialize (TraceGcDll.dll):
-    //   parent CTraceBasicDevice + sentinel uint32 (always 1)
+    //   parent CTraceBasicDevice + schema version (always v1)
     static JsonObject ReadCTrace_II_Device(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CTraceBasicDevice");
-        jo["trace2_sentinel"] = isofile.ReadUInt32(); // always 1
+        int v = isofile.ReadSchemaVersion("CTrace_II_Device", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
     // CXcalRSH2Device::Serialize (TriPlusDll.dll):
-    //   parent CXCaliburDevice + sentinel uint32 (always 1)
+    //   parent CXCaliburDevice + schema version (always v1)
     // CXcalRSHDevice uses this Serialize unchanged (no override in vftable)
     static JsonObject ReadCXcalRSH2Device(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CXCaliburDevice");
-        jo["rsh_sentinel"] = isofile.ReadUInt32(); // always 1
+        int v = isofile.ReadSchemaVersion("CXcalRSH2Device", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
@@ -3277,15 +3282,6 @@ static class Readers
     // CGridStorage / CGridCtrl / CGridCell (.cf CDataIndex children)
     // =======================================================================
 
-    // CShrinkInfo::Serialize called inline (no standalone CRuntimeClass header).
-    // Reads: int32 (schema version / skip), int32 n, then n×(col_idx, width) pairs.
-    static void SkipCShrinkInfoInline(IsodatFile isofile)
-    {
-        isofile.ReadInt32();           // schema version (= 2 in known files)
-        int n = isofile.ReadInt32();
-        isofile.SkipBytes(n * 8);     // n × (int32 col_idx + int32 width)
-    }
-
     // Returns the cell's text value (null if the cell has no text), consuming all bytes.
     static string? ReadCGridCell(IsodatFile isofile)
     {
@@ -3383,7 +3379,13 @@ static class Readers
         jo["x1dc"] = isofile.ReadInt32();                  // m_x1dc
 
         if (v >= 9)
-            SkipCShrinkInfoInline(isofile);
+        {
+            // CShrinkInfo::Serialize inline (no CRuntimeClass header):
+            // int32 schema version, int32 n, n × (col_idx int32 + width int32)
+            isofile.ReadSchemaVersion("CShrinkInfo", 2);
+            int nShrink = isofile.ReadInt32();
+            isofile.SkipBytes(nShrink * 8);
+        }
 
         int nRows = isofile.ReadInt32();
         int nCols = isofile.ReadInt32();
@@ -3413,29 +3415,51 @@ static class Readers
         jo["cells"] = rows;
 
         // Row heights (one int32 per row)
-        for (int r = 0; r < nRows; r++) isofile.ReadInt32();
+        var rowHeights = new JsonArray();
+        for (int r = 0; r < nRows; r++) rowHeights.Add(isofile.ReadInt32());
+        jo["row_heights"] = rowHeights;
+
         // Column widths (one int32 per column)
-        for (int c = 0; c < nCols; c++) isofile.ReadInt32();
+        var colWidths = new JsonArray();
+        for (int c = 0; c < nCols; c++) colWidths.Add(isofile.ReadInt32());
+        jo["col_widths"] = colWidths;
 
-        // LOGFONTW (92 bytes): lfHeight … lfFaceName
-        isofile.SkipBytes(92);
+        // LOGFONTW (92 bytes): 5×int32 + 8×byte + 32×WCHAR face name
+        var logFont = new JsonObject();
+        logFont["height"] = isofile.ReadInt32();
+        logFont["width"] = isofile.ReadInt32();
+        logFont["escapement"] = isofile.ReadInt32();
+        logFont["orientation"] = isofile.ReadInt32();
+        logFont["weight"] = isofile.ReadInt32();
+        logFont["italic"] = isofile.ReadUInt8();
+        logFont["underline"] = isofile.ReadUInt8();
+        logFont["strike_out"] = isofile.ReadUInt8();
+        logFont["char_set"] = isofile.ReadUInt8();
+        logFont["out_precision"] = isofile.ReadUInt8();
+        logFont["clip_precision"] = isofile.ReadUInt8();
+        logFont["quality"] = isofile.ReadUInt8();
+        logFont["pitch_and_family"] = isofile.ReadUInt8();
+        logFont["face_name"] = Encoding.Unicode.GetString(isofile.ReadBytes(64)).TrimEnd('\0');
+        jo["log_font"] = logFont;
 
-        // x168 field
-        isofile.ReadInt32();
+        jo["x168"] = isofile.ReadInt32();
 
         // CGridLegende inline: count + count × (MFC string + int32)
         int legendCount = isofile.ReadInt32();
-        for (int i = 0; i < legendCount; i++)
+        if (legendCount > 0)
         {
-            isofile.ReadMfcString();
-            isofile.ReadInt32();
+            var legends = new JsonArray();
+            for (int i = 0; i < legendCount; i++)
+                legends.Add(new JsonObject { ["label"] = isofile.ReadMfcString(), ["value"] = isofile.ReadInt32() });
+            jo["legend"] = legends;
         }
 
-        if (v >= 6) isofile.ReadInt32();                   // x1b8
+        if (v >= 6) jo["x1b8"] = isofile.ReadInt32();
 
         if (v >= 10)
         {
             int hasImageList = isofile.ReadInt32();
+            jo["has_image_list"] = hasImageList != 0;
             if (hasImageList != 0)
             {
                 isofile.SkipBytes(28);                     // ILHEAD (magic + header fields)
@@ -3444,7 +3468,7 @@ static class Readers
             }
         }
 
-        if (v >= 11) isofile.ReadInt32();                  // xb0
+        if (v >= 11) jo["xb0"] = isofile.ReadInt32();
 
         return jo;
     }
