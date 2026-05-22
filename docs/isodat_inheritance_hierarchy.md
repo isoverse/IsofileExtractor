@@ -23,6 +23,7 @@
 - CMolecule (DONE)
 - CMRI_DilutionList (DONE)
 - COutlierData
+- CPeakDetectionParameter (DONE)
 - CPeakFindParameter (DONE)
   - CSimplePeakFindParameter (DONE)
 - CResultDataSimple
@@ -193,7 +194,7 @@
   - CDword (DONE)
     - CPeakCenterOffset (DONE)
   - CInt (DONE)
-- CDouble
+- CDouble (DONE)
 - CStr (DONE)
 
 ## CEvalDataStorage (DONE)

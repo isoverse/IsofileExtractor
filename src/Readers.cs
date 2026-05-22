@@ -73,12 +73,14 @@ static class Readers
             ["CResultForGas"] = ReadCResultForGas,
             ["CPeakFindParameter"] = ReadCPeakFindParameter,
             ["CMRI_DilutionList"] = ReadCMRI_DilutionList,
+            ["CPeakDetectionParameter"] = ReadCPeakDetectionParameter,
 
             // --- CSimple chain ---
             ["CSimple"] = ReadCSimple,
             ["CStr"] = ReadCStr,
             ["CDword"] = ReadCDword,
             ["CInt"] = ReadCInt,
+            ["CDouble"] = ReadCDouble,
             ["CPeakCenterOffset"] = ReadCDword,
             ["CBinary"] = ReadCBinary,
 
@@ -88,6 +90,7 @@ static class Readers
             ["CPort"] = ReadCBlockData,
             ["CDataIndex"] = ReadCDataIndex,
             ["CCalibration"] = ReadCCalibration,
+            ["CCalibrationParameter"] = ReadCCalibrationParameter,
             ["CVisualisationData"] = ReadCVisualisationData,
             ["CGasConfiguration"] = ReadCGasConfiguration,
             ["CMeasurmentInfos"] = ReadCMeasurmentInfos,
@@ -956,6 +959,17 @@ static class Readers
         return jo;
     }
 
+    static JsonObject ReadCDouble(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSimple");
+        int version = isofile.ReadSchemaVersion("CDouble", 2);
+        if (Unabridged) jo["version"] = version;
+        jo[ValueKey] = isofile.ReadDouble();
+        return jo;
+    }
+
     static JsonObject ReadCBinary(IsodatFile isofile)
     {
         var jo = new JsonObject();
@@ -1004,7 +1018,7 @@ static class Readers
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
         for (int i = 0; i < NBlockObjects(block); i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CCalibrationPoint");
+            ReadObjectInto(block["objects"]!.AsObject(), isofile); // CCalibrationPoint/CCalibrationParameter/CDouble
         int version = isofile.ReadSchemaVersion("CCalibration", 5);
         if (Unabridged) jo["version"] = version;
         jo["cal_type"] = isofile.ReadUInt8(); // no named getter; DDX_Text ctrl 0x3eb
@@ -1032,6 +1046,63 @@ static class Readers
             }
             if (Unabridged) jo["splines"] = splines;
         }
+        return jo;
+    }
+
+    // CCalibrationParameter::Serialize (CalibrationDll.dll):
+    //   parent CData + schema v2
+    //   0x94 uint32 (default 300)
+    //   0x98 uint32 (default 2)
+    //   0x9c uint8  (default 90)
+    //   0xa0 uint32 (default 2000)
+    //   v>=2: 0xa4 uint32 (default 2)
+    //   v>=2: 0xa8 uint32 (default 5)
+    static JsonObject ReadCCalibrationParameter(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CCalibrationParameter", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x94"] = isofile.ReadUInt32();
+        jo["x98"] = isofile.ReadUInt32();
+        jo["x9c"] = isofile.ReadUInt8();
+        jo["xa0"] = isofile.ReadUInt32();
+        if (v >= 2)
+        {
+            jo["xa4"] = isofile.ReadUInt32();
+            jo["xa8"] = isofile.ReadUInt32();
+        }
+        return jo;
+    }
+
+    // CPeakDetectionParameter::Serialize (IsodatClasses.dll):
+    //   parent CData + schema v5
+    //   v1: 4x double (0x98, 0xa0, 0xa8, 0xb0), uint32 smooth_factor (0xc0)
+    //   v2: uint8 (0xb8, default 50)
+    //   v3: uint32 (0xbc, default 1)
+    //   v4: uint32 has_next + if non-zero ReadObject(CPeakDetectionParameter) [linked list]
+    //   v5: uint8 (0xb9, default 80)
+    static JsonObject ReadCPeakDetectionParameter(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CPeakDetectionParameter", 5);
+        if (Unabridged) jo["version"] = v;
+        jo["x98"] = isofile.ReadDouble();
+        jo["xa0"] = isofile.ReadDouble();
+        jo["xa8"] = isofile.ReadDouble();
+        jo["xb0"] = isofile.ReadDouble();
+        jo["smooth_factor"] = isofile.ReadUInt32();
+        if (v >= 2) jo["xb8"] = isofile.ReadUInt8();
+        if (v >= 3) jo["xbc"] = isofile.ReadUInt32();
+        if (v >= 4)
+        {
+            long hasNext = isofile.ReadUInt32();
+            if (hasNext != 0) ReadObjectInto(jo, isofile, "CPeakDetectionParameter");
+        }
+        if (v >= 5) jo["xb9"] = isofile.ReadUInt8();
         return jo;
     }
 
