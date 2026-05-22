@@ -163,6 +163,7 @@
     - CActiveDeviceMethodPart (DONE)
     - CConFloDeviceMethodPart (DONE)
     - CDualInletDeviceMethodPart
+    - CGCExtendedInterfaceDeviceMethodPart (DONE)
     - CGenericGcDeviceMethodPart (DONE)
       - CFlashEA_DeviceMethodPart (DONE)
       - CTraceGcDeviceMethodPart
@@ -171,6 +172,7 @@
     - CStandardDeviceMethodPart (DONE)
 - CDeviceEvaluationPart (DONE)
   - CCarbonateDeviceEvaluationPart
+  - CGCExtendedInterfaceDeviceEvaluationPart (DONE)
   - CConFloDeviceEvaluationPart (DONE)
     - CGenericGcDeviceEvaluationPart (DONE)
       - CFlashEA_DeviceEvaluationPart (DONE)

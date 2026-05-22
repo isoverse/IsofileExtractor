@@ -223,6 +223,7 @@ static class Readers
             ["CMsDeviceMethodPart"] = ReadCMsDeviceMethodPart,
             ["CStandardDeviceMethodPart"] = ReadCStandardDeviceMethodPart,
             ["CGenericGcDeviceMethodPart"] = ReadCGenericGcDeviceMethodPart,
+            ["CGCExtendedInterfaceDeviceMethodPart"] = ReadCGCExtendedInterfaceDeviceMethodPart,
             ["CFlashEA_DeviceMethodPart"] = ReadCFlashEA_DeviceMethodPart,
             ["CMultiReferenceDeviceMethodPart"] = ReadCMultiReferenceDeviceMethodPart,
             ["CActiveDeviceMethodPart"] = ReadCDeviceMethodPart,
@@ -230,6 +231,7 @@ static class Readers
             // --- CDeviceEvaluationPart chain ---
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
             ["CConFloDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
+            ["CGCExtendedInterfaceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
             ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
@@ -2758,6 +2760,18 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CGenericGcDeviceMethodPart", 1);
         if (Unabridged) jo["version"] = version;
         jo["xb0"] = isofile.ReadUInt32();
+        return jo;
+    }
+
+    // CGCExtendedInterfaceDeviceMethodPart::Serialize (DevicesDll.dll):
+    //   parent CDeviceMethodPart + schema version uint32 (current = 2, no version-gated fields)
+    static JsonObject ReadCGCExtendedInterfaceDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int version = isofile.ReadSchemaVersion("CGCExtendedInterfaceDeviceMethodPart", 2);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
