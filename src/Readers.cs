@@ -141,6 +141,11 @@ static class Readers
             ["CEvalFakeData"] = ReadCEvalFakeData,
             ["CEvalGCData"] = ReadCEvalGCData,
 
+            // --- CSequencePart chain ---
+            ["CSequencePart"] = ReadCSequencePart,
+            ["CDeviceSequencePart"] = ReadCDeviceSequencePart,
+            ["CMsSequencePart"] = ReadCMsSequencePart,
+
             // --- CBasicInterface chain (= CData) ---
             ["CBasicInterface"] = ReadCData,
             ["CGasConfPart"] = ReadCData,
@@ -1798,6 +1803,54 @@ static class Readers
         ReadParent(jo, isofile, "CEvalFakeData");
         int version = isofile.ReadSchemaVersion("CEvalGCData", 1);
         if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    // =======================================================================
+    // CSequencePart chain (SequenceDll / BasicObjectDll)
+    // =======================================================================
+
+    // CSequencePart::Serialize (BasicObjectDll): CBasicInterface parent + schema v3
+    //   xb4: int32 (grid column index, set by FillGridHeadLine)
+    //   xb8: int32 (row count, init 1 in FillGridHeadLine)
+    //   v>=2: xb0 CString
+    //   v>=3: class name CString → runtime class lookup at xac
+    static JsonObject ReadCSequencePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CSequencePart", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xb4"] = isofile.ReadInt32();
+        jo["xb8"] = isofile.ReadInt32();
+        if (v >= 2) jo["xb0"] = isofile.ReadMfcString();
+        if (v >= 3) jo["xac_class"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CDeviceSequencePart::Serialize (SequenceDll): CSequencePart parent + schema v1
+    //   xc0: CBlockData (device-specific sequence items)
+    static JsonObject ReadCDeviceSequencePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequencePart");
+        int v = isofile.ReadSchemaVersion("CDeviceSequencePart", 1);
+        if (Unabridged) jo["version"] = v;
+        ReadObjectInto(jo, isofile, "CBlockData");
+        return jo;
+    }
+
+    // CMsSequencePart::Serialize delegates to CDualInletSequencePart::Serialize (SequenceDll):
+    //   CDeviceSequencePart parent + schema v1 (no additional fields)
+    static JsonObject ReadCMsSequencePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceSequencePart");
+        int v = isofile.ReadSchemaVersion("CMsSequencePart", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
