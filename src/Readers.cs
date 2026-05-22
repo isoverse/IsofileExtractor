@@ -127,6 +127,8 @@ static class Readers
             ["CXCaliburDevice"] = ReadCXCaliburDevice,
             ["CTraceBasicDevice"] = ReadCTraceBasicDevice,
             ["CTrace_II_Device"] = ReadCTrace_II_Device,
+            ["CXcalRSH2Device"] = ReadCXcalRSH2Device,
+            ["CXcalRSHDevice"] = ReadCXcalRSH2Device,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -1570,6 +1572,18 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CTraceBasicDevice");
         jo["trace2_sentinel"] = isofile.ReadUInt32(); // always 1
+        return jo;
+    }
+
+    // CXcalRSH2Device::Serialize (TriPlusDll.dll):
+    //   parent CXCaliburDevice + sentinel uint32 (always 1)
+    // CXcalRSHDevice uses this Serialize unchanged (no override in vftable)
+    static JsonObject ReadCXcalRSH2Device(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CXCaliburDevice");
+        jo["rsh_sentinel"] = isofile.ReadUInt32(); // always 1
         return jo;
     }
 

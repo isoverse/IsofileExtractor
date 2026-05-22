@@ -106,6 +106,8 @@
   - CXCaliburDevice (DONE)
     - CTraceBasicDevice (DONE)
       - CTrace_II_Device (DONE)
+    - CXcalRSH2Device (DONE)
+    - CXcalRSHDevice (DONE)
 - CCarbonateDevice
 - CMsDevice (DONE)
 - CSamplerDevice
