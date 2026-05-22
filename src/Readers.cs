@@ -2190,6 +2190,11 @@ static class Readers
     // CPlotInfo / CTraceInfo (.scn file classes)
     // =======================================================================
 
+    // Reads the CPlotInfo "body": all fields through the two CPlotRange objects and
+    // version-gated x08/x0c. Called from a fresh isolated IsodatFile because CPlotInfo
+    // in .scn files is serialized in an independent MFC archive embedded in the second
+    // CBinary's data section. The "tail" (two inline CPlotRange + trace_labels) lives
+    // outside that buffer and must be appended by the caller via ReadCPlotInfoTail().
     static JsonObject ReadCPlotInfo(IsodatFile isofile)
     {
         // No own schema version; MFC archive version from CRuntimeClass header is used
@@ -2212,16 +2217,22 @@ static class Readers
         ReadObjectInto(jo, isofile, "CPlotRange");
         ReadObjectInto(jo, isofile, "CPlotRange");
         if (version > 1) { jo["x08"] = isofile.ReadInt32(); jo["x0c"] = isofile.ReadInt32(); }
-        jo["plot_range_zoom2"] = ReadCPlotRange(isofile);
-        jo["plot_range2"] = ReadCPlotRange(isofile);
-        int nTraces = jo["CTraceInfo"]?["n_traces"]?.GetValue<int>() ?? 0;
+        return jo;
+    }
+
+    // Reads the CPlotInfo "tail" from the outer stream (two inline CPlotRange + trace_labels).
+    // Called by ReadCScanStorage after the isolated CPlotInfo buffer is consumed.
+    static void ReadCPlotInfoTail(JsonObject plotInfo, IsodatFile isofile)
+    {
+        plotInfo["plot_range_zoom2"] = ReadCPlotRange(isofile);
+        plotInfo["plot_range2"] = ReadCPlotRange(isofile);
+        int nTraces = plotInfo["CTraceInfo"]?["n_traces"]?.GetValue<int>() ?? 0;
         if (nTraces > 0)
         {
             var labels = new JsonArray();
             for (int i = 0; i < nTraces; i++) labels.Add(isofile.ReadMfcString());
-            jo["trace_labels"] = labels;
+            plotInfo["trace_labels"] = labels;
         }
-        return jo;
     }
 
     static JsonObject ReadCTraceInfo(IsodatFile isofile)
@@ -3264,13 +3275,106 @@ static class Readers
     }
 
     // =======================================================================
-    // CScanStorage (.scn top-level object, stub)
+    // CScanStorage (.scn top-level object)
     // =======================================================================
 
     public static JsonObject ReadCScanStorage(IsodatFile isofile)
     {
-        isofile.AddWarning("CScanStorage: not yet implemented for this parser");
-        return new JsonObject();
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+
+        int nObjects = NBlockObjects(block);
+        if (nObjects > 0)
+            isofile.AddWarning($"CScanStorage: unexpected {nObjects} CBlockData child objects");
+
+        int version = isofile.ReadSchemaVersion("CScanStorage", 6);
+        if (Unabridged) jo["version"] = version;
+
+        // v<4: four legacy CString fields (discard)
+        if (version < 4)
+        {
+            isofile.AddWarning("CScanStorage v<4: skipping 4 legacy CString fields");
+            isofile.ReadMfcString(); isofile.ReadMfcString();
+            isofile.ReadMfcString(); isofile.ReadMfcString();
+        }
+
+        jo["comment"] = isofile.ReadMfcString();   // +0xf4
+        int nPoints = isofile.ReadInt32();           // +0x168
+        int nTraces = isofile.ReadInt32();           // +0x16c
+        jo["n_points"] = nPoints;
+        jo["n_traces"] = nTraces;
+
+        // First CBinary: actual scan data
+        ReadObjectInto(jo, isofile, "CBinary");
+
+        // Second CBinary: its data bytes ARE the CPlotInfo archive (fresh, independent
+        // MFC session with its own class counter starting at 1). Read only the header
+        // so the stream advances past the CBinary framing, then parse CPlotInfo from
+        // those bytes in a fresh IsodatFile to avoid global registry index conflicts.
+        isofile.ReadCRuntimeClass("CBinary");    // back-ref header (2 bytes)
+        isofile.ReadSchemaVersion("CSimple", 2); // CSimple version (4 bytes)
+        isofile.ReadMfcString();                 // CSimple label (4 bytes for empty)
+        isofile.ReadSchemaVersion("CBinary", 2); // CBinary version (4 bytes)
+        int nBytesCBinary2 = isofile.ReadInt32();
+        byte[] plotInfoBytes = nBytesCBinary2 > 0 ? isofile.ReadBytes(nBytesCBinary2) : [];
+
+        // Parse CPlotInfo body from the isolated buffer (fresh MFC archive, own counter)
+        if (plotInfoBytes.Length > 0)
+        {
+            using var ms = new System.IO.MemoryStream(plotInfoBytes);
+            using var pif = new IsodatFile(ms);
+            var plotInfo = ReadObject(pif, "CPlotInfo");
+            jo["CPlotInfo"] = plotInfo;
+            foreach (string w in pif.Warnings) isofile.AddWarning($"CPlotInfo: {w}");
+            // Tail (two inline CPlotRange + trace_labels) lives outside the buffer
+            ReadCPlotInfoTail(plotInfo, isofile);
+        }
+
+        jo["timestamp_start"] = isofile.ReadTimestamp(); // +0xF8
+        jo["timestamp_end"]   = isofile.ReadTimestamp(); // +0xFC
+        jo["x100"] = isofile.ReadInt32();
+        jo["x104"] = isofile.ReadUInt8();
+        jo["x108"] = isofile.ReadMfcString();
+
+        // two polymorphic CScanPart objects
+        ReadObjectInto(jo, isofile, pattern: "ScanPart");
+        ReadObjectInto(jo, isofile, pattern: "ScanPart");
+
+        jo["xd8"] = isofile.ReadInt32();
+        jo["xdc"] = isofile.ReadInt32();
+        jo["xe0"] = isofile.ReadInt32();
+
+        ReadObjectInto(jo, isofile, "CGasConfiguration");
+
+        if (version >= 3)
+        {
+            int nPeakList = isofile.ReadInt32();
+            jo["n_peak_list"] = nPeakList;
+            if (nPeakList > 0)
+                throw new InvalidDataException(
+                    $"CScanStorage: {nPeakList} CPeakList objects not yet implemented");
+
+            if (version >= 5)
+            {
+                int nGraphicInfo = isofile.ReadInt32();
+                jo["n_graphic_info"] = nGraphicInfo;
+                if (nGraphicInfo > 0)
+                    throw new InvalidDataException(
+                        $"CScanStorage: {nGraphicInfo} CSimpleGraphicInfo objects not yet implemented");
+
+                if (version >= 6)
+                {
+                    int nCustom = isofile.ReadInt32();
+                    jo["n_custom"] = nCustom;
+                    if (nCustom > 0)
+                        throw new InvalidDataException(
+                            $"CScanStorage: {nCustom} custom objects not yet implemented");
+                }
+            }
+        }
+
+        return jo;
     }
 
     // =======================================================================
