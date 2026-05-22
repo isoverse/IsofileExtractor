@@ -145,6 +145,16 @@ static class Readers
             ["CSequencePart"] = ReadCSequencePart,
             ["CDeviceSequencePart"] = ReadCDeviceSequencePart,
             ["CMsSequencePart"] = ReadCMsSequencePart,
+            ["CGenericGcSequencePart"] = ReadCDeviceSequencePart,
+            ["CSamplerSequencePart"] = ReadCDeviceSequencePart,
+
+            // --- CSequenceGridParam chain ---
+            ["CSequenceGridParam"] = ReadCSequenceGridParam,
+            ["CSequenceCmd"] = ReadCSequenceCmd,
+            ["CSequenceText"] = ReadCSequenceText,
+            ["CSequenceTextFiles"] = ReadCSequenceTextFiles,
+            ["CSequenceTextSamplerMethod"] = ReadCSequenceTextSamplerMethod,
+            ["CSequenceFlag"] = ReadCSequenceFlag,
 
             // --- CBasicInterface chain (= CData) ---
             ["CBasicInterface"] = ReadCData,
@@ -1851,6 +1861,110 @@ static class Readers
         ReadParent(jo, isofile, "CDeviceSequencePart");
         int v = isofile.ReadSchemaVersion("CMsSequencePart", 1);
         if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // =======================================================================
+    // CSequenceGridParam chain (SequenceDll)
+    // =======================================================================
+
+    // CSequenceGridParam::Serialize: CBlockData parent + schema v2
+    //   xb0: CString (column name)
+    //   v>=2: has_bitmap int32; if non-zero: CDib::Serialize (inline bitmap, not supported)
+    static JsonObject ReadCSequenceGridParam(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CSequenceGridParam", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["xb0"] = isofile.ReadMfcString();
+        if (v >= 2)
+        {
+            int hasBitmap = isofile.ReadInt32();
+            jo["has_bitmap"] = hasBitmap != 0;
+            if (hasBitmap != 0)
+                throw new InvalidDataException(
+                    "CSequenceGridParam: CDib bitmap serialization not supported");
+        }
+        return jo;
+    }
+
+    // CSequenceCmd::Serialize: CSequenceGridParam parent + schema v2 (no additional fields)
+    static JsonObject ReadCSequenceCmd(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequenceGridParam");
+        int v = isofile.ReadSchemaVersion("CSequenceCmd", 2);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CSequenceText::Serialize: CSequenceGridParam parent + schema v3
+    //   xb8: int32
+    //   xa8: int32
+    //   v>=3: xbc: int32
+    static JsonObject ReadCSequenceText(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequenceGridParam");
+        int v = isofile.ReadSchemaVersion("CSequenceText", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xa8"] = isofile.ReadInt32();
+        if (v >= 3) jo["xbc"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CSequenceTextFiles::Serialize: CSequenceText parent + schema v2
+    //   xc0: CString (device class name)
+    //   xc4: CString (device instance name)
+    //   v>=2: xc8: CString, xcc: int32
+    static JsonObject ReadCSequenceTextFiles(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequenceText");
+        int v = isofile.ReadSchemaVersion("CSequenceTextFiles", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["xc0"] = isofile.ReadMfcString();
+        jo["xc4"] = isofile.ReadMfcString();
+        if (v >= 2) { jo["xc8"] = isofile.ReadMfcString(); jo["xcc"] = isofile.ReadInt32(); }
+        return jo;
+    }
+
+    // CSequenceTextSamplerMethod::Serialize: CSequenceText parent + schema v1 (no additional fields)
+    static JsonObject ReadCSequenceTextSamplerMethod(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequenceText");
+        int v = isofile.ReadSchemaVersion("CSequenceTextSamplerMethod", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CSequenceFlag::Serialize: CSequenceGridParam parent + schema v3
+    //   xc0: CString
+    //   xbc: int32
+    //   v>=2: xb8: int32
+    //   v>=3: xc4: CString
+    static JsonObject ReadCSequenceFlag(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSequenceGridParam");
+        int v = isofile.ReadSchemaVersion("CSequenceFlag", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xc0"] = isofile.ReadMfcString();
+        jo["xbc"] = isofile.ReadInt32();
+        if (v >= 2) jo["xb8"] = isofile.ReadInt32();
+        if (v >= 3) jo["xc4"] = isofile.ReadMfcString();
         return jo;
     }
 
