@@ -1007,9 +1007,6 @@ static class Readers
         return jo;
     }
 
-    // CSeqLineIndexData::Serialize (AcquisitionBase_u.dll vftable → CAcquisitionBaseRawDataBlock::Serialize):
-    //   parent CBlockData + trailing uint32 sentinel (always 1 on write)
-    //   no child-object loop (CAcquisitionBaseRawDataBlock::Serialize has none)
     static JsonObject ReadCSeqLineIndexData(IsodatFile isofile)
     {
         var jo = new JsonObject();
@@ -1018,7 +1015,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, "CData", idx: i, groupTotal: blockN);
-        isofile.ReadUInt32(); // CAcquisitionBaseRawDataBlock sentinel
+        int version = isofile.ReadSchemaVersion("ReadCSeqLineIndexData", 1);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
@@ -1030,7 +1028,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
-        isofile.ReadInt32(); // trailing sentinel (always 1)
+        int version = isofile.ReadSchemaVersion("CDataIndex", 1);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
@@ -1195,7 +1194,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
-        isofile.ReadInt32(); // trailing sentinel (always 1)
+        int version = isofile.ReadSchemaVersion("CMeasurmentInfos", 1);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
@@ -1207,7 +1207,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
-        isofile.ReadInt32(); // trailing sentinel (always 1)
+        int version = isofile.ReadSchemaVersion("CMeasurmentErrors", 1);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
@@ -3288,7 +3289,7 @@ static class Readers
     // Returns the cell's text value (null if the cell has no text), consuming all bytes.
     static string? ReadCGridCell(IsodatFile isofile)
     {
-        int v = isofile.ReadInt32();
+        int v = isofile.ReadSchemaVersion("CGridCell", 10);
 
         int flags = 0;
         if (v >= 9)
@@ -3358,14 +3359,28 @@ static class Readers
         return text ?? format;  // return text if present, else format as fallback label
     }
 
+    // Skip one inline BMP (BITMAPFILEHEADER + BITMAPINFOHEADER + pixel data).
+    // Reads 38 bytes of headers to extract bfOffBits and biSizeImage, then skips the rest.
+    static void SkipBmpInline(IsodatFile isofile)
+    {
+        isofile.SkipBytes(2);                              // bfType "BM"
+        isofile.SkipBytes(4);                              // bfSize
+        isofile.SkipBytes(4);                              // bfReserved1 + bfReserved2
+        int bfOffBits = (int)isofile.ReadUInt32();         // offset to pixel data (from file start)
+        isofile.ReadInt32();                               // biSize
+        isofile.SkipBytes(16);                             // biWidth, biHeight, biPlanes, biBitCount, biCompression
+        int biSizeImage = isofile.ReadInt32();             // pixel data byte count
+        // 38 bytes consumed so far; skip remaining header padding + pixel data
+        isofile.SkipBytes(bfOffBits - 38 + biSizeImage);
+    }
+
     static JsonObject ReadCGridCtrl(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-
-        int v = isofile.ReadInt32();                      // Restore version (ebp)
+        int v = isofile.ReadSchemaVersion("CGridCtrl", 12);
         if (Unabridged) jo["version"] = v;
-        isofile.ReadInt32();                               // m_x1dc (skip)
+        jo["x1dc"] = isofile.ReadInt32();                  // m_x1dc
 
         if (v >= 9)
             SkipCShrinkInfoInline(isofile);
@@ -3379,8 +3394,8 @@ static class Readers
         jo["n_fixed_rows"] = nFixedRows;
         jo["n_fixed_cols"] = nFixedCols;
 
-        isofile.ReadInt32();                               // m_xcc
-        isofile.ReadInt32();                               // m_xd0
+        jo["xcc"] = isofile.ReadInt32();                   // m_xcc
+        jo["xd0"] = isofile.ReadInt32();                   // m_xd0
         isofile.SkipBytes(16);                             // 4×int32 sentinel fields
 
         // Read nRows×nCols cells row-major; store as array of row arrays.
@@ -3396,6 +3411,40 @@ static class Readers
             rows.Add(row);
         }
         jo["cells"] = rows;
+
+        // Row heights (one int32 per row)
+        for (int r = 0; r < nRows; r++) isofile.ReadInt32();
+        // Column widths (one int32 per column)
+        for (int c = 0; c < nCols; c++) isofile.ReadInt32();
+
+        // LOGFONTW (92 bytes): lfHeight … lfFaceName
+        isofile.SkipBytes(92);
+
+        // x168 field
+        isofile.ReadInt32();
+
+        // CGridLegende inline: count + count × (MFC string + int32)
+        int legendCount = isofile.ReadInt32();
+        for (int i = 0; i < legendCount; i++)
+        {
+            isofile.ReadMfcString();
+            isofile.ReadInt32();
+        }
+
+        if (v >= 6) isofile.ReadInt32();                   // x1b8
+
+        if (v >= 10)
+        {
+            int hasImageList = isofile.ReadInt32();
+            if (hasImageList != 0)
+            {
+                isofile.SkipBytes(28);                     // ILHEAD (magic + header fields)
+                SkipBmpInline(isofile);                    // color BMP
+                SkipBmpInline(isofile);                    // mask BMP
+            }
+        }
+
+        if (v >= 11) isofile.ReadInt32();                  // xb0
 
         return jo;
     }
