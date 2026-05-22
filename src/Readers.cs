@@ -482,6 +482,7 @@ static class Readers
             int idx = 1;
             foreach (var kvp in dict)
             {
+                if (kvp.Key == ParentKey) continue;  // parent is not a block object
                 if (kvp.Value is JsonArray arr) idx += arr.Count;
                 else if (kvp.Value is JsonObject) idx += 1;
             }
@@ -1154,6 +1155,7 @@ static class Readers
         jo["x114"] = isofile.ReadInt32(); // no named getter; init 0
         jo["x118"] = isofile.ReadInt32(); // no named getter; init 0
         ReadObjectInto(jo, isofile, "CViewColors", noIndex: true);
+        if (!Unabridged) jo.Remove("CViewColors");
         if (version == 2)
         {
             isofile.AddWarning("CWinSettings v2: reading legacy object (untested)");
@@ -1704,7 +1706,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int n = isofile.ReadUInt8();
         jo["n_configs"] = n;
-        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, "CChannelGasConfPart");
+        for (int i = 0; i < n; i++) ReadObjectInto(jo, isofile, "CChannelGasConfPart", groupTag: 1, groupDeclaredSize: n);
         return jo;
     }
 
