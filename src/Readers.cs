@@ -132,6 +132,7 @@ static class Readers
             ["CTrace_II_Device"] = ReadCTrace_II_Device,
             ["CXcalRSH2Device"] = ReadCXcalRSH2Device,
             ["CXcalRSHDevice"] = ReadCXcalRSH2Device,
+            ["CTraceGcDevice"] = ReadCTraceGcDevice,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -1644,6 +1645,17 @@ static class Readers
         return jo;
     }
 
+    static JsonObject ReadCTraceGcDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDevice");
+        int v = isofile.ReadSchemaVersion("CTraceGcDevice", 2);
+        if (Unabridged) jo["version"] = v;
+        if (v >= 2) jo["x100"] = isofile.ReadInt32();
+        return jo;
+    }
+
     static JsonObject ReadCConFloDevice(IsodatFile isofile)
     {
         var jo = new JsonObject();
@@ -1837,7 +1849,7 @@ static class Readers
         jo["xb4"] = isofile.ReadInt32();
         jo["xb8"] = isofile.ReadInt32();
         if (v >= 2) jo["xb0"] = isofile.ReadMfcString();
-        if (v >= 3) jo["xac_class"] = isofile.ReadMfcString();
+        if (v >= 3) jo["class"] = isofile.ReadMfcString(); // xac, runtime class look-up
         return jo;
     }
 
