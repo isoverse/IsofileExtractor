@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using IsodatReader;
 
 if (args.Length == 1 && args[0] is "--version" or "-v")
@@ -99,7 +100,9 @@ Parallel.ForEach(files, inputArg =>
     finally
     {
         meta["complete"] = caughtEx is null;
-        File.WriteAllText(outputPath, root.ToJsonString(options));
+        string json = root.ToJsonString(options);
+        if (prettyJson) json = CollapseNumberArrays(json);
+        File.WriteAllText(outputPath, json);
         Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
 
         if (archive.Warnings.Count > 0)
@@ -122,6 +125,15 @@ Parallel.ForEach(files, inputArg =>
 });
 
 return exitCode;
+
+// Replaces multi-line pretty-printed number arrays with a single compact line.
+static string CollapseNumberArrays(string json) =>
+    Regex.Replace(json,
+        @"\[(?:\s*-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\s*,)*\s*-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\s*\]",
+        static m => "[" + string.Join(", ",
+            Regex.Matches(m.Value, @"-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?")
+                 .Select(n => n.Value)) + "]",
+        RegexOptions.Singleline);
 
 static void DumpObjects(IsodatFile archive, string inputPath)
 {

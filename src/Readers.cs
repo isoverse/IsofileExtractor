@@ -22,7 +22,7 @@ static class Readers
     public static bool Unabridged { get; set; }
 
     static string ParentKey => Unabridged ? "parent" : "p";
-    static string ValueKey  => Unabridged ? "value"  : "v";
+    static string ValueKey => Unabridged ? "value" : "v";
 
     [ThreadStatic] static Stack<JsonObject?>? _partialStack;
     static Stack<JsonObject?> PartialStack => _partialStack ??= new();
@@ -1153,7 +1153,7 @@ static class Readers
         jo["x110"] = isofile.ReadInt32(); // no named getter; init 0
         jo["x114"] = isofile.ReadInt32(); // no named getter; init 0
         jo["x118"] = isofile.ReadInt32(); // no named getter; init 0
-        ReadObjectInto(jo, isofile, "CViewColors");
+        ReadObjectInto(jo, isofile, "CViewColors", noIndex: true);
         if (version == 2)
         {
             isofile.AddWarning("CWinSettings v2: reading legacy object (untested)");
@@ -1567,7 +1567,8 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CEvalDataStorage", 1);
         if (Unabridged) jo["version"] = version;
         int nBytes = isofile.ReadInt32();
-        jo["n_bytes"] = nBytes;
+        if (Unabridged) jo["n_bytes"] = nBytes;
+        // Buffer is always stored as base64 here; ReadCEvalFakeData parses it once n_traces is known.
         if (nBytes > 0)
             jo["buffer"] = Convert.ToBase64String(isofile.ReadBytes(nBytes));
         jo["n_bytes2"] = isofile.ReadInt32();
@@ -1581,10 +1582,31 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        ReadParent(jo, isofile, "CEvalDataStorage");
+        var storage = ReadParent(jo, isofile, "CEvalDataStorage");
         int version = isofile.ReadSchemaVersion("CEvalFakeData", 1);
         if (Unabridged) jo["version"] = version;
-        jo["n_traces"] = isofile.ReadInt32();
+        int nTraces = isofile.ReadInt32();
+        jo["n_traces"] = nTraces;
+
+        if (storage["buffer"] is JsonValue bufNode && nTraces > 0)
+        {
+            byte[] buf = Convert.FromBase64String(bufNode.GetValue<string>());
+            int stride = 4 + nTraces * 8;  // float time + nTraces doubles
+            int n = buf.Length / stride;
+            var time = new JsonArray();
+            var traces = Enumerable.Range(0, nTraces).Select(_ => new JsonArray()).ToArray();
+            for (int i = 0; i < n; i++)
+            {
+                int off = i * stride;
+                time.Add(JsonValue.Create(BitConverter.ToSingle(buf, off)));
+                for (int t = 0; t < nTraces; t++)
+                    traces[t].Add(JsonValue.Create(BitConverter.ToDouble(buf, off + 4 + t * 8)));
+            }
+            storage["time"] = time;
+            storage["traces"] = new JsonArray(traces.Select(a => (JsonNode)a).ToArray());
+            if (!Unabridged) storage.Remove("buffer");
+        }
+
         return jo;
     }
 
@@ -2860,19 +2882,19 @@ static class Readers
         if (Unabridged) jo["bgd_method_id"] = bgdMethodId;
         jo["bgd_method"] = bgdMethodId switch
         {
-            0  => "Uninitialized",
-            1  => "Single BGD",
-            2  => "Individual BGD",
-            3  => "TimeBased BGD",
-            4  => "Dynamic BGD",
-            5  => "Mean",
-            6  => "Slope",
-            8  => "Dynamic Invalid",
-            9  => "Timebased Invalid",
+            0 => "Uninitialized",
+            1 => "Single BGD",
+            2 => "Individual BGD",
+            3 => "TimeBased BGD",
+            4 => "Dynamic BGD",
+            5 => "Mean",
+            6 => "Slope",
+            8 => "Dynamic Invalid",
+            9 => "Timebased Invalid",
             15 => "BaseFit BGD",
             16 => "Skimmed BGD",
             17 => "Individual RDA BGD",
-            _  => $"Unknown ({bgdMethodId})",
+            _ => $"Unknown ({bgdMethodId})",
         };
         if (v > 1)
             jo["mass"] = isofile.ReadUInt32();
