@@ -124,6 +124,9 @@ static class Readers
             ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
             ["CUserDevice"] = ReadCBufferedRefillDevice,
             ["CGCExtendedInterfaceDevice"] = ReadCBufferedRefillDevice,
+            ["CXCaliburDevice"] = ReadCXCaliburDevice,
+            ["CTraceBasicDevice"] = ReadCTraceBasicDevice,
+            ["CTrace_II_Device"] = ReadCTrace_II_Device,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -1517,6 +1520,56 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CActiveDevice");
         jo["xf0"] = isofile.ReadInt32(); // no named getter; always 1
+        return jo;
+    }
+
+    // CXCaliburDevice::Serialize (DevicesDll.dll):
+    //   parent CActiveDevice + schema v4
+    //   v1: method_ext (0xd0), device_name (0xfc), x104 (0x104 CString), x10c uint32
+    //   v2: needs_raw_file (0x110), is_exclusive (0x114)
+    //       [0x128 always 0 from ctor → no command string array written/read]
+    //   v3: ext_method_interface_handling (0x118)
+    //   v4: device_desc_name (0x100)
+    static JsonObject ReadCXCaliburDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CActiveDevice");
+        int v = isofile.ReadSchemaVersion("CXCaliburDevice", 4);
+        if (Unabridged) jo["version"] = v;
+        jo["method_ext"] = isofile.ReadMfcString();
+        jo["device_name"] = isofile.ReadMfcString();
+        jo["x104"] = isofile.ReadMfcString();
+        jo["x10c"] = isofile.ReadUInt32();
+        if (v >= 2)
+        {
+            jo["needs_raw_file"] = isofile.ReadUInt32();
+            jo["is_exclusive"] = isofile.ReadUInt32();
+        }
+        if (v >= 3) jo["ext_method_interface_handling"] = isofile.ReadUInt32();
+        if (v >= 4) jo["device_desc_name"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CTraceBasicDevice::Serialize (TraceGcDll.dll):
+    //   parent CXCaliburDevice + sentinel uint32 (always 1)
+    static JsonObject ReadCTraceBasicDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CXCaliburDevice");
+        jo["xcal_sentinel"] = isofile.ReadUInt32(); // always 1
+        return jo;
+    }
+
+    // CTrace_II_Device::Serialize (TraceGcDll.dll):
+    //   parent CTraceBasicDevice + sentinel uint32 (always 1)
+    static JsonObject ReadCTrace_II_Device(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CTraceBasicDevice");
+        jo["trace2_sentinel"] = isofile.ReadUInt32(); // always 1
         return jo;
     }
 

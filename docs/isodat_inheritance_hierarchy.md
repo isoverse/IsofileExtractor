@@ -103,6 +103,9 @@
   - CGenericGcDevice (DONE)
     - CFlashEA_Device (DONE)
     - CTraceGcDevice
+  - CXCaliburDevice (DONE)
+    - CTraceBasicDevice (DONE)
+      - CTrace_II_Device (DONE)
 - CCarbonateDevice
 - CMsDevice (DONE)
 - CSamplerDevice
