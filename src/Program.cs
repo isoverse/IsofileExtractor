@@ -89,6 +89,9 @@ Parallel.ForEach(files, inputArg =>
                 ReadInto("CFileHeader", "CFileHeader");
                 ReadInto("CContiniousFlowBlockData", "CContiniousFlowBlockData");
                 break;
+            case ".cf":
+                ReadInto("CFileHeader", "CFileHeader");
+                break;
             case ".scn":
                 ReadInto("CScanStorage", "CScanStorage");
                 break;

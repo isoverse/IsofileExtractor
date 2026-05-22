@@ -263,6 +263,10 @@ static class Readers
             // --- Misc stand-alone ---
             ["CShrinkInfo"] = ReadCShrinkInfo,
 
+            // --- CGridStorage / CGridCtrl (.cf CDataIndex children) ---
+            ["CGridStorage"] = ReadCGridStorage,
+            ["CGridCtrl"] = ReadCGridCtrl,
+
             // --- CContiniousFlowBlockData (top-level DXF object) ---
             ["CContiniousFlowBlockData"] = ReadCContiniousFlowBlockData,
             ["CScanStorage"] = ReadCScanStorage,
@@ -1025,7 +1029,7 @@ static class Readers
         var block = ReadParent(jo, isofile, "CBlockData");
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, "CSeqLineIndexData", idx: i, groupTotal: blockN);
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
         isofile.ReadInt32(); // trailing sentinel (always 1)
         return jo;
     }
@@ -3265,6 +3269,149 @@ static class Readers
                 items.Add(new JsonObject { ["col_idx"] = isofile.ReadInt32(), ["width"] = isofile.ReadInt32() });
             jo["items"] = items;
         }
+        return jo;
+    }
+
+    // =======================================================================
+    // CGridStorage / CGridCtrl / CGridCell (.cf CDataIndex children)
+    // =======================================================================
+
+    // CShrinkInfo::Serialize called inline (no standalone CRuntimeClass header).
+    // Reads: int32 (schema version / skip), int32 n, then n×(col_idx, width) pairs.
+    static void SkipCShrinkInfoInline(IsodatFile isofile)
+    {
+        isofile.ReadInt32();           // schema version (= 2 in known files)
+        int n = isofile.ReadInt32();
+        isofile.SkipBytes(n * 8);     // n × (int32 col_idx + int32 width)
+    }
+
+    // Returns the cell's text value (null if the cell has no text), consuming all bytes.
+    static string? ReadCGridCell(IsodatFile isofile)
+    {
+        int v = isofile.ReadInt32();
+
+        int flags = 0;
+        if (v >= 9)
+            flags = isofile.ReadUInt16();  // int16 flags bitmask
+
+        if (v < 8)
+            isofile.ReadInt32();           // old-format skip field
+
+        // Color m_xc
+        if (v >= 10 && (flags & 0x10) != 0)
+            isofile.ReadInt32();           // COLORREF int32
+        else if (v >= 8 && v < 10 && (flags & 0x10) != 0)
+            isofile.ReadUInt8();           // compact byte color
+        else if (v < 8)
+            isofile.ReadInt32();           // always present in old format
+
+        string? text = null;
+        if ((flags & 0x01) != 0)
+            text = isofile.ReadMfcString();
+
+        if ((flags & 0x800) != 0)
+            isofile.ReadInt32();           // m_x24
+
+        if ((flags & 0x20) != 0)
+            isofile.ReadInt32();           // bg color m_x1c
+
+        if ((flags & 0x40) != 0)
+            isofile.ReadInt32();           // fg color m_x20
+
+        isofile.ReadInt32();               // m_x8 (always present)
+
+        if ((flags & 0x400) != 0)
+            isofile.ReadInt32();           // m_x3c
+
+        if (v >= 2)
+        {
+            if (v < 8)
+                isofile.SkipBytes(92);     // old font/size block
+            else if ((flags & 0x08) != 0)
+                isofile.ReadUInt16();      // m_x18 font info int16
+        }
+
+        string? format = null;
+        if (v >= 3 && (flags & 0x02) != 0)
+            format = isofile.ReadMfcString();
+
+        if (v >= 4 && (flags & 0x04) != 0)
+            isofile.SkipBytes(8);          // double value
+
+        if (v >= 5)
+        {
+            if (v >= 8 && (flags & 0x80) != 0)
+                isofile.ReadUInt8();
+            // v<8 old path: bit not defined the same way, skip nothing extra
+        }
+
+        if (v >= 6 && (flags & 0x200) != 0)
+            isofile.ReadMfcString();
+
+        if (v >= 7)
+        {
+            if (v >= 8 && (flags & 0x100) != 0)
+                isofile.ReadUInt8();
+            // v<8 old path: skip nothing extra
+        }
+
+        return text ?? format;  // return text if present, else format as fallback label
+    }
+
+    static JsonObject ReadCGridCtrl(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+
+        int v = isofile.ReadInt32();                      // Restore version (ebp)
+        if (Unabridged) jo["version"] = v;
+        isofile.ReadInt32();                               // m_x1dc (skip)
+
+        if (v >= 9)
+            SkipCShrinkInfoInline(isofile);
+
+        int nRows = isofile.ReadInt32();
+        int nCols = isofile.ReadInt32();
+        int nFixedRows = isofile.ReadInt32();
+        int nFixedCols = isofile.ReadInt32();
+        jo["n_rows"] = nRows;
+        jo["n_cols"] = nCols;
+        jo["n_fixed_rows"] = nFixedRows;
+        jo["n_fixed_cols"] = nFixedCols;
+
+        isofile.ReadInt32();                               // m_xcc
+        isofile.ReadInt32();                               // m_xd0
+        isofile.SkipBytes(16);                             // 4×int32 sentinel fields
+
+        // Read nRows×nCols cells row-major; store as array of row arrays.
+        var rows = new JsonArray();
+        for (int r = 0; r < nRows; r++)
+        {
+            var row = new JsonArray();
+            for (int c = 0; c < nCols; c++)
+            {
+                string? cellText = ReadCGridCell(isofile);
+                row.Add(cellText is not null ? JsonValue.Create(cellText) : null);
+            }
+            rows.Add(row);
+        }
+        jo["cells"] = rows;
+
+        return jo;
+    }
+
+    static JsonObject ReadCGridStorage(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+
+        int version = isofile.ReadSchemaVersion("CGridStorage", 3);
+        if (Unabridged) jo["version"] = version;
+
+        if (version >= 3)
+            ReadObjectInto(jo, isofile, "CGridCtrl");
+
         return jo;
     }
 
