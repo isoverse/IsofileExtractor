@@ -21,6 +21,9 @@ static class Readers
 
     public static bool Unabridged { get; set; }
 
+    static string ParentKey => Unabridged ? "parent" : "p";
+    static string ValueKey  => Unabridged ? "value"  : "v";
+
     [ThreadStatic] static Stack<JsonObject?>? _partialStack;
     static Stack<JsonObject?> PartialStack => _partialStack ??= new();
 
@@ -404,7 +407,7 @@ static class Readers
             var result = reader(isofile);
             popped = true;
             PartialStack.Pop();
-            jo["parent"] = result;
+            jo[ParentKey] = result;
             return result;
         }
         catch (IsodatParseException ipe)
@@ -444,8 +447,8 @@ static class Readers
     {
         // Walk the "parent" chain to find the CData "value" field (may be several levels deep
         // for CBlockData-derived classes like CDevice → CBlockData → CData).
-        for (var node = result as JsonObject; node is not null; node = node["parent"] as JsonObject)
-            if (node["value"] is JsonValue v && v.TryGetValue<string>(out var s)) return s;
+        for (var node = result as JsonObject; node is not null; node = node[ParentKey] as JsonObject)
+            if (node[ValueKey] is JsonValue v && v.TryGetValue<string>(out var s)) return s;
         return null;
     }
 
@@ -458,7 +461,7 @@ static class Readers
 
     static void ValidateBlockValue(JsonObject block, string expected)
     {
-        string? actual = block["parent"]?["value"]?.GetValue<string>();
+        string? actual = block[ParentKey]?[ValueKey]?.GetValue<string>();
         if (actual != expected)
             throw new InvalidDataException(
                 $"Expected CBlockData value '{expected}', got '{actual}'");
@@ -560,8 +563,8 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int appId = isofile.ReadUInt16();
         if (Unabridged) jo["app_id"] = appId;
-        jo["label"] = isofile.ReadMfcString();
-        jo["value"] = isofile.ReadMfcString();
+        if (Unabridged) jo["label"] = isofile.ReadMfcString(); else isofile.ReadMfcString();
+        jo[ValueKey] = isofile.ReadMfcString();
         if (version >= 3)
         {
             int flags = isofile.ReadInt32();
@@ -915,7 +918,7 @@ static class Readers
         TrackPartial(jo);
         int version = isofile.ReadSchemaVersion("CSimple", 2);
         if (Unabridged) jo["version"] = version;
-        jo["label"] = isofile.ReadMfcString();
+        if (Unabridged) jo["label"] = isofile.ReadMfcString(); else isofile.ReadMfcString();
         return jo;
     }
 
@@ -926,7 +929,7 @@ static class Readers
         ReadParent(jo, isofile, "CSimple");
         int version = isofile.ReadSchemaVersion("CStr", 2);
         if (Unabridged) jo["version"] = version;
-        jo["value"] = isofile.ReadMfcString();
+        jo[ValueKey] = isofile.ReadMfcString();
         return jo;
     }
 
@@ -937,7 +940,7 @@ static class Readers
         ReadParent(jo, isofile, "CSimple");
         int version = isofile.ReadSchemaVersion("CDword", 2);
         if (Unabridged) jo["version"] = version;
-        jo["value"] = isofile.ReadInt32();
+        jo[ValueKey] = isofile.ReadInt32();
         return jo;
     }
 
@@ -948,7 +951,7 @@ static class Readers
         ReadParent(jo, isofile, "CSimple");
         int version = isofile.ReadSchemaVersion("CInt", 2);
         if (Unabridged) jo["version"] = version;
-        jo["value"] = isofile.ReadInt32();
+        jo[ValueKey] = isofile.ReadInt32();
         return jo;
     }
 
@@ -1192,7 +1195,11 @@ static class Readers
         if (version >= 3)
         {
             int hasShrink = isofile.ReadInt32();
-            if (hasShrink != 0) ReadObjectInto(jo, isofile, "CShrinkInfo");
+            if (hasShrink != 0)
+            {
+                ReadObjectInto(jo, isofile, "CShrinkInfo");
+                if (!Unabridged) jo.Remove("CShrinkInfo");
+            }
         }
         if (version >= 4) jo["eval_list"] = isofile.ReadMfcString();
         if (version >= 5) jo["ampere_calc_flag"] = isofile.ReadInt32();
@@ -3019,7 +3026,7 @@ static class Readers
     {
         var jo = new JsonObject();
         TrackPartial(jo);
-        jo["value"] = isofile.ReadDouble();       // IEEE 754 double
+        jo[ValueKey] = isofile.ReadDouble();       // IEEE 754 double
         jo["x08"] = isofile.ReadInt32();        // some flag/type
         ReadObjectInto(jo, isofile);      // descriptor CData subclass
         return jo;
