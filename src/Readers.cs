@@ -346,7 +346,8 @@ static class Readers
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null,
-                                    bool maybeNull = false, int? idx = null, int? groupTotal = null)
+                                    bool maybeNull = false, int? idx = null, int? groupTotal = null,
+                                    string? expectedValue = null)
     {
         if (maybeNull)
         {
@@ -361,6 +362,7 @@ static class Readers
         {
             child = ReadObject(isofile, expected, pattern);
             childClassName = isofile.ObjectLog[before].ClassName;
+            if (expectedValue != null) ValidateBlockValue(child, expectedValue);
         }
         catch (IsodatParseException ipe) when (ipe.PartialResult is JsonObject partial)
         {
@@ -3273,9 +3275,24 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        int blockN = NBlockObjects(block);
-        for (int i = 1; i <= blockN; i++)
-            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        ValidateBlockNBlockObjects(block, 16);
+        var objects = block["objects"]!.AsObject();
+        ReadObjectInto(objects, isofile, "CMeasurmentInfos", idx: 1, groupTotal: 16);
+        ReadObjectInto(objects, isofile, "CMeasurmentErrors", idx: 2, groupTotal: 16);
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 3, groupTotal: 16, expectedValue: "Plot Settings");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 4, groupTotal: 16, expectedValue: "RawDataBlock");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 5, groupTotal: 16, expectedValue: "OrigDataBlock");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 6, groupTotal: 16, expectedValue: "Calculated H3 Factor");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 7, groupTotal: 16, expectedValue: "Prim Std");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 8, groupTotal: 16, expectedValue: "Method");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 9, groupTotal: 16, expectedValue: "Results");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 10, groupTotal: 16, expectedValue: "DetectorDataBlock");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 11, groupTotal: 16, expectedValue: "Detector Results");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 12, groupTotal: 16, expectedValue: "Detector Methods");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 13, groupTotal: 16, expectedValue: "Dilution List");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 14, groupTotal: 16, expectedValue: "Errors");
+        ReadObjectInto(objects, isofile, "CBlockData", idx: 15, groupTotal: 16, expectedValue: "Sequence Line Information");
+        ReadObjectInto(objects, isofile, "CBinary", idx: 16, groupTotal: 16);
         return jo;
     }
 
