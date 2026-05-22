@@ -23,6 +23,7 @@ static class Readers
 
     static string ParentKey => Unabridged ? "parent" : "p";
     static string ValueKey => Unabridged ? "value" : "v";
+    static string LabelKey => Unabridged ? "label" : "l";
 
     [ThreadStatic] static Stack<JsonObject?>? _partialStack;
     static Stack<JsonObject?> PartialStack => _partialStack ??= new();
@@ -575,7 +576,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         int appId = isofile.ReadUInt16();
         if (Unabridged) jo["app_id"] = appId;
-        if (Unabridged) jo["label"] = isofile.ReadMfcString(); else isofile.ReadMfcString();
+        jo[LabelKey] = isofile.ReadMfcString();
         jo[ValueKey] = isofile.ReadMfcString();
         if (version >= 3)
         {
@@ -930,7 +931,7 @@ static class Readers
         TrackPartial(jo);
         int version = isofile.ReadSchemaVersion("CSimple", 2);
         if (Unabridged) jo["version"] = version;
-        if (Unabridged) jo["label"] = isofile.ReadMfcString(); else isofile.ReadMfcString();
+        jo[LabelKey] = isofile.ReadMfcString();
         return jo;
     }
 
