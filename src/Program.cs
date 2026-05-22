@@ -139,14 +139,10 @@ static void DumpObjects(IsodatFile archive, string inputPath)
 {
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
-    var nObjectsByObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx, e => e.NObjects);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,has_n_block_objects,object_list_idx,object_list_total,value,plot_info_class_idx,plot_info_obj_idx");
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,object_list_idx,object_list_total,value,plot_info_class_idx,plot_info_obj_idx");
     foreach (var e in archive.ObjectLog)
     {
-        int? objectListTotal = e.GroupTag > 0
-            ? e.GroupDeclaredSize
-            : (e.ContainerObjIdx is int cid && nObjectsByObjIdx.TryGetValue(cid, out var pn) ? pn : null);
-        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{objectListTotal?.ToString() ?? ""},\"{e.Value ?? ""}\",{e.SecondaryClassIdx?.ToString() ?? ""},{e.SecondaryObjIdx?.ToString() ?? ""}");
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.BlockObjectIdx?.ToString() ?? ""},{e.GroupTotal?.ToString() ?? ""},\"{e.Value ?? ""}\",{e.SecondaryClassIdx?.ToString() ?? ""},{e.SecondaryObjIdx?.ToString() ?? ""}");
     }
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
 }
@@ -181,18 +177,14 @@ static void DumpTree(IsodatFile archive, string inputPath)
         list.Add(e);
     }
 
-    // Build ObjIdx → entry lookup so WriteTreeLevel can find a parent's declared NObjects.
-    var byObjIdx = archive.ObjectLog.ToDictionary(e => e.ObjIdx);
-
     using var writer = new StreamWriter(treePath);
-    WriteTreeLevel(writer, childrenOf, byObjIdx, parentObjIdx: Root, depth: 0);
+    WriteTreeLevel(writer, childrenOf, parentObjIdx: Root, depth: 0);
     Console.Error.WriteLine($"Tree written: {treePath}");
 }
 
 static void WriteTreeLevel(
     StreamWriter writer,
     Dictionary<int, List<ObjectLogEntry>> childrenOf,
-    Dictionary<int, ObjectLogEntry> byObjIdx,
     int parentObjIdx,
     int depth)
 {
@@ -200,34 +192,12 @@ static void WriteTreeLevel(
 
     string indent = new string(' ', depth * 2);
 
-    // Use n_objects declared in the parent's binary header as the denominator for k/N: prefixes.
-    // Falls back to the actual parsed sibling count when n_objects is not available.
-    int? parentNObjects = byObjIdx.TryGetValue(parentObjIdx, out var parentEntry) ? parentEntry.NObjects : null;
-
-    // Compute the declared run total for each block-object position.
-    // GroupTag=0 → block-data objects (denominator = parentNObjects).
-    // GroupTag>0 → named group (denominator = GroupDeclaredSize of first entry in run).
-    // Runs break on GroupTag change even within consecutive block objects.
-    int[] runTotal = new int[siblings.Count];
-    for (int j = 0; j < siblings.Count; j++)
-    {
-        if (!siblings[j].IsBlockObject) continue;
-        if (j > 0 && siblings[j - 1].IsBlockObject && siblings[j - 1].GroupTag == siblings[j].GroupTag) continue;
-        int n = 0;
-        while (j + n < siblings.Count && siblings[j + n].IsBlockObject && siblings[j + n].GroupTag == siblings[j].GroupTag) n++;
-        int declared = siblings[j].GroupTag == 0
-            ? (parentNObjects ?? n)
-            : (siblings[j].GroupDeclaredSize ?? n);
-        for (int k = j; k < j + n; k++) runTotal[k] = declared;
-    }
-
     for (int i = 0; i < siblings.Count;)
     {
         var first = siblings[i];
         string? effVal = string.IsNullOrEmpty(first.Value) ? null : first.Value;
 
-        // Collapse consecutive siblings with same class/version/blockness/group and same effective value.
-        // Siblings with distinct non-empty values are kept on separate lines.
+        // Collapse consecutive siblings with same class/version/blockness and same effective value.
         // Never collapse items that have children — each must appear separately so its subtree is printed.
         int count = 1;
         if (!childrenOf.ContainsKey(first.ObjIdx))
@@ -238,7 +208,6 @@ static void WriteTreeLevel(
                 if (next.ClassName != first.ClassName
                     || next.ArchiveVersion != first.ArchiveVersion
                     || next.IsBlockObject != first.IsBlockObject
-                    || next.GroupTag != first.GroupTag
                     || (string.IsNullOrEmpty(next.Value) ? null : next.Value) != effVal
                     || childrenOf.ContainsKey(next.ObjIdx))
                     break;
@@ -250,12 +219,12 @@ static void WriteTreeLevel(
         string label = $"{first.ClassName} v{first.ArchiveVersion} 0x{first.Start:x}{value}";
         string linePrefix = first.IsBlockObject
             ? (count > 1
-                ? $"{first.BlockObjectIdx}-{(first.BlockObjectIdx ?? 0) + count - 1}/{runTotal[i]}: "
-                : $"{first.BlockObjectIdx}/{runTotal[i]}: ")
+                ? $"{first.BlockObjectIdx}-{(first.BlockObjectIdx ?? 0) + count - 1}/{first.GroupTotal}: "
+                : $"{first.BlockObjectIdx}/{first.GroupTotal}: ")
             : "";
         writer.WriteLine($"{indent}{linePrefix}{label}");
         if (childrenOf.ContainsKey(first.ObjIdx))
-            WriteTreeLevel(writer, childrenOf, byObjIdx, first.ObjIdx, depth + 1);
+            WriteTreeLevel(writer, childrenOf, first.ObjIdx, depth + 1);
         i += count;
     }
 }

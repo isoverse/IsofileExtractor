@@ -29,7 +29,7 @@ public sealed class IsodatFile : IDisposable
     private readonly List<string> _warnings = new();
     private readonly List<ObjectLogEntry> _objectLog = new();
     private readonly Stack<int> _containerStack = new();
-    private readonly Dictionary<long, int> _blockObjectSeq = new();  // (containerObjIdx << 16 | groupTag) → next seq
+
     private readonly Dictionary<string, (int Version, long Pos)> _schemaVersions = new();  // className → first-seen schema version + position
     private readonly Dictionary<string, int> _archiveVersions = new();    // className → CRuntimeClass archive version
     private int _mapCount = 1;  // MFC m_nMapCount, starts at 1
@@ -273,20 +273,12 @@ public sealed class IsodatFile : IDisposable
     }
 
     internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
-    internal void SetObjectLogIsBlockObject(int index) => SetObjectLogIsGroupObject(index, 0, null);
 
-    internal void SetObjectLogIsGroupObject(int index, int groupTag, int? groupDeclaredSize)
+    internal void SetObjectLogGroup(int index, int idx, int total)
     {
-        _objectLog[index].IsBlockObject = true;
-        _objectLog[index].GroupTag = groupTag;
-        _objectLog[index].GroupDeclaredSize = groupDeclaredSize;
-        long key = ((long)(_objectLog[index].ContainerObjIdx ?? -1) << 16) | (uint)groupTag;
-        _blockObjectSeq.TryGetValue(key, out int seq);
-        _objectLog[index].BlockObjectIdx = ++seq;
-        _blockObjectSeq[key] = seq;
+        _objectLog[index].BlockObjectIdx = idx + 1;  // display is 1-based
+        _objectLog[index].GroupTotal = total;
     }
-
-    internal void SetObjectLogNBlockObjects(int index, int n) => _objectLog[index].NObjects = n;
 
     /// <summary>
     /// Copies every entry from <paramref name="secondary"/>'s ObjectLog into this log,
@@ -324,11 +316,8 @@ public sealed class IsodatFile : IDisposable
                 ArchiveVersion: e.ArchiveVersion)
             {
                 Value = e.Value,
-                IsBlockObject = e.IsBlockObject,
                 BlockObjectIdx = e.BlockObjectIdx,
-                NObjects = e.NObjects,
-                GroupTag = e.GroupTag,
-                GroupDeclaredSize = e.GroupDeclaredSize,
+                GroupTotal = e.GroupTotal,
                 SecondaryClassIdx = e.ClassIdx,
                 SecondaryObjIdx = e.ObjIdx,
             };
@@ -348,11 +337,9 @@ public record ObjectLogEntry(
     int ArchiveVersion)
 {
     public string? Value { get; internal set; }
-    public bool IsBlockObject { get; internal set; }
     public int? BlockObjectIdx { get; internal set; }
-    public int? NObjects { get; internal set; }
-    public int GroupTag { get; internal set; }          // 0 = block-data objects; >0 = named group
-    public int? GroupDeclaredSize { get; internal set; } // declared count for GroupTag > 0
+    public int? GroupTotal { get; internal set; }
+    public bool IsBlockObject => BlockObjectIdx.HasValue;
     public int? SecondaryClassIdx { get; internal set; } // original ClassIdx in the secondary archive
     public int? SecondaryObjIdx { get; internal set; }   // original ObjIdx in the secondary archive
 }
