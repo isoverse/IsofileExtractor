@@ -2624,9 +2624,9 @@ static class Readers
         ReadParent(jo, isofile, "CEvaluationPart");
         int version = isofile.ReadSchemaVersion("CICA_BasicMethodPart", 12);
         if (Unabridged) jo["version"] = version;
-        ReadObjectInto(jo, isofile);
+        ReadObjectInto(jo, isofile, "CEvalDataItemListTransferPart", noIndex: true);
         jo["xa4"] = isofile.ReadMfcString();
-        if (version > 1) ReadObjectInto(jo, isofile);
+        if (version > 1) ReadObjectInto(jo, isofile, "CGasConfiguration", noIndex: true);
         if (version > 2) jo["xd8"] = isofile.ReadUInt32();
         if (version == 4)
         {
@@ -2635,17 +2635,12 @@ static class Readers
         }
         if (version > 5)
         {
-            // xd0 is a CBlockData container whose children are serialized inline by CBlockData::Serialize.
-            // Unlike the split pattern used in subclasses, here we must read children explicitly.
-            var xd0 = ReadObject(isofile);
-            jo["xd0"] = xd0;
-            for (int i = 0; i < NBlockObjects(xd0); i++)
-                ReadObjectInto(xd0["objects"]!.AsObject(), isofile);
+            ReadObjectInto(jo, isofile, expected: "CBlockData", noIndex: true);  // xd0: parameter sets (CBlockData)
         }
         if (version > 6) jo["xdc"] = isofile.ReadMfcString();
         if (version > 7) jo["xe0"] = isofile.ReadMfcString();
         if (version > 8) jo["xe8"] = isofile.ReadUInt32();
-        if (version > 9) ReadObjectInto(jo, isofile, "CParsedEvaluationStringArray");
+        if (version > 9) ReadObjectInto(jo, isofile, "CParsedEvaluationStringArray", noIndex: true);
         if (version > 10) jo["xe4"] = isofile.ReadMfcString();
         if (version > 11) jo["xec"] = isofile.ReadUInt32();
         return jo;
@@ -3306,17 +3301,19 @@ static class Readers
         jo["n_traces"] = nTraces;
 
         // First CBinary: actual scan data
-        ReadObjectInto(jo, isofile, "CBinary");
+        ReadObjectInto(jo, isofile, "CBinary", noIndex: true);
 
         // Second CBinary: its data bytes ARE the CPlotInfo archive (fresh, independent
         // MFC session with its own class counter starting at 1). Read only the header
         // so the stream advances past the CBinary framing, then parse CPlotInfo from
         // those bytes in a fresh IsodatFile to avoid global registry index conflicts.
         isofile.ReadCRuntimeClass("CBinary");    // back-ref header (2 bytes)
+        int cbinary2ObjIdx = isofile.ObjectLog[^1].ObjIdx;  // ObjIdx of the second CBinary entry
         isofile.ReadSchemaVersion("CSimple", 2); // CSimple version (4 bytes)
         isofile.ReadMfcString();                 // CSimple label (4 bytes for empty)
         isofile.ReadSchemaVersion("CBinary", 2); // CBinary version (4 bytes)
         int nBytesCBinary2 = isofile.ReadInt32();
+        long plotInfoBase = isofile.Position;    // absolute stream position before the buffer
         byte[] plotInfoBytes = nBytesCBinary2 > 0 ? isofile.ReadBytes(nBytesCBinary2) : [];
 
         // Parse CPlotInfo body from the isolated buffer (fresh MFC archive, own counter)
@@ -3327,25 +3324,27 @@ static class Readers
             var plotInfo = ReadObject(pif, "CPlotInfo");
             jo["CPlotInfo"] = plotInfo;
             foreach (string w in pif.Warnings) isofile.AddWarning($"CPlotInfo: {w}");
+            // Transfer secondary ObjectLog into main log (remapped ObjIdx base 100_000_000)
+            isofile.AppendSecondaryObjectLog(pif, cbinary2ObjIdx, plotInfoBase);
             // Tail (two inline CPlotRange + trace_labels) lives outside the buffer
             ReadCPlotInfoTail(plotInfo, isofile);
         }
 
         jo["timestamp_start"] = isofile.ReadTimestamp(); // +0xF8
-        jo["timestamp_end"]   = isofile.ReadTimestamp(); // +0xFC
+        jo["timestamp_end"] = isofile.ReadTimestamp(); // +0xFC
         jo["x100"] = isofile.ReadInt32();
         jo["x104"] = isofile.ReadUInt8();
         jo["x108"] = isofile.ReadMfcString();
 
-        // two polymorphic CScanPart objects
-        ReadObjectInto(jo, isofile, pattern: "ScanPart");
-        ReadObjectInto(jo, isofile, pattern: "ScanPart");
+        // two polymorphic CScanPart objects — individually-named members, not a declared group
+        ReadObjectInto(jo, isofile, pattern: "ScanPart", noIndex: true);
+        ReadObjectInto(jo, isofile, pattern: "ScanPart", noIndex: true);
 
         jo["xd8"] = isofile.ReadInt32();
         jo["xdc"] = isofile.ReadInt32();
         jo["xe0"] = isofile.ReadInt32();
 
-        ReadObjectInto(jo, isofile, "CGasConfiguration");
+        ReadObjectInto(jo, isofile, "CGasConfiguration", noIndex: true);
 
         if (version >= 3)
         {

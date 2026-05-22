@@ -288,6 +288,54 @@ public sealed class IsodatFile : IDisposable
 
     internal void SetObjectLogNBlockObjects(int index, int n) => _objectLog[index].NObjects = n;
 
+    /// <summary>
+    /// Copies every entry from <paramref name="secondary"/>'s ObjectLog into this log,
+    /// remapping ObjIdx values to <c>100_000_000 + secondary.ObjIdx</c> so they never
+    /// collide with the main counter.  ContainerObjIdx is remapped via the same offset
+    /// except for root entries (ContainerObjIdx not present in secondary), which are
+    /// attached to <paramref name="outerContainerObjIdx"/> (the second CBinary's ObjIdx).
+    /// Start positions are adjusted by <paramref name="baseOffset"/> (the stream position
+    /// immediately before the secondary buffer was read from the main stream).
+    /// The original secondary ClassIdx / ObjIdx are preserved in SecondaryClassIdx /
+    /// SecondaryObjIdx for CSV output.
+    /// </summary>
+    public void AppendSecondaryObjectLog(IsodatFile secondary, int outerContainerObjIdx, long baseOffset)
+    {
+        const int Base = 100_000_000;
+        // Build the set of ObjIdx values that exist in the secondary log so we can
+        // distinguish "no container" (root) from "container present but not found".
+        var secondaryObjIdxSet = new HashSet<int>(secondary._objectLog.Select(e => e.ObjIdx));
+
+        foreach (var e in secondary._objectLog)
+        {
+            int mappedObjIdx = Base + e.ObjIdx;
+            int? mappedContainer = e.ContainerObjIdx.HasValue
+                ? (secondaryObjIdxSet.Contains(e.ContainerObjIdx.Value)
+                    ? Base + e.ContainerObjIdx.Value
+                    : outerContainerObjIdx)
+                : outerContainerObjIdx;
+
+            var entry = new ObjectLogEntry(
+                ClassIdx: e.ClassIdx,
+                ObjIdx: mappedObjIdx,
+                Start: baseOffset + e.Start,
+                ContainerObjIdx: mappedContainer,
+                ClassName: e.ClassName,
+                ArchiveVersion: e.ArchiveVersion)
+            {
+                Value = e.Value,
+                IsBlockObject = e.IsBlockObject,
+                BlockObjectIdx = e.BlockObjectIdx,
+                NObjects = e.NObjects,
+                GroupTag = e.GroupTag,
+                GroupDeclaredSize = e.GroupDeclaredSize,
+                SecondaryClassIdx = e.ClassIdx,
+                SecondaryObjIdx = e.ObjIdx,
+            };
+            _objectLog.Add(entry);
+        }
+    }
+
     public void Dispose() => _reader.Dispose();
 }
 
@@ -305,4 +353,6 @@ public record ObjectLogEntry(
     public int? NObjects { get; internal set; }
     public int GroupTag { get; internal set; }          // 0 = block-data objects; >0 = named group
     public int? GroupDeclaredSize { get; internal set; } // declared count for GroupTag > 0
+    public int? SecondaryClassIdx { get; internal set; } // original ClassIdx in the secondary archive
+    public int? SecondaryObjIdx { get; internal set; }   // original ObjIdx in the secondary archive
 }
