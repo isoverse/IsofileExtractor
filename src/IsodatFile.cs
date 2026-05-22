@@ -283,7 +283,7 @@ public sealed class IsodatFile : IDisposable
 
     /// <summary>
     /// Copies every entry from <paramref name="secondary"/>'s ObjectLog into this log,
-    /// remapping ObjIdx values to <c>100_000_000 + secondary.ObjIdx</c> so they never
+    /// remapping ObjIdx values to <c>100_000 + secondary.ObjIdx</c> so they never
     /// collide with the main counter.  ContainerObjIdx is remapped via the same offset
     /// except for root entries (ContainerObjIdx not present in secondary), which are
     /// attached to <paramref name="outerContainerObjIdx"/> (the second CBinary's ObjIdx).
@@ -294,13 +294,14 @@ public sealed class IsodatFile : IDisposable
     /// </summary>
     public void AppendSecondaryObjectLog(IsodatFile secondary, int outerContainerObjIdx, long baseOffset)
     {
-        const int Base = 100_000_000;
+        const int Base = 100_000;
         // Build the set of ObjIdx values that exist in the secondary log so we can
         // distinguish "no container" (root) from "container present but not found".
         var secondaryObjIdxSet = new HashSet<int>(secondary._objectLog.Select(e => e.ObjIdx));
 
         foreach (var e in secondary._objectLog)
         {
+            int mappedClassIdx = Base + e.ClassIdx;
             int mappedObjIdx = Base + e.ObjIdx;
             int? mappedContainer = e.ContainerObjIdx.HasValue
                 ? (secondaryObjIdxSet.Contains(e.ContainerObjIdx.Value)
@@ -309,7 +310,7 @@ public sealed class IsodatFile : IDisposable
                 : outerContainerObjIdx;
 
             var entry = new ObjectLogEntry(
-                ClassIdx: e.ClassIdx,
+                ClassIdx: mappedClassIdx,
                 ObjIdx: mappedObjIdx,
                 Start: baseOffset + e.Start,
                 ContainerObjIdx: mappedContainer,
