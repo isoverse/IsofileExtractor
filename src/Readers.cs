@@ -346,7 +346,7 @@ static class Readers
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
     static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null,
-                                    bool maybeNull = false, int idx = 0, int groupTotal = 0)
+                                    bool maybeNull = false, int? idx = null, int? groupTotal = null)
     {
         if (maybeNull)
         {
@@ -366,13 +366,13 @@ static class Readers
         {
             AddToObjectsDict(container,
                 ipe.PartialResultClassName ?? isofile.ObjectLog[before].ClassName, partial,
-                idx, groupTotal, isofile, before);
+                idx, groupTotal, isofile, logIdx: before);
             ipe.PartialResult = null;
             ipe.PartialResultClassName = null;
             throw;
         }
 
-        AddToObjectsDict(container, childClassName, child, idx, groupTotal, isofile, before);
+        AddToObjectsDict(container, childClassName, child, idx, groupTotal, isofile, logIdx: before);
 
         int n = NBlockObjects(child);
         if (n > 0)
@@ -470,25 +470,27 @@ static class Readers
 
     // Add node to the grouped objects dict under its snake_case class key.
     // Single occurrence → direct value.  Multiple → converted to JsonArray.
-    // When idx > 0 (group member): stamps node["idx"] with the 1-based insertion position across
+    // When idx has a value (group member): stamps node["idx"] with the 1-based position across
     // ALL classes in the dict (preserving polymorphic ordering), and annotates the object-log entry
     // at logBefore with its group position and total.
     static void AddToObjectsDict(JsonObject dict, string className, JsonNode? node,
-                                  int idx = 0, int groupTotal = 0,
-                                  IsodatFile? isofile = null, int logBefore = -1)
+                                  int? idx = null, int? groupTotal = null,
+                                  IsodatFile? isofile = null, int? logIdx = null)
     {
-        if (idx > 0)
+        if (idx.HasValue)
         {
+            if (!groupTotal.HasValue) throw new ArgumentException("groupTotal must be provided when idx is provided");
+            int idxVal = idx.Value, totalVal = groupTotal.Value;
             if (node is JsonObject jo)
             {
                 // Rebuild property order so idx appears first, before parent and any other field.
                 var props = jo.ToList();
                 jo.Clear();
-                jo["idx"] = idx;
+                jo["idx"] = idxVal;
                 foreach (var (k, v) in props) jo[k] = v;
             }
-            if (isofile != null && logBefore < isofile.ObjectLog.Count)
-                isofile.SetObjectLogGroup(logBefore, idx, groupTotal);
+            if (isofile != null && logIdx.HasValue && logIdx.Value < isofile.ObjectLog.Count)
+                isofile.SetObjectLogGroup(logIdx.Value, idxVal, totalVal);
         }
 
         string key = ToSnakeKey(className);
