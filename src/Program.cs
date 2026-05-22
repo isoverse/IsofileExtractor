@@ -139,10 +139,10 @@ static void DumpObjects(IsodatFile archive, string inputPath)
 {
     string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
     using var writer = new StreamWriter(csvPath);
-    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,object_list_idx,object_list_total,value,plot_info_class_idx,plot_info_obj_idx");
+    writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,n_block_objects,object_list_idx,object_list_total,value,plot_info_class_idx,plot_info_obj_idx");
     foreach (var e in archive.ObjectLog)
     {
-        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.BlockObjectIdx?.ToString() ?? ""},{e.GroupTotal?.ToString() ?? ""},\"{e.Value ?? ""}\",{e.SecondaryClassIdx?.ToString() ?? ""},{e.SecondaryObjIdx?.ToString() ?? ""}");
+        writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{e.GroupTotal?.ToString() ?? ""},\"{e.Value ?? ""}\",{e.SecondaryClassIdx?.ToString() ?? ""},{e.SecondaryObjIdx?.ToString() ?? ""}");
     }
     Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
 }

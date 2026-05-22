@@ -273,6 +273,7 @@ public sealed class IsodatFile : IDisposable
     }
 
     internal void SetObjectLogValue(int index, string? value) => _objectLog[index].Value = value;
+    internal void SetObjectLogNObjects(int index, int n) => _objectLog[index].NObjects = n;
 
     internal void SetObjectLogGroup(int index, int idx, int total)
     {
@@ -316,6 +317,7 @@ public sealed class IsodatFile : IDisposable
                 ArchiveVersion: e.ArchiveVersion)
             {
                 Value = e.Value,
+                NObjects = e.NObjects,
                 BlockObjectIdx = e.BlockObjectIdx,
                 GroupTotal = e.GroupTotal,
                 SecondaryClassIdx = e.ClassIdx,
@@ -337,6 +339,7 @@ public record ObjectLogEntry(
     int ArchiveVersion)
 {
     public string? Value { get; internal set; }
+    public int? NObjects { get; internal set; }
     public int? BlockObjectIdx { get; internal set; }
     public int? GroupTotal { get; internal set; }
     public bool IsBlockObject => BlockObjectIdx.HasValue;

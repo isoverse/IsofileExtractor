@@ -305,6 +305,8 @@ static class Readers
         {
             var result = reader(isofile);
             isofile.SetObjectLogValue(entryIndex, ExtractCDataValue(result));
+            if (result["n_objects"] is JsonNode nObj)
+                isofile.SetObjectLogNObjects(entryIndex, nObj.GetValue<int>());
             return result;
         }
         catch (IsodatParseException ipe)
