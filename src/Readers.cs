@@ -113,6 +113,7 @@ static class Readers
             ["CResultArray"] = ReadCResultArray,
             ["CActionScript"] = ReadCActionScript,
             ["CGCPeakList"] = ReadCGCPeakList,
+            ["CPeakList"] = ReadCPeakList,
             ["CVisualisationDialogNamesBlockData"] = ReadCVisualisationDialogNamesBlockData,
             ["CEvalDataItemListTransferPart"] = ReadCEvalDataItemListTransferPart,
             ["CEvalIntegrationUnitHWInfoStore"] = ReadCEvalDataItemListTransferPart,
@@ -301,6 +302,7 @@ static class Readers
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
             ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
+            ["CTraceGcDeviceEvaluationPart"] = ReadCTraceGcDeviceEvaluationPart,
             ["CMultiReferenceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CDualInletDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CCarbonateDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
@@ -1197,6 +1199,21 @@ static class Readers
             if (hasNext != 0) ReadObjectInto(jo, isofile, "CPeakDetectionParameter");
         }
         if (v >= 5) jo["xb9"] = isofile.ReadUInt8();
+        return jo;
+    }
+
+    static JsonObject ReadCPeakList(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int version = isofile.ReadSchemaVersion("CPeakList", 2);
+        if (Unabridged) jo["version"] = version;
+        jo["x_b0"] = isofile.ReadUInt8(); // no named getter; byte used as doubles-per-point multiplier in GetPoint
+        ReadObjectInto(jo, isofile, "CPeakDetectionParameter");
         return jo;
     }
 
@@ -3240,6 +3257,16 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CGenericGcDeviceEvaluationPart");
         int version = isofile.ReadSchemaVersion("CFlashEA_DeviceEvaluationPart", 1);
+        if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    static JsonObject ReadCTraceGcDeviceEvaluationPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDeviceEvaluationPart");
+        int version = isofile.ReadSchemaVersion("CTraceGcDeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
     }

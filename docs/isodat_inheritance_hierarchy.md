@@ -81,7 +81,7 @@
 - CMeasurmentInfos (DONE)
 - CMethod (DONE)
 - CParsedEvaluationStringArray (DONE)
-- CPeakList
+- CPeakList (DONE)
 - CPkDataItemList (DONE)
 - CPlotSettings (DONE)
 - CResultArray (DONE)
@@ -200,7 +200,7 @@
   - CConFloDeviceEvaluationPart (DONE)
     - CGenericGcDeviceEvaluationPart (DONE)
       - CFlashEA_DeviceEvaluationPart (DONE)
-      - CTraceGcDeviceEvaluationPart
+      - CTraceGcDeviceEvaluationPart (DONE)
     - CMultiReferenceDeviceEvaluationPart (DONE)
   - CMsDeviceEvaluationPart (DONE)
 
