@@ -82,6 +82,7 @@ static class Readers
             ["CStr"] = ReadCStr,
             ["CDword"] = ReadCDword,
             ["CInt"] = ReadCInt,
+            ["CLong"] = ReadCInt,
             ["CDouble"] = ReadCDouble,
             ["CPeakCenterOffset"] = ReadCDword,
             ["CBinary"] = ReadCBinary,
@@ -90,6 +91,7 @@ static class Readers
             ["CBlockData"] = ReadCBlockData,
             ["CAcquistionBaseBlockData"] = ReadCBlockData,
             ["CPort"] = ReadCBlockData,
+            ["CResultDataSimpleList"] = ReadCBlockData,
             ["CSeqLineIndexData"] = ReadCSeqLineIndexData,
             ["CDataIndex"] = ReadCDataIndex,
             ["CCalibration"] = ReadCCalibration,
@@ -115,10 +117,21 @@ static class Readers
             ["CEvalDataItemListTransferPart"] = ReadCEvalDataItemListTransferPart,
             ["CEvalIntegrationUnitHWInfoStore"] = ReadCEvalDataItemListTransferPart,
             ["CEvalIntegrationUnitHWInfoList"] = ReadCEvalDataItemListTransferPart,
+            ["CDualInletRawData"] = ReadCDualInletRawData,
+            ["CDualInletEvaluatedDataCollect"] = ReadCDualInletEvaluatedDataCollect,
+            ["CDualInletShout"] = ReadCDualInletShout,
+            ["CDualInletBlockData"] = ReadCDualInletBlockData,
+            ["CBlockDataContext"] = ReadCBlockDataContext,
+            ["CDualInletEvaluatedData"] = ReadCDualInletEvaluatedData,
+            ["CResultDataList"] = ReadCResultDataList,
+            ["CResultDataSimple"] = ReadCResultDataSimple,
+            ["CTwoDoublesArrayData"] = ReadCTwoDoublesArrayData,
 
             // --- CDevice chain ---
             ["CDevice"] = ReadCDevice,
             ["CActiveDevice"] = ReadCActiveDevice,
+            ["CDualInletDevice"] = ReadCActiveDevice,
+            ["CChangeOver2Device"] = ReadCActiveDevice,
             ["CActivePort"] = ReadCActivePort,
             ["CMsDevice"] = ReadCMsDevice,
             ["CGenericGcDevice"] = ReadCGenericGcDevice,
@@ -127,6 +140,8 @@ static class Readers
             ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
             ["CUserDevice"] = ReadCBufferedRefillDevice,
             ["CGCExtendedInterfaceDevice"] = ReadCBufferedRefillDevice,
+            ["CReferenceRefillDevice"] = ReadCBufferedRefillDevice,
+            ["CCarbonateDevice"] = ReadCBufferedRefillDevice,
             ["CXCaliburDevice"] = ReadCXCaliburDevice,
             ["CTraceBasicDevice"] = ReadCTraceBasicDevice,
             ["CTrace_II_Device"] = ReadCTrace_II_Device,
@@ -147,9 +162,13 @@ static class Readers
             // --- CSequencePart chain ---
             ["CSequencePart"] = ReadCSequencePart,
             ["CDeviceSequencePart"] = ReadCDeviceSequencePart,
-            ["CMsSequencePart"] = ReadCMsSequencePart,
             ["CGenericGcSequencePart"] = ReadCDeviceSequencePart,
             ["CSamplerSequencePart"] = ReadCDeviceSequencePart,
+            ["CCarbonateSequencePart"] = ReadCDeviceSequencePart,
+            ["CReferenceRefillSequencePart"] = ReadCDeviceSequencePart,
+            ["CBufferedRefillSequencePart"] = ReadCDeviceSequencePart,
+            ["CMsSequencePart"] = ReadCMsSequencePart,
+            ["CDualInletSequencePart"] = ReadCDualInletSequencePart,
 
             // --- CSequenceGridParam chain ---
             ["CSequenceGridParam"] = ReadCSequenceGridParam,
@@ -170,11 +189,13 @@ static class Readers
             ["CAdcTransferPart"] = ReadCAdcTransferPart,
             ["CDioTransferPart"] = ReadCAdcTransferPart,
             ["CValveTransferPart"] = ReadCAdcTransferPart,
+            ["CSplitTransferPart"] = ReadCAdcTransferPart,
             ["CDacTransferPart"] = ReadCAdcTransferPart,
             ["CBasicHvTransferPart"] = ReadCAdcTransferPart,
             ["CCalculatingDacTransferPart"] = ReadCAdcTransferPart,
             ["CScaleHvTransferPart"] = ReadCAdcTransferPart,
             ["CMagnetCurrentTransferPart"] = ReadCMagnetCurrentTransferPart,
+            ["CIntegrationUnitTransferPart"] = ReadCIntegrationUnitTransferPart,
             ["CIntensityData"] = ReadCIntensityData,
             ["CIntegrationUnitBackGround"] = ReadCIntegrationUnitBackGround,
 
@@ -196,10 +217,20 @@ static class Readers
             ["CHardwarePart"] = ReadCHardwarePart,
             ["CCupHardwarePart"] = ReadCCupHardwarePart,
             ["CChannelHardwarePart"] = ReadCChannelHardwarePart,
+            ["CDioHardwarePart"] = ReadCDioHardwarePart,
+            ["CValveHardwarePart"] = ReadCDioHardwarePart,
+            ["CSwitchHardwarePart"] = ReadCDioHardwarePart,
+            ["CBoardIdHardwarePart"] = ReadCBoardIdHardwarePart,
+            ["CIdReaderHardwarePart"] = ReadCIdReaderHardwarePart,
             ["CScaleHardwarePart"] = ReadCScaleHardwarePart,
+            ["CAdcHardwarePart"] = ReadCAdcHardwarePart,
+            ["CCalculatingAdcHardwarePart"] = ReadCCalculatingAdcHardwarePart,
+            ["CPressureMeterHardwarePart"] = ReadCPressureMeterHardwarePart,
+            ["CHVStatusHardwarePart"] = ReadCHVStatusHardwarePart,
             ["CClockHardwarePart"] = ReadCClockHardwarePart,
             ["CIntegrationUnitHardwarePart"] = ReadCIntegrationUnitHardwarePart,
             ["CDacHardwarePart"] = ReadCDacHardwarePart,
+            ["CCalculatingDacHardwarePart"] = ReadCCalculatingDacHardwarePart,
             ["CScaleHvHardwarePart"] = ReadCScaleHvHardwarePart,
             ["CMagnetCurrentHardwarePart"] = ReadCMagnetCurrentHardwarePart,
 
@@ -218,6 +249,8 @@ static class Readers
             ["CActionPeakCenter"] = ReadCActionPeakCenter,
             ["CActionHwTransferContainer"] = ReadCActionHwTransferContainer,
             ["CActionSubScript"] = ReadCActionSubScript,
+            ["CActionBackground"] = ReadCActionBackground,
+            ["CActionPressAdjust"] = ReadCActionPressAdjust,
             ["CDelay"] = ReadCDelay,
             ["CActionInterpreter"] = ReadCActionInterpreter,
             ["CMethodSwitcher"] = ReadCMethodSwitcher,
@@ -239,6 +272,12 @@ static class Readers
             ["CPeakFindMethodPart"] = ReadCPeakFindMethodPart,
             ["CSimplePeakFindMethodPart"] = ReadCSimplePeakFindMethodPart,
             ["CSimplePeakFindParameter"] = ReadCSimplePeakFindParameter,
+            ["COutlierTestMethodPart"] = ReadCOutlierTestMethodPart,
+            ["CDualInletStandardizationMethodPart"] = ReadCDualInletStandardizationMethodPart,
+            ["CExtEvaluation"] = ReadCExtEvaluation,
+            ["COutlierTest"] = ReadCOutlierTest,
+            ["COutlierData"] = ReadCOutlierData,
+            ["COutlierTestSigma"] = ReadCOutlierTestSigma,
 
             // --- CDeviceMethodPart chain ---
             ["CDeviceMethodPart"] = ReadCDeviceMethodPart,
@@ -250,6 +289,10 @@ static class Readers
             ["CFlashEA_DeviceMethodPart"] = ReadCFlashEA_DeviceMethodPart,
             ["CMultiReferenceDeviceMethodPart"] = ReadCMultiReferenceDeviceMethodPart,
             ["CActiveDeviceMethodPart"] = ReadCDeviceMethodPart,
+            ["CReferenceRefillDeviceMethodPart"] = ReadCReferenceRefillDeviceMethodPart,
+            ["CDualInletDeviceMethodPart"] = ReadCDualInletDeviceMethodPart,
+            ["CCarbonateDeviceMethodPart"] = ReadCCarbonateDeviceMethodPart,
+            ["CTraceGcDeviceMethodPart"] = ReadCTraceGcDeviceMethodPart,
 
             // --- CDeviceEvaluationPart chain ---
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
@@ -259,6 +302,8 @@ static class Readers
             ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
             ["CMultiReferenceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
+            ["CDualInletDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
+            ["CCarbonateDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
 
             // --- CEvalDataTransferPart chain ---
             ["CEvalDataTransferPart"] = ReadCEvalDataTransferPart,
@@ -285,7 +330,14 @@ static class Readers
 
             // --- CGridStorage / CGridCtrl (.cf CDataIndex children) ---
             ["CGridStorage"] = ReadCGridStorage,
+            ["CPeakDataGridStorage"] = ReadCGridStorage,
+            ["CSequenceLineInformationGridStorage"] = ReadCGridStorage,
+            ["CExtendedInformationGridStorage"] = ReadCGridStorage,
+            ["CRawDataGridStorage"] = ReadCGridStorage,
+            ["CEvaluatedDataGridStorage"] = ReadCGridStorage,
+            ["CErrorGridStorage"] = ReadCErrorGridStorage,
             ["CGridCtrl"] = ReadCGridCtrl,
+            ["CPkDataListBox"] = ReadCPkDataListBox,
 
             // --- CContiniousFlowBlockData (top-level DXF object) ---
             ["CContiniousFlowBlockData"] = ReadCContiniousFlowBlockData,
@@ -3888,6 +3940,641 @@ static class Readers
             }
         }
 
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CBlockData-derived readers (.did / .cf)
+    // =======================================================================
+
+    // CDualInletRawData: CBlockData parent, v1
+    static JsonObject ReadCDualInletRawData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CDualInletRawData", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CDualInletBlockData: CAcquistionBaseBlockData (=CBlockData) parent, v1
+    static JsonObject ReadCDualInletBlockData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CDualInletBlockData", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CDualInletEvaluatedDataCollect: CBlockData parent, v1
+    static JsonObject ReadCDualInletEvaluatedDataCollect(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CDualInletEvaluatedDataCollect", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CDualInletShout: CBlockData parent, v1
+    static JsonObject ReadCDualInletShout(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CDualInletShout", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CBlockDataContext: CBlockData parent, v2; xa8=CString; v>=2: xac=CString
+    static JsonObject ReadCBlockDataContext(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CBlockDataContext", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["xa8"] = isofile.ReadMfcString();
+        if (v >= 2) jo["xac"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CErrorGridStorage: CGridStorage parent, v1
+    static JsonObject ReadCErrorGridStorage(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGridStorage");
+        int v = isofile.ReadSchemaVersion("CErrorGridStorage", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CSequencePart readers
+    // =======================================================================
+
+    // CDualInletSequencePart: CDeviceSequencePart parent, v1
+    static JsonObject ReadCDualInletSequencePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceSequencePart");
+        int v = isofile.ReadSchemaVersion("CDualInletSequencePart", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CHardwarePart chain (.did / .cf)
+    // =======================================================================
+
+    // CAdcHardwarePart (ObjectDll): CScaleHardwarePart parent, raw version int32
+    //   x190=uint8, x191=uint8; v>=3: x194=CString; v>=4: x199=uint8, x198=uint8
+    static JsonObject ReadCAdcHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CScaleHardwarePart");
+        int v = isofile.ReadSchemaVersion("CAdcHardwarePart", 4);
+        if (Unabridged) jo["version"] = v;
+        jo["x190"] = isofile.ReadUInt8();
+        jo["x191"] = isofile.ReadUInt8();
+        if (v >= 3) jo["x194"] = isofile.ReadMfcString();
+        if (v >= 4) { jo["x199"] = isofile.ReadUInt8(); jo["x198"] = isofile.ReadUInt8(); }
+        return jo;
+    }
+
+    // CHVStatusHardwarePart: CAdcHardwarePart parent, v1; x1a0=int32
+    static JsonObject ReadCHVStatusHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CAdcHardwarePart");
+        int v = isofile.ReadSchemaVersion("CHVStatusHardwarePart", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["x1a0"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CCalculatingAdcHardwarePart (ObjectDll): CAdcHardwarePart parent, v2
+    //   6 int32s (x1a0..x1b4) + x1b8; v>=2: x1bc=CString
+    static JsonObject ReadCCalculatingAdcHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CAdcHardwarePart");
+        int v = isofile.ReadSchemaVersion("CCalculatingAdcHardwarePart", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x1a0"] = isofile.ReadInt32();
+        jo["x1a4"] = isofile.ReadInt32();
+        jo["x1a8"] = isofile.ReadInt32();
+        jo["x1ac"] = isofile.ReadInt32();
+        jo["x1b0"] = isofile.ReadInt32();
+        jo["x1b4"] = isofile.ReadInt32();
+        jo["x1b8"] = isofile.ReadInt32();
+        if (v >= 2) jo["x1bc"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CCalculatingDacHardwarePart (ObjectDll): CDacHardwarePart parent, v2
+    //   6 int32s (x198..x1ac) + x1b0; v>=2: x1b4=int32
+    static JsonObject ReadCCalculatingDacHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDacHardwarePart");
+        int v = isofile.ReadSchemaVersion("CCalculatingDacHardwarePart", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x198"] = isofile.ReadInt32();
+        jo["x19c"] = isofile.ReadInt32();
+        jo["x1a0"] = isofile.ReadInt32();
+        jo["x1a4"] = isofile.ReadInt32();
+        jo["x1a8"] = isofile.ReadInt32();
+        jo["x1ac"] = isofile.ReadInt32();
+        jo["x1b0"] = isofile.ReadInt32();
+        if (v >= 2) jo["x1b4"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CPressureMeterHardwarePart (ObjectDll): CAdcHardwarePart parent
+    //   6 int32s (x1a0..x1b4) + x1b8 + x1bc (all unconditional)
+    static JsonObject ReadCPressureMeterHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CAdcHardwarePart");
+        int v = isofile.ReadSchemaVersion("CPressureMeterHardwarePart", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x1a0"] = isofile.ReadInt32();
+        jo["x1a4"] = isofile.ReadInt32();
+        jo["x1a8"] = isofile.ReadInt32();
+        jo["x1ac"] = isofile.ReadInt32();
+        jo["x1b0"] = isofile.ReadInt32();
+        jo["x1b4"] = isofile.ReadInt32();
+        jo["x1b8"] = isofile.ReadInt32();
+        jo["x1bc"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CDioHardwarePart (ObjectDll): CHardwarePart parent, v9
+    //   x120=uint8, x121=uint8, x122=uint8 (always)
+    //   v>=6: x134=CString, x138=CString
+    //   v>=7: x13c=int32
+    //   v>=8: x124=CString, x128=CString, x12c=int32
+    //   v>=9: x140=int32
+    static JsonObject ReadCDioHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CHardwarePart");
+        int v = isofile.ReadSchemaVersion("CDioHardwarePart", 9);
+        if (Unabridged) jo["version"] = v;
+        jo["x120"] = isofile.ReadUInt8();
+        jo["x121"] = isofile.ReadUInt8();
+        jo["x122"] = isofile.ReadUInt8();
+        if (v >= 6) { jo["x134"] = isofile.ReadMfcString(); jo["x138"] = isofile.ReadMfcString(); }
+        if (v >= 7) jo["x13c"] = isofile.ReadInt32();
+        if (v >= 8) { jo["x124"] = isofile.ReadMfcString(); jo["x128"] = isofile.ReadMfcString(); jo["x12c"] = isofile.ReadInt32(); }
+        if (v >= 9) jo["x140"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CBoardIdHardwarePart: CHardwarePart parent, v2
+    //   x124=int32; v>=2: x120=uint8, x121=uint8
+    static JsonObject ReadCBoardIdHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CHardwarePart");
+        int v = isofile.ReadSchemaVersion("CBoardIdHardwarePart", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x124"] = isofile.ReadInt32();
+        if (v >= 2) { jo["x120"] = isofile.ReadUInt8(); jo["x121"] = isofile.ReadUInt8(); }
+        return jo;
+    }
+
+    // CIdReaderHardwarePart: CHardwarePart parent, v2
+    //   x120=uint8, x121=uint8; v>=2: x124=int32
+    static JsonObject ReadCIdReaderHardwarePart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CHardwarePart");
+        int v = isofile.ReadSchemaVersion("CIdReaderHardwarePart", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x120"] = isofile.ReadUInt8();
+        jo["x121"] = isofile.ReadUInt8();
+        if (v >= 2) jo["x124"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CTransferPart readers
+    // =======================================================================
+
+    // CIntegrationUnitTransferPart (ObjectDll): CTransferPart parent, v3
+    //   (virtual call, no archive data)
+    //   n=int32; n × ReadObject(CIntensityData)
+    //   v>=3: xb8=int32, flag=int32; if flag: ReadObject(CIntegrationUnitGasConfPart)→xbc
+    static JsonObject ReadCIntegrationUnitTransferPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CTransferPart");
+        int v = isofile.ReadSchemaVersion("CIntegrationUnitTransferPart", 3);
+        if (Unabridged) jo["version"] = v;
+        int n = isofile.ReadInt32();
+        jo["n_intensity"] = n;
+        for (int i = 1; i <= n; i++) ReadObjectInto(jo, isofile, "CIntensityData", idx: i, groupTotal: n);
+        if (v >= 3)
+        {
+            jo["xb8"] = isofile.ReadInt32();
+            int flag = isofile.ReadInt32();
+            jo["has_gas_conf"] = flag != 0;
+            if (flag != 0) ReadObjectInto(jo, isofile, "CIntegrationUnitGasConfPart");
+        }
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CAction readers (.did)
+    // =======================================================================
+
+    // CActionBackground (DevicesDll): CAction parent, v4
+    //   xb8=int32, xbc=uint8; v>=2: xc0=int32, xc8=int32; v>=4: xc4=int32
+    static JsonObject ReadCActionBackground(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CAction");
+        int v = isofile.ReadSchemaVersion("CActionBackground", 4);
+        if (Unabridged) jo["version"] = v;
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xbc"] = isofile.ReadUInt8();
+        if (v >= 2) { jo["xc0"] = isofile.ReadInt32(); jo["xc8"] = isofile.ReadInt32(); }
+        if (v >= 4) jo["xc4"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CActionPressAdjust (DevicesDll): CAction parent, v3
+    //   xb4=uint8, xb8=int32, xbc=int32, xc0+xc4=double, xc8+xcc=double; v>=3: xd0+xd4=double
+    static JsonObject ReadCActionPressAdjust(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CAction");
+        int v = isofile.ReadSchemaVersion("CActionPressAdjust", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xb4"] = isofile.ReadUInt8();
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xbc"] = isofile.ReadInt32();
+        jo["xc0"] = isofile.ReadDouble();
+        jo["xc8"] = isofile.ReadDouble();
+        if (v >= 3) jo["xd0"] = isofile.ReadDouble();
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CMethodPart readers (.did / .cf)
+    // =======================================================================
+
+    // COutlierTest: no parent, v1, no fields (initialization-only Serialize)
+    static JsonObject ReadCOutlierTest(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        int v = isofile.ReadSchemaVersion("COutlierTest", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // COutlierData (IsoPeakData): CData parent; schema v1; x98=double, xa0=double
+    static JsonObject ReadCOutlierData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("COutlierData", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["x98"] = isofile.ReadDouble();
+        jo["xa0"] = isofile.ReadDouble();
+        return jo;
+    }
+
+    // COutlierTestSigma: no parent; schema v1; xa0=double
+    static JsonObject ReadCOutlierTestSigma(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        int v = isofile.ReadSchemaVersion("COutlierTestSigma", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["xa0"] = isofile.ReadDouble();
+        return jo;
+    }
+
+    // COutlierTestMethodPart: CMethodPart parent, v2
+    //   xa4=ReadObject(CBlockData); v>=2: xa8=CString; else: ReadObject(CStr) discarded
+    static JsonObject ReadCOutlierTestMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CMethodPart");
+        int v = isofile.ReadSchemaVersion("COutlierTestMethodPart", 2);
+        if (Unabridged) jo["version"] = v;
+        ReadObjectInto(jo, isofile, "CBlockData");
+        if (v >= 2)
+            jo["xa8"] = isofile.ReadMfcString();
+        else
+            ReadObject(isofile, "CStr");  // legacy, discard
+        return jo;
+    }
+
+    // CExtEvaluation (ExtEvaluationDll): CMethodPart parent
+    //   v=int32, flag=int32
+    //   if v<=2 and flag: ReadObject(CMethod) discard
+    //   if v>=2: xe0=CString, xe4=int32
+    //   if v>4:  xe8=int32, xf0+xf4=double, xf8+xfc=double
+    static JsonObject ReadCExtEvaluation(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CMethodPart");
+        int v = isofile.ReadInt32(); // raw version (written as 5)
+        if (Unabridged) jo["version"] = v;
+        int flag = isofile.ReadInt32();
+        if (v <= 2 && flag != 0)
+            ReadObject(isofile, "CMethod"); // legacy, discard
+        if (v >= 2) { jo["xe0"] = isofile.ReadMfcString(); jo["xe4"] = isofile.ReadInt32(); }
+        if (v > 4) { jo["xe8"] = isofile.ReadInt32(); jo["xf0"] = isofile.ReadDouble(); jo["xf8"] = isofile.ReadDouble(); }
+        return jo;
+    }
+
+    // CDualInletStandardizationMethodPart (StandardAction.dll): CMethodPart parent
+    //   v=int32, xc0=CString, xb8=int32, xbc=int32, xac=ReadObject(CData)
+    //   if v>2: xc8=ReadObject(CData)
+    //   if v>3: discard int32 (xd4 read then cleared)
+    //   if v==4: discard 2×ReadObject(CData)
+    //   if v>6: xd8=int32; if v>7: xdc=int32
+    //   if v>8: xe0=CString; if v>9: xe4=CString; if v>=11: xa8=int32
+    static JsonObject ReadCDualInletStandardizationMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CMethodPart");
+        int v = isofile.ReadInt32(); // raw version (written as 0xb = 11)
+        if (Unabridged) jo["version"] = v;
+        jo["xc0"] = isofile.ReadMfcString();
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xbc"] = isofile.ReadInt32();
+        ReadObjectInto(jo, isofile, "CData");   // xac
+        if (v > 2) ReadObjectInto(jo, isofile, "CData");  // xc8
+        if (v > 3) isofile.ReadInt32();          // xd4: read then discarded
+        if (v == 4) { ReadObject(isofile, "CData"); ReadObject(isofile, "CData"); }  // legacy, discard
+        if (v > 6) jo["xd8"] = isofile.ReadInt32();
+        if (v > 7) jo["xdc"] = isofile.ReadInt32();
+        if (v > 8) jo["xe0"] = isofile.ReadMfcString();
+        if (v > 9) jo["xe4"] = isofile.ReadMfcString();
+        if (v >= 11) jo["xa8"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // =======================================================================
+    // Additional CDeviceMethodPart readers (.did)
+    // =======================================================================
+
+    // CReferenceRefillDeviceMethodPart (DevicesDll): CDeviceMethodPart parent, v1
+    //   xac=int32, xb0=int32, xb8+xbc=double, xc0=int32
+    static JsonObject ReadCReferenceRefillDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CReferenceRefillDeviceMethodPart", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["xac"] = isofile.ReadInt32();
+        jo["xb0"] = isofile.ReadInt32();
+        jo["xb8"] = isofile.ReadDouble();
+        jo["xc0"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CDualInletDeviceMethodPart (DevicesDll): CDeviceMethodPart parent, v5
+    //   xac=int32, xe4=ReadObject(CActionPressAdjust), xe8=ReadObject(CActionBackground)
+    //   xb0=int32, xb8=int32, xbc=int32
+    //   v>=2: xc0+xc4=double, xc8=int32, xcc=int32
+    //   v>=3: xb4=int32
+    //   v>=4: xd0=int32, xd8+xdc=double, flag=int32, if flag: ReadObject(COutlierTest)→xec
+    //   v>=5: xe0=int32
+    static JsonObject ReadCDualInletDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CDualInletDeviceMethodPart", 5);
+        if (Unabridged) jo["version"] = v;
+        jo["xac"] = isofile.ReadInt32();
+        ReadObjectInto(jo, isofile, "CActionPressAdjust");
+        ReadObjectInto(jo, isofile, "CActionBackground");
+        jo["xb0"] = isofile.ReadInt32();
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xbc"] = isofile.ReadInt32();
+        if (v >= 2) { jo["xc0"] = isofile.ReadDouble(); jo["xc8"] = isofile.ReadInt32(); jo["xcc"] = isofile.ReadInt32(); }
+        if (v >= 3) jo["xb4"] = isofile.ReadInt32();
+        if (v >= 4)
+        {
+            jo["xd0"] = isofile.ReadInt32();
+            jo["xd8"] = isofile.ReadDouble();
+            int hasOutlier = isofile.ReadInt32();
+            jo["has_outlier_test"] = hasOutlier != 0;
+            if (hasOutlier != 0) ReadObjectInto(jo, isofile, "COutlierTest");
+        }
+        if (v >= 5) jo["xe0"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CCarbonateDeviceMethodPart (DevicesDll): CDeviceMethodPart parent, v3
+    //   8 int32s: xac,xb0,xb4,xb8,xbc,xc0,xc4,xc8 (all unconditional; written as v3)
+    static JsonObject ReadCCarbonateDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CCarbonateDeviceMethodPart", 3);
+        if (Unabridged) jo["version"] = v;
+        jo["xac"] = isofile.ReadInt32();
+        jo["xb0"] = isofile.ReadInt32();
+        jo["xb4"] = isofile.ReadInt32();
+        jo["xb8"] = isofile.ReadInt32();
+        jo["xbc"] = isofile.ReadInt32();
+        jo["xc0"] = isofile.ReadInt32();
+        jo["xc4"] = isofile.ReadInt32();
+        jo["xc8"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CTraceGcDeviceMethodPart (DevicesDll): CGenericGcDeviceMethodPart parent, v2
+    //   if v>=2: no extra fields; if v<2: read 8 int32s (legacy)
+    static JsonObject ReadCTraceGcDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CTraceGcDeviceMethodPart", 2);
+        if (Unabridged) jo["version"] = v;
+        if (v < 2)
+        {
+            // Legacy layout (v1): 8 int32 fields, abandoned in v2
+            jo["xb4"] = isofile.ReadInt32(); jo["xb8"] = isofile.ReadInt32();
+            jo["xbc"] = isofile.ReadInt32(); jo["xc0"] = isofile.ReadInt32();
+            jo["xc4"] = isofile.ReadInt32(); jo["xc8"] = isofile.ReadInt32();
+            jo["xcc"] = isofile.ReadInt32(); jo["xd0"] = isofile.ReadInt32();
+        }
+        return jo;
+    }
+
+    // =======================================================================
+    // CDualInletEvaluatedData (.did)
+    // =======================================================================
+
+    // CDualInletEvaluatedData (DualInlet_u): CBlockData parent, v2
+    //   xa8+xac=double, xb0+xb4=double, xb8+xbc=double, xc0+xc4=double, xc8=int32
+    //   v>=2: CArray<bool,bool> inline:
+    //     count = uint16 (if 0xFFFF: read uint32 instead)
+    //     count × uint8 (bool bytes)
+    static JsonObject ReadCDualInletEvaluatedData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CDualInletEvaluatedData", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["xa8"] = isofile.ReadDouble();
+        jo["xb0"] = isofile.ReadDouble();
+        jo["xb8"] = isofile.ReadDouble();
+        jo["xc0"] = isofile.ReadDouble();
+        jo["xc8"] = isofile.ReadInt32();
+        if (v >= 2)
+        {
+            int count = isofile.ReadUInt16();
+            if (count == 0xFFFF) count = (int)isofile.ReadUInt32();
+            var bools = new JsonArray();
+            for (int i = 0; i < count; i++) bools.Add(isofile.ReadUInt8() != 0);
+            jo["xcc"] = bools;
+        }
+        return jo;
+    }
+
+    // =======================================================================
+    // CResultDataList / CResultDataSimple (IsoPeakData.dll)
+    // =======================================================================
+
+    // CResultDataList: CBlockData parent (n_objects = CSPeak children), v7
+    //   v>1: xa8=int32; v>2: xac=CString; v>3: xb0=CString
+    //   v>=6: xb4=CString, xb8=CString; v>=7: xc0=int32
+    static JsonObject ReadCResultDataList(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
+        int v = isofile.ReadSchemaVersion("CResultDataList", 7);
+        if (Unabridged) jo["version"] = v;
+        if (v > 1) jo["xa8"] = isofile.ReadInt32();
+        if (v > 2) jo["xac"] = isofile.ReadMfcString();
+        if (v > 3) jo["xb0"] = isofile.ReadMfcString();
+        if (v >= 6) { jo["xb4"] = isofile.ReadMfcString(); jo["xb8"] = isofile.ReadMfcString(); }
+        if (v >= 7) jo["xc0"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CResultDataSimple: CData parent, v2
+    //   x98+x9c=double, xa0=CString, xa4=CString; v>1: xa8=CString
+    static JsonObject ReadCResultDataSimple(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CResultDataSimple", 2);
+        if (Unabridged) jo["version"] = v;
+        jo["x98"] = isofile.ReadDouble();
+        jo["xa0"] = isofile.ReadMfcString();
+        jo["xa4"] = isofile.ReadMfcString();
+        if (v > 1) jo["xa8"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // =======================================================================
+    // CPkDataListBox (GCViewClassesDll)
+    // =======================================================================
+
+    // CPkDataListBox: CGridCtrl parent
+    //   v=int32, 16 raw bytes (x3c8..x3d7), x3d8=int32, x3dc=int32 (gas_index)
+    //   if v>1: x3e0=CString (eval_list), x3e4=CString
+    static JsonObject ReadCPkDataListBox(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGridCtrl");
+        int v = isofile.ReadInt32(); // raw version (written as 2)
+        if (Unabridged) jo["version"] = v;
+        jo["x3c8"] = Convert.ToBase64String(isofile.ReadBytes(16));
+        jo["x3d8"] = isofile.ReadInt32();
+        jo["gas_index"] = isofile.ReadInt32(); // GetGasIndex / SetGasIndex (x3dc)
+        if (v > 1) { jo["eval_list"] = isofile.ReadMfcString(); jo["x3e4"] = isofile.ReadMfcString(); }
+        return jo;
+    }
+
+    // =======================================================================
+    // CTwoDoublesArrayData (AcquisitionBase_u / ToolDll_u)
+    // =======================================================================
+
+    // CTwoDoublesArrayData: CData parent, v1 + inline CTwoDoublesArray:
+    //   tda_v=int32 (discard, always 1), count=int32, count×(double,double), double, double, CString
+    static JsonObject ReadCTwoDoublesArrayData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CTwoDoublesArrayData", 1);
+        if (Unabridged) jo["version"] = v;
+        // Inline CTwoDoublesArray::Serialize
+        isofile.ReadInt32(); // tda_version (always 1), discard
+        int count = isofile.ReadInt32();
+        jo["n_points"] = count;
+        var xArr = new JsonArray();
+        var yArr = new JsonArray();
+        for (int i = 0; i < count; i++) { xArr.Add(isofile.ReadDouble()); yArr.Add(isofile.ReadDouble()); }
+        jo["x_data"] = xArr;
+        jo["y_data"] = yArr;
+        jo["x14"] = isofile.ReadDouble();
+        jo["x18"] = isofile.ReadDouble();
+        jo["x1c"] = isofile.ReadMfcString();
         return jo;
     }
 

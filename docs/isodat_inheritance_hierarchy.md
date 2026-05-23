@@ -22,11 +22,13 @@
 - CISLScriptMessageData (DONE)
 - CMolecule (DONE)
 - CMRI_DilutionList (DONE)
-- COutlierData
+- COutlierData (DONE)
+- COutlierTest (DONE)
+- COutlierTestSigma (DONE)
 - CPeakDetectionParameter (DONE)
 - CPeakFindParameter (DONE)
   - CSimplePeakFindParameter (DONE)
-- CResultDataSimple
+- CResultDataSimple (DONE)
 - CResultForGas (DONE)
 - CScrBase
   - CScrHeadLine (DONE)
@@ -34,18 +36,19 @@
 - CTimeObject (DONE)
 - CTraceLinCol (DONE)
 - CTraceSettings (DONE)
+- CTwoDoublesArrayData (DONE)
 - CWinColor (DONE)
 - IsoGCEvalData (DONE)
   - CGCData (DONE)
     - CRawData (DONE)
 
 ## CData::CAction (DONE)
-- CActionBackground
+- CActionBackground (DONE)
 - CActionCommand (DONE)
   - CActionInterpreter (DONE)
 - CActionHwTransferContainer (DONE)
 - CActionPeakCenter (DONE)
-- CActionPressAdjust
+- CActionPressAdjust (DONE)
 - CActionSubScript (DONE)
 - CCounter (DONE)
   - CDelay (DONE)
@@ -55,18 +58,18 @@
 ## CData::CBlockData (DONE)
 - CActionScript (DONE)
 - CAcquistionBaseBlockData (DONE)
-  - CDualInletBlockData
+  - CDualInletBlockData (DONE)
   - CContiniousFlowBlockData (DONE)
 - CAllMoleculeWeights (DONE)
-- CBlockDataContext
+- CBlockDataContext (DONE)
 - CCalibration (DONE)
 - CComponentList (DONE)
 - CConfiguration (DONE)
 - CDataIndex (DONE)
-- CDualInletEvaluatedData
-- CDualInletEvaluatedDataCollect
-- CDualInletRawData
-- CDualInletShout
+- CDualInletEvaluatedData (DONE)
+- CDualInletEvaluatedDataCollect (DONE)
+- CDualInletRawData (DONE)
+- CDualInletShout (DONE)
 - CEvalDataItemListTransferPart (DONE)
   - CEvalIntegrationUnitHWInfoList (DONE)
   - CEvalIntegrationUnitHWInfoStore (DONE)
@@ -83,12 +86,16 @@
 - CPlotSettings (DONE)
 - CResultArray (DONE)
 - CResultData (DONE)
-- CResultDataList
+- CResultDataList (DONE)
+- CResultDataSimpleList (DONE)
 - CScanStorage (DONE)
 - CSeqLineIndexData (DONE)
-- CSequenceGridParam
-  - CSequenceFlag
-  - CSequenceText
+- CSequenceGridParam (DONE)
+  - CSequenceCmd (DONE)
+  - CSequenceFlag (DONE)
+  - CSequenceText (DONE)
+  - CSequenceTextFiles (DONE)
+  - CSequenceTextSamplerMethod (DONE)
 - CViewColors (DONE)
 - CVisualisationData (DONE)
 - CVisualisationDialogNamesBlockData (DONE)
@@ -97,22 +104,25 @@
 ## CData::CBlockData::CDevice (DONE)
 - CActiveDevice (DONE)
   - CBufferedRefillDevice (DONE)
+    - CCarbonateDevice (DONE)
     - CGCExtendedInterfaceDevice (DONE)
     - CMultiReferenceDevice (DONE)
+    - CReferenceRefillDevice (DONE)
     - CUserDevice (DONE)
+  - CChangeOver2Device (DONE)
   - CConFloDevice (DONE)
+  - CDualInletDevice (DONE)
   - CGenericGcDevice (DONE)
     - CFlashEA_Device (DONE)
-    - CTraceGcDevice
+    - CTraceGcDevice (DONE)
   - CXCaliburDevice (DONE)
     - CTraceBasicDevice (DONE)
       - CTrace_II_Device (DONE)
     - CXcalRSH2Device (DONE)
     - CXcalRSHDevice (DONE)
-- CCarbonateDevice
 - CMsDevice (DONE)
-- CSamplerDevice
-  - CA200SDevice
+- CSamplerDevice (DONE)
+  - CA200SDevice (DONE)
 
 ## CData::CBlockData::CPort (DONE)
 - CActivePort (DONE)
@@ -124,13 +134,14 @@
   - CAdcTransferPart (DONE)
     - CDioTransferPart (DONE)
       - CValveTransferPart (DONE)
+        - CSplitTransferPart (DONE)
   - CDacTransferPart (DONE)
     - CBasicHvTransferPart (DONE)
       - CCalculatingDacTransferPart (DONE)
       - CScaleHvTransferPart (DONE)
     - CMagnetCurrentTransferPart (DONE)
-  - CIntegrationUnitTransferPart
-  - CIntensityData
+  - CIntegrationUnitTransferPart (DONE)
+  - CIntensityData (DONE)
 - CGasConfPart (DONE)
   - CChannelGasConfPart (DONE)
   - CIntegrationUnitGasConfPart (DONE)
@@ -140,39 +151,51 @@
   - CMagnetCurrentScanPart (DONE)
   - CScaleHvScanPart (DONE)
 - CHardwarePart (DONE)
-  - CAdcHardwarePart
-    - CCalculatingAdcHardwarePart
-    - CHVStatusHardwarePart
-    - CPressureMeterHardwarePart
+  - CAdcHardwarePart (DONE)
+    - CCalculatingAdcHardwarePart (DONE)
+    - CHVStatusHardwarePart (DONE)
+    - CPressureMeterHardwarePart (DONE)
+  - CBoardIdHardwarePart (DONE)
   - CChannelHardwarePart (DONE)
   - CCupHardwarePart (DONE)
-  - CDioHardwarePart
-  - CIdReaderHardwarePart
+  - CDioHardwarePart (DONE)
+    - CSwitchHardwarePart (DONE)
+    - CValveHardwarePart (DONE)
+  - CIdReaderHardwarePart (DONE)
   - CScaleHardwarePart (DONE)
     - CAdcHardwarePart (see above)
     - CClockHardwarePart (DONE)
     - CDacHardwarePart (DONE)
-      - CCalculatingDacHardwarePart
+      - CCalculatingDacHardwarePart (DONE)
       - CMagnetCurrentHardwarePart (DONE)
       - CScaleHvHardwarePart (DONE)
     - CIntegrationUnitHardwarePart (DONE)
-- CSequencePart
-  - CDeviceSequencePart
-    - CDualInletSequencePart
+- CSequencePart (DONE)
+  - CDeviceSequencePart (DONE)
+    - CCarbonateSequencePart (DONE)
+    - CBufferedRefillSequencePart (DONE)
+    - CGenericGcSequencePart (DONE)
+    - CReferenceRefillSequencePart (DONE)
+    - CSamplerSequencePart (DONE)
+    - CDualInletSequencePart (DONE)
+  - CMsSequencePart (DONE)
 - CEvaluationPart (DONE)
   - CDeviceMethodPart (DONE)
     - CActiveDeviceMethodPart (DONE)
+    - CCarbonateDeviceMethodPart (DONE)
     - CConFloDeviceMethodPart (DONE)
-    - CDualInletDeviceMethodPart
+    - CDualInletDeviceMethodPart (DONE)
     - CGCExtendedInterfaceDeviceMethodPart (DONE)
     - CGenericGcDeviceMethodPart (DONE)
       - CFlashEA_DeviceMethodPart (DONE)
-      - CTraceGcDeviceMethodPart
+      - CTraceGcDeviceMethodPart (DONE)
     - CMsDeviceMethodPart (DONE)
     - CMultiReferenceDeviceMethodPart (DONE)
+    - CReferenceRefillDeviceMethodPart (DONE)
     - CStandardDeviceMethodPart (DONE)
 - CDeviceEvaluationPart (DONE)
-  - CCarbonateDeviceEvaluationPart
+  - CCarbonateDeviceEvaluationPart (DONE)
+  - CDualInletDeviceEvaluationPart (DONE)
   - CGCExtendedInterfaceDeviceEvaluationPart (DONE)
   - CConFloDeviceEvaluationPart (DONE)
     - CGenericGcDeviceEvaluationPart (DONE)
@@ -187,10 +210,10 @@
 - CConFloMethodPart (DONE)
 - CContiniousFlowStandardizationListMethodPart (DONE)
 - CContiniousFlowStandardizationMethodPart (DONE)
-- CDualInletStandardizationMethodPart
-- CExtEvaluation
+- CDualInletStandardizationMethodPart (DONE)
+- CExtEvaluation (DONE)
 - CMethodPrintoutDesc (DONE)
-- COutlierTestMethodPart
+- COutlierTestMethodPart (DONE)
 - CPeakFindMethodPart (DONE)
   - CSimplePeakFindMethodPart (DONE)
 - CPrimaryStandardMethodPart (DONE)
@@ -203,6 +226,7 @@
   - CDword (DONE)
     - CPeakCenterOffset (DONE)
   - CInt (DONE)
+    - CLong (DONE)
 - CDouble (DONE)
 - CStr (DONE)
 
@@ -210,8 +234,16 @@
 - CEvalFakeData (DONE)
   - CEvalGCData (DONE)
 
-## CGridStorage
-- CErrorGridStorage
+## CGridStorage (DONE)
+- CEvaluatedDataGridStorage (DONE)
+- CErrorGridStorage (DONE)
+- CExtendedInformationGridStorage (DONE)
+- CPeakDataGridStorage (DONE)
+- CRawDataGridStorage (DONE)
+- CSequenceLineInformationGridStorage (DONE)
+
+## CGridCtrl (DONE)
+- CPkDataListBox (DONE)
 
 ## CObject
 - CPlotInfo (DONE)
