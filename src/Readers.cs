@@ -133,6 +133,8 @@ static class Readers
             ["CXcalRSH2Device"] = ReadCXcalRSH2Device,
             ["CXcalRSHDevice"] = ReadCXcalRSH2Device,
             ["CTraceGcDevice"] = ReadCTraceGcDevice,
+            ["CSamplerDevice"] = ReadCSamplerDevice,
+            ["CA200SDevice"] = ReadCA200SDevice,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -1653,6 +1655,32 @@ static class Readers
         int v = isofile.ReadSchemaVersion("CTraceGcDevice", 2);
         if (Unabridged) jo["version"] = v;
         if (v >= 2) jo["x100"] = isofile.ReadInt32();
+        return jo;
+    }
+
+    // CSamplerDevice::Serialize (DevicesDll.dll):
+    //   parent CActiveDevice + schema v2
+    //   v>=2: xd0 (CString)
+    static JsonObject ReadCSamplerDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CActiveDevice");
+        int v = isofile.ReadSchemaVersion("CSamplerDevice", 2);
+        if (Unabridged) jo["version"] = v;
+        if (v >= 2) jo["xd0"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CA200SDevice::Serialize (A200SDll_u.dll):
+    //   parent CSamplerDevice + schema v1 (no additional fields)
+    static JsonObject ReadCA200SDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSamplerDevice");
+        int v = isofile.ReadSchemaVersion("CA200SDevice", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
