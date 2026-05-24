@@ -141,7 +141,7 @@ static string CollapseNumberArrays(string json) =>
 
 static void DumpObjects(IsodatFile archive, string inputPath)
 {
-    string csvPath = Path.ChangeExtension(inputPath, ".objects.csv");
+    string csvPath = inputPath + ".objects.csv";
     using var writer = new StreamWriter(csvPath);
     writer.WriteLine("start,class_idx,obj_idx,container_idx,class_name,archive_version,n_block_objects,object_list_idx,object_list_total,value");
     foreach (var e in archive.ObjectLog)
@@ -153,7 +153,7 @@ static void DumpObjects(IsodatFile archive, string inputPath)
 
 static void WriteIssuesLog(IsodatFile archive, string inputPath, Exception? error)
 {
-    string logPath = Path.ChangeExtension(inputPath, ".issues.log");
+    string logPath = inputPath + ".issues.log";
     if (archive.Warnings.Count == 0 && error is null)
     {
         File.Delete(logPath);
@@ -168,7 +168,7 @@ static void WriteIssuesLog(IsodatFile archive, string inputPath, Exception? erro
 
 static void DumpTree(IsodatFile archive, string inputPath)
 {
-    string treePath = Path.ChangeExtension(inputPath, ".tree.txt");
+    string treePath = inputPath + ".tree.txt";
 
     // Group entries by parent obj-index (-1 = root sentinel)
     const int Root = -1;
