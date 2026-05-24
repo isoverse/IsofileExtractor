@@ -114,6 +114,7 @@ static class Readers
             ["CActionScript"] = ReadCActionScript,
             ["CGCPeakList"] = ReadCGCPeakList,
             ["CPeakList"] = ReadCPeakList,
+            ["CPeak"] = ReadCPeak,
             ["CVisualisationDialogNamesBlockData"] = ReadCVisualisationDialogNamesBlockData,
             ["CEvalDataItemListTransferPart"] = ReadCEvalDataItemListTransferPart,
             ["CEvalIntegrationUnitHWInfoStore"] = ReadCEvalDataItemListTransferPart,
@@ -345,6 +346,7 @@ static class Readers
             ["CContiniousFlowBlockData"] = ReadCContiniousFlowBlockData,
             ["CScanStorage"] = ReadCScanStorage,
             ["CRawDataScanStorage"] = ReadCRawDataScanStorage,
+            ["CRatioDataScanStorage"] = ReadCRawDataScanStorage,
         };
     }
 
@@ -1215,6 +1217,30 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         jo["x_b0"] = isofile.ReadUInt8(); // no named getter; byte used as doubles-per-point multiplier in GetPoint
         ReadObjectInto(jo, isofile, "CPeakDetectionParameter");
+        return jo;
+    }
+
+    // CPeak::Serialize: no parent, v5
+    // layout: 3 uint32 (sample indices) + 4 doubles (mass/intensity/etc.) + int32 + CString
+    // + v3: double + v4: double + v5: CString
+    static JsonObject ReadCPeak(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        int version = isofile.ReadSchemaVersion("CPeak", 5);
+        if (Unabridged) jo["version"] = version;
+        jo["x94"] = isofile.ReadUInt32();
+        jo["x98"] = isofile.ReadUInt32();
+        jo["x9c"] = isofile.ReadUInt32();
+        jo["xb0"] = isofile.ReadDouble();
+        jo["xb8"] = isofile.ReadDouble();
+        jo["xc0"] = isofile.ReadDouble();
+        jo["xa8"] = isofile.ReadDouble();
+        jo["xd0"] = isofile.ReadInt32();
+        jo["xd4"] = isofile.ReadMfcString();
+        if (version >= 3) jo["xa0"] = isofile.ReadDouble();
+        if (version >= 4) jo["xc8"] = isofile.ReadDouble();
+        if (version >= 5) jo["x38"] = isofile.ReadMfcString();
         return jo;
     }
 
@@ -2582,18 +2608,18 @@ static class Readers
         return jo;
     }
 
-    // Reads the CPlotInfo "tail" from the outer stream (two inline CPlotRange + trace_labels).
-    // Called by ReadCScanStorage after the isolated CPlotInfo buffer is consumed.
-    static void ReadCPlotInfoTail(JsonObject plotInfo, IsodatFile isofile)
+    // Reads two inline CPlotRange objects (CScanStorage+0x128, +0x140) + nTraces trace label
+    // strings that always follow CBinary2 in the main stream. Target is plotInfo when present,
+    // or the parent jo when CBinary2 was empty and no CPlotInfo was parsed.
+    static void ReadCPlotInfoTail(JsonObject target, int nTraces, IsodatFile isofile)
     {
-        plotInfo["plot_range_zoom2"] = ReadCPlotRange(isofile);
-        plotInfo["plot_range2"] = ReadCPlotRange(isofile);
-        int nTraces = plotInfo["CTraceInfo"]?["n_traces"]?.GetValue<int>() ?? 0;
+        target["plot_range_zoom2"] = ReadCPlotRange(isofile);
+        target["plot_range2"] = ReadCPlotRange(isofile);
         if (nTraces > 0)
         {
             var labels = new JsonArray();
             for (int i = 0; i < nTraces; i++) labels.Add(isofile.ReadMfcString());
-            plotInfo["trace_labels"] = labels;
+            target["trace_labels"] = labels;
         }
     }
 
@@ -3834,7 +3860,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
 
         if (version >= 3)
-            ReadObjectInto(jo, isofile, "CGridCtrl");
+            ReadObjectInto(jo, isofile);
 
         return jo;
     }
@@ -3915,18 +3941,20 @@ static class Readers
         byte[] plotInfoBytes = nBytesCBinary2 > 0 ? isofile.ReadBytes(nBytesCBinary2) : [];
 
         // Parse CPlotInfo body from the isolated buffer (fresh MFC archive, own counter)
+        JsonObject? plotInfo = null;
         if (plotInfoBytes.Length > 0)
         {
             using var ms = new System.IO.MemoryStream(plotInfoBytes);
             using var pif = new IsodatFile(ms);
-            var plotInfo = ReadObject(pif, "CPlotInfo");
+            plotInfo = ReadObject(pif, "CPlotInfo");
             jo["CPlotInfo"] = plotInfo;
             foreach (string w in pif.Warnings) isofile.AddWarning($"CPlotInfo: {w}");
             // Transfer secondary ObjectLog into main log (remapped ObjIdx base 100_000_000)
             isofile.AppendSecondaryObjectLog(pif, cbinary2ObjIdx, plotInfoBase);
-            // Tail (two inline CPlotRange + trace_labels) lives outside the buffer
-            ReadCPlotInfoTail(plotInfo, isofile);
         }
+        // Two inline CPlotRange objects (this+0x128, this+0x140) + nTraces trace labels
+        // always follow CBinary2 in the main stream, regardless of CBinary2 content.
+        ReadCPlotInfoTail(plotInfo ?? jo, nTraces, isofile);
 
         jo["timestamp_start"] = isofile.ReadTimestamp(); // +0xF8
         jo["timestamp_end"] = isofile.ReadTimestamp(); // +0xFC
@@ -3948,9 +3976,8 @@ static class Readers
         {
             int nPeakList = isofile.ReadInt32();
             jo["n_peak_list"] = nPeakList;
-            if (nPeakList > 0)
-                throw new InvalidDataException(
-                    $"CScanStorage: {nPeakList} CPeakList objects not yet implemented");
+            for (int i = 1; i <= nPeakList; i++)
+                ReadObjectInto(jo, isofile, "CPeakList", idx: i, groupTotal: nPeakList);
 
             if (version >= 5)
             {
