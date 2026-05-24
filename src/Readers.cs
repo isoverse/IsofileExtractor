@@ -344,6 +344,7 @@ static class Readers
             // --- CContiniousFlowBlockData (top-level DXF object) ---
             ["CContiniousFlowBlockData"] = ReadCContiniousFlowBlockData,
             ["CScanStorage"] = ReadCScanStorage,
+            ["CRawDataScanStorage"] = ReadCRawDataScanStorage,
         };
     }
 
@@ -3970,6 +3971,17 @@ static class Readers
             }
         }
 
+        return jo;
+    }
+
+    // CRawDataScanStorage vtable → CCycleScanStorage::Serialize → CScanStorage::Serialize + int32
+    static JsonObject ReadCRawDataScanStorage(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CScanStorage");
+        int version = isofile.ReadSchemaVersion("CRawDataScanStorage", 1);
+        if (Unabridged) jo["version"] = version;
         return jo;
     }
 
