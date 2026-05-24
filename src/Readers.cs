@@ -1784,8 +1784,11 @@ static class Readers
         ReadParent(jo, isofile, "CActiveDevice");
         int version = isofile.ReadSchemaVersion("CMsDevice", 2);
         if (Unabridged) jo["version"] = version;
-        jo["xfc"] = isofile.ReadUInt32(); // no named getter; ComboBox selection (init 2); DDX via combo at ctrl 0x411
-        if (version >= 2) jo["x100"] = isofile.ReadUInt32(); // no named getter; DDX_Check ctrl 0x40f (init 1)
+        if (version >= 2)
+        {
+            jo["xfc"] = isofile.ReadUInt32();  // no named getter; ComboBox selection (init 2); DDX via combo at ctrl 0x411
+            jo["x100"] = isofile.ReadUInt32(); // no named getter; DDX_Check ctrl 0x40f (init 1)
+        }
         return jo;
     }
 
