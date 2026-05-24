@@ -333,11 +333,11 @@ static class Readers
 
             // --- CGridStorage / CGridCtrl (.cf CDataIndex children) ---
             ["CGridStorage"] = ReadCGridStorage,
-            ["CPeakDataGridStorage"] = ReadCGridStorage,
-            ["CSequenceLineInformationGridStorage"] = ReadCGridStorage,
-            ["CExtendedInformationGridStorage"] = ReadCGridStorage,
-            ["CRawDataGridStorage"] = ReadCGridStorage,
-            ["CEvaluatedDataGridStorage"] = ReadCGridStorage,
+            ["CPeakDataGridStorage"] = ReadCErrorGridStorage,
+            ["CSequenceLineInformationGridStorage"] = ReadCErrorGridStorage,
+            ["CExtendedInformationGridStorage"] = ReadCErrorGridStorage,
+            ["CRawDataGridStorage"] = ReadCErrorGridStorage,
+            ["CEvaluatedDataGridStorage"] = ReadCErrorGridStorage,
             ["CErrorGridStorage"] = ReadCErrorGridStorage,
             ["CGridCtrl"] = ReadCGridCtrl,
             ["CPkDataListBox"] = ReadCPkDataListBox,
