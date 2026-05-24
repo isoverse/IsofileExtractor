@@ -533,7 +533,7 @@ static class Readers
         return null;
     }
 
-    static void ValidateBlockNBlockObjects(JsonObject block, int expected)
+    public static void ValidateBlockNBlockObjects(JsonObject block, int expected)
     {
         int n = NBlockObjects(block);
         if (n != expected)

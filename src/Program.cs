@@ -92,6 +92,12 @@ Parallel.ForEach(files, inputArg =>
             case ".cf":
                 ReadInto("CFileHeader");
                 ReadInto("CMethod");
+                ReadInto("CPlotSettings");
+                ReadInto("CBlockData");
+                if (caughtEx is null)
+                    try { Readers.ValidateBlockNBlockObjects(root["CBlockData"]!.AsObject(), 1); }
+                    catch (Exception ex) { caughtEx = ex; }
+                ReadInto("CBlockDataContext");
                 break;
             case ".scn":
                 ReadInto("CScanStorage");
