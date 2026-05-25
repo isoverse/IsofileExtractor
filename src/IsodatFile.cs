@@ -167,6 +167,7 @@ public sealed class IsodatFile : IDisposable
     }
 
     public long Position => _reader.BaseStream.Position;
+    public long Length   => _reader.BaseStream.Length;
 
     // -------------------------------------------------------------------------
     // Primitive reads

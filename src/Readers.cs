@@ -427,7 +427,7 @@ static class Readers
     // Partial-result aware: if ReadObject fails with a partial result it is added to the
     // dict before rethrowing; if sub-child expansion fails the already-read child is added
     // before the loop (JsonObject is a reference, so in-place sub-child additions remain visible).
-    static void ReadObjectInto(JsonObject container, IsodatFile isofile,
+    public static void ReadObjectInto(JsonObject container, IsodatFile isofile,
                                     string? expected = null, string? pattern = null,
                                     bool maybeNull = false, int? idx = null, int? groupTotal = null,
                                     string? expectedValue = null)
@@ -866,7 +866,7 @@ static class Readers
         if (Unabridged) jo["version"] = version;
         jo["h3_factor"] = isofile.ReadDouble(); // no named getter; double at x98+x9c
         jo["sigma"] = isofile.ReadDouble(); // no named getter; double at xa0+xa4
-        if (version >= 2) jo["timestamp"] = isofile.ReadUInt32(); // no named getter; xa8 = CTime
+        if (version >= 2) jo["timestamp"] = isofile.ReadTimestamp(); // xa8 = CTime (Unix seconds)
         if (version >= 3) { jo["comment"] = isofile.ReadMfcString(); jo["is_checked"] = isofile.ReadInt32(); } // no named getters; xac, xb8 DDX_Check
         if (version >= 4) { jo["gas_name_1"] = isofile.ReadMfcString(); jo["gas_name_2"] = isofile.ReadMfcString(); jo["xbc"] = isofile.ReadInt32(); } // gas_name_1/2 init "Unknown"; xbc no named getter
         return jo;

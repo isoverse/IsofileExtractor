@@ -69,15 +69,11 @@ Parallel.ForEach(files, inputArg =>
 
     Exception? caughtEx = null;
 
-    void ReadInto(string className)
+    void ReadObjInto(string? expected = null, int? idx = null, int? groupTotal = null, string? expectedValue = null)
     {
         if (caughtEx is not null) return;
-        try { root[className] = Readers.ReadObject(archive, className); }
-        catch (IsodatParseException ipe)
-        {
-            if (ipe.PartialResult is not null) root[className] = ipe.PartialResult;
-            caughtEx = ipe;
-        }
+        try { Readers.ReadObjectInto(root, archive, expected, idx: idx, groupTotal: groupTotal, expectedValue: expectedValue); }
+        catch (IsodatParseException ipe) { caughtEx = ipe; }
         catch (Exception ex) { caughtEx = ex; }
     }
 
@@ -86,21 +82,20 @@ Parallel.ForEach(files, inputArg =>
         switch (ext)
         {
             case ".dxf":
-                ReadInto("CFileHeader");
-                ReadInto("CContiniousFlowBlockData");
+                ReadObjInto("CFileHeader");
+                ReadObjInto("CContiniousFlowBlockData");
                 break;
             case ".cf":
-                ReadInto("CFileHeader");
-                ReadInto("CMethod");
-                ReadInto("CPlotSettings");
-                ReadInto("CBlockData");
-                if (caughtEx is null)
-                    try { Readers.ValidateBlockNBlockObjects(root["CBlockData"]!.AsObject(), 1); }
-                    catch (Exception ex) { caughtEx = ex; }
-                ReadInto("CBlockDataContext");
+                ReadObjInto("CFileHeader");
+                ReadObjInto("CMethod");
+                ReadObjInto("CPlotSettings");
+                ReadObjInto("CBlockData", idx: 1, groupTotal: 4, expectedValue: "Data Block");
+                ReadObjInto("CBlockData", idx: 2, groupTotal: 4, expectedValue: "Sequence Data");
+                ReadObjInto("CBlockData", idx: 3, groupTotal: 4, expectedValue: "Primary Std. Data Block");
+                ReadObjInto("CBlockData", idx: 4, groupTotal: 4, expectedValue: "H3 Factor");
                 break;
             case ".scn":
-                ReadInto("CScanStorage");
+                ReadObjInto("CScanStorage");
                 break;
             default:
                 root["error"] = $"Unsupported file extension '{ext}'";
@@ -110,6 +105,8 @@ Parallel.ForEach(files, inputArg =>
     finally
     {
         meta["complete"] = caughtEx is null;
+        if (caughtEx is null && archive.Position < archive.Length)
+            Console.Error.WriteLine($"Warning: read finished at 0x{archive.Position:x} but file ends at 0x{archive.Length:x} ({archive.Length - archive.Position} unread bytes) in {Path.GetFileName(inputPath)}");
         string json = root.ToJsonString(options);
         if (prettyJson) json = CollapseNumberArrays(json);
         File.WriteAllText(outputPath, json);
