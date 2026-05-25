@@ -91,7 +91,7 @@ static class Readers
             ["CBlockData"] = ReadCBlockData,
             ["CAcquistionBaseBlockData"] = ReadCBlockData,
             ["CPort"] = ReadCBlockData,
-            ["CResultDataSimpleList"] = ReadCBlockData,
+            ["CResultDataSimpleList"] = ReadCResultDataSimpleList,
             ["CSeqLineIndexData"] = ReadCSeqLineIndexData,
             ["CDataIndex"] = ReadCDataIndex,
             ["CCalibration"] = ReadCCalibration,
@@ -128,12 +128,13 @@ static class Readers
             ["CResultDataList"] = ReadCResultDataList,
             ["CResultDataSimple"] = ReadCResultDataSimple,
             ["CTwoDoublesArrayData"] = ReadCTwoDoublesArrayData,
+            ["CStatusArrayData"] = ReadCStatusArrayData,
 
             // --- CDevice chain ---
             ["CDevice"] = ReadCDevice,
             ["CActiveDevice"] = ReadCActiveDevice,
-            ["CDualInletDevice"] = ReadCActiveDevice,
-            ["CChangeOver2Device"] = ReadCActiveDevice,
+            ["CDualInletDevice"] = ReadCBufferedRefillDevice,
+            ["CChangeOver2Device"] = ReadCBufferedRefillDevice,
             ["CActivePort"] = ReadCActivePort,
             ["CMsDevice"] = ReadCMsDevice,
             ["CGenericGcDevice"] = ReadCGenericGcDevice,
@@ -3892,6 +3893,8 @@ static class Readers
         ReadObjectInto(objects, isofile, "CBlockData", idx: 14, groupTotal: 16, expectedValue: "Errors");
         ReadObjectInto(objects, isofile, "CBlockData", idx: 15, groupTotal: 16, expectedValue: "Sequence Line Information");
         ReadObjectInto(objects, isofile, "CBinary", idx: 16, groupTotal: 16);
+        isofile.ReadInt32(); // CAcquisitionBaseRawDataBlock marker (=1)
+        isofile.ReadInt32(); // CContiniousFlowBlockData marker (=2)
         return jo;
     }
 
@@ -4039,8 +4042,8 @@ static class Readers
         int blockN = NBlockObjects(block);
         for (int i = 1; i <= blockN; i++)
             ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN);
-        int v = isofile.ReadSchemaVersion("CDualInletBlockData", 1);
-        if (Unabridged) jo["version"] = v;
+        isofile.ReadInt32(); // CAcquisitionBaseRawDataBlock marker (=1)
+        isofile.ReadInt32(); // CDualInletBlockData marker (=1)
         return jo;
     }
 
@@ -4416,10 +4419,10 @@ static class Readers
         jo["xc0"] = isofile.ReadMfcString();
         jo["xb8"] = isofile.ReadInt32();
         jo["xbc"] = isofile.ReadInt32();
-        ReadObjectInto(jo, isofile, "CData");   // xac
-        if (v > 2) ReadObjectInto(jo, isofile, "CData");  // xc8
+        ReadObjectInto(jo, isofile);   // xac: typed CData but accepts any subclass
+        if (v > 2) ReadObjectInto(jo, isofile);  // xc8: typed CData but accepts any subclass
         if (v > 3) isofile.ReadInt32();          // xd4: read then discarded
-        if (v == 4) { ReadObject(isofile, "CData"); ReadObject(isofile, "CData"); }  // legacy, discard
+        if (v == 4) { ReadObject(isofile); ReadObject(isofile); }  // legacy, discard
         if (v > 6) jo["xd8"] = isofile.ReadInt32();
         if (v > 7) jo["xdc"] = isofile.ReadInt32();
         if (v > 8) jo["xe0"] = isofile.ReadMfcString();
@@ -4582,6 +4585,21 @@ static class Readers
         return jo;
     }
 
+    // CResultDataSimpleList vtable Serialize → CMassDefinedInRatioGroupTraceList::Serialize:
+    //   CBlockData parent (n_objects = CResultDataSimple children) + v1 int32
+    static JsonObject ReadCResultDataSimpleList(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int n = NBlockObjects(block);
+        for (int i = 1; i <= n; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: n);
+        int v = isofile.ReadSchemaVersion("CResultDataSimpleList", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
     // CResultDataSimple: CData parent, v2
     //   x98+x9c=double, xa0=CString, xa4=CString; v>1: xa8=CString
     static JsonObject ReadCResultDataSimple(IsodatFile isofile)
@@ -4620,11 +4638,31 @@ static class Readers
     }
 
     // =======================================================================
+    // CStatusArrayData / CDoubleArrayData (AcquisitionBase_u)
+    // =======================================================================
+
+    // CStatusArrayData vtable Serialize → CDoubleArrayData::Serialize:
+    //   CData parent, v1 (int32), inline CStatusArray: uint16 count, count×uint8 flags
+    static JsonObject ReadCStatusArrayData(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int v = isofile.ReadSchemaVersion("CStatusArrayData", 1);
+        if (Unabridged) jo["version"] = v;
+        int count = isofile.ReadUInt16();
+        jo["n_points"] = count;
+        var flags = new JsonArray();
+        for (int i = 0; i < count; i++) flags.Add(isofile.ReadUInt8());
+        jo["flags"] = flags;
+        return jo;
+    }
+
     // CTwoDoublesArrayData (AcquisitionBase_u / ToolDll_u)
     // =======================================================================
 
     // CTwoDoublesArrayData: CData parent, v1 + inline CTwoDoublesArray:
-    //   tda_v=int32 (discard, always 1), count=int32, count×(double,double), double, double, CString
+    //   tda_v=int32 (discard, always 1), count=int32, count×(double,double), int32 x14, int32 x18, CString x1c
     static JsonObject ReadCTwoDoublesArrayData(IsodatFile isofile)
     {
         var jo = new JsonObject();
@@ -4641,8 +4679,8 @@ static class Readers
         for (int i = 0; i < count; i++) { xArr.Add(isofile.ReadDouble()); yArr.Add(isofile.ReadDouble()); }
         jo["x_data"] = xArr;
         jo["y_data"] = yArr;
-        jo["x14"] = isofile.ReadDouble();
-        jo["x18"] = isofile.ReadDouble();
+        jo["x14"] = isofile.ReadInt32();
+        jo["x18"] = isofile.ReadInt32();
         jo["x1c"] = isofile.ReadMfcString();
         return jo;
     }

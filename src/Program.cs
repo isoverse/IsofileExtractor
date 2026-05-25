@@ -94,6 +94,10 @@ Parallel.ForEach(files, inputArg =>
                 ReadObjInto("CBlockData", idx: 3, groupTotal: 4, expectedValue: "Primary Std. Data Block");
                 ReadObjInto("CBlockData", idx: 4, groupTotal: 4, expectedValue: "H3 Factor");
                 break;
+            case ".did":
+                ReadObjInto("CFileHeader");
+                ReadObjInto("CDualInletBlockData");
+                break;
             case ".scn":
                 ReadObjInto("CScanStorage");
                 break;
