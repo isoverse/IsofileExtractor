@@ -2393,23 +2393,20 @@ static class Readers
         {
             jo["xac"] = isofile.ReadBool32();
             jo["xb0"] = isofile.ReadBool32();
-            jo["xb4"] = isofile.ReadBool32();
-            jo["xb8"] = isofile.ReadBool32();
-            if (version >= 7)
-            {
-                ReadObjectInto(jo, isofile, "CVisualisationData");
-                jo["xc8"] = isofile.ReadDouble();
-                jo["xbc"] = isofile.ReadInt32();
-                if (version >= 9)
-                {
-                    int n1 = isofile.ReadInt32();
-                    if (n1 > 0) throw new InvalidDataException("CHardwarePart: n_strings1 > 0 not implemented");
-                    int n2 = isofile.ReadInt32();
-                    if (n2 > 0) throw new InvalidDataException("CHardwarePart: n_strings2 > 0 not implemented");
-                    if (version >= 10) jo["xa4"] = isofile.ReadMfcString();
-                }
-            }
         }
+        if (version >= 4) jo["xb4"] = isofile.ReadBool32();
+        if (version >= 5) jo["xb8"] = isofile.ReadBool32();
+        if (version >= 6) ReadObjectInto(jo, isofile, "CVisualisationData");
+        if (version >= 7) jo["xc8"] = isofile.ReadDouble();
+        if (version >= 8) jo["xbc"] = isofile.ReadInt32();
+        if (version >= 9)
+        {
+            int n1 = isofile.ReadInt32();
+            if (n1 > 0) throw new InvalidDataException("CHardwarePart: n_strings1 > 0 not implemented");
+            int n2 = isofile.ReadInt32();
+            if (n2 > 0) throw new InvalidDataException("CHardwarePart: n_strings2 > 0 not implemented");
+        }
+        if (version >= 10) jo["xa4"] = isofile.ReadMfcString();
         return jo;
     }
 
@@ -3665,9 +3662,9 @@ static class Readers
     {
         int v = isofile.ReadSchemaVersion("CGridCell", 10);
 
-        int flags = 0;
-        if (v >= 9)
-            flags = isofile.ReadUInt16();  // int16 flags bitmask
+        // For v < 9 the C++ code uses flags = -1 (all bits set) as the default,
+        // meaning every flag-gated field is always present in the old binary format.
+        int flags = v >= 9 ? isofile.ReadUInt16() : 0xFFFF;
 
         if (v < 8)
             isofile.ReadInt32();           // old-format skip field
@@ -3693,7 +3690,7 @@ static class Readers
         if ((flags & 0x40) != 0)
             isofile.ReadInt32();           // fg color m_x20
 
-        isofile.ReadInt32();               // m_x8 (always present)
+        isofile.ReadInt32();               // m_x8 (always present, cleared to 0 after)
 
         if ((flags & 0x400) != 0)
             isofile.ReadInt32();           // m_x3c
@@ -3701,7 +3698,10 @@ static class Readers
         if (v >= 2)
         {
             if (v < 8)
-                isofile.SkipBytes(92);     // old font/size block
+            {
+                isofile.SkipBytes(92);     // old LOGFONTW block (92 bytes)
+                isofile.ReadInt32();       // m_x18: read as int32, stored as uint16
+            }
             else if ((flags & 0x08) != 0)
                 isofile.ReadUInt16();      // m_x18 font info int16
         }
@@ -3717,7 +3717,8 @@ static class Readers
         {
             if (v >= 8 && (flags & 0x80) != 0)
                 isofile.ReadUInt8();
-            // v<8 old path: bit not defined the same way, skip nothing extra
+            else if (v < 8)
+                isofile.ReadInt32();       // sub_29106720: reads int32, stores low byte
         }
 
         if (v >= 6 && (flags & 0x200) != 0)
@@ -3727,7 +3728,8 @@ static class Readers
         {
             if (v >= 8 && (flags & 0x100) != 0)
                 isofile.ReadUInt8();
-            // v<8 old path: skip nothing extra
+            else if (v < 8)
+                isofile.ReadInt32();       // sub_29106720: reads int32, stores low byte
         }
 
         return text ?? format;  // return text if present, else format as fallback label
@@ -4137,13 +4139,13 @@ static class Readers
         return jo;
     }
 
-    // CHVStatusHardwarePart: CAdcHardwarePart parent, v1; x1a0=int32
+    // CHVStatusHardwarePart: CAdcHardwarePart parent, v1-v2; x1a0=int32 (v2 adds no new fields)
     static JsonObject ReadCHVStatusHardwarePart(IsodatFile isofile)
     {
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadParent(jo, isofile, "CAdcHardwarePart");
-        int v = isofile.ReadSchemaVersion("CHVStatusHardwarePart", 1);
+        int v = isofile.ReadSchemaVersion("CHVStatusHardwarePart", 2);
         if (Unabridged) jo["version"] = v;
         jo["x1a0"] = isofile.ReadInt32();
         return jo;
@@ -4472,9 +4474,9 @@ static class Readers
         jo["xb8"] = isofile.ReadInt32();
         jo["xbc"] = isofile.ReadInt32();
         if (v >= 2) { jo["xc0"] = isofile.ReadDouble(); jo["xc8"] = isofile.ReadInt32(); jo["xcc"] = isofile.ReadInt32(); }
-        if (v >= 3) jo["xb4"] = isofile.ReadInt32();
         if (v >= 4)
         {
+            jo["xb4"] = isofile.ReadInt32();
             jo["xd0"] = isofile.ReadInt32();
             jo["xd8"] = isofile.ReadDouble();
             int hasOutlier = isofile.ReadInt32();

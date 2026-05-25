@@ -34,6 +34,7 @@ var options = new JsonSerializerOptions
     DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
     PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
     TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver(),
+    NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals,
 };
 
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
@@ -100,6 +101,11 @@ Parallel.ForEach(files, inputArg =>
                 break;
             case ".scn":
                 ReadObjInto("CScanStorage");
+                break;
+            case ".caf":
+                ReadObjInto("CFileHeader");
+                ReadObjInto("CLong");
+                ReadObjInto("CBlockDataContext");
                 break;
             default:
                 root["error"] = $"Unsupported file extension '{ext}'";
