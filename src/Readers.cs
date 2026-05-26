@@ -139,6 +139,7 @@ static class Readers
             ["CMsDevice"] = ReadCMsDevice,
             ["CGenericGcDevice"] = ReadCGenericGcDevice,
             ["CFlashEA_Device"] = ReadCFlashEA_Device,
+            ["CGasBenchDevice"] = ReadCGasBenchDevice,
             ["CConFloDevice"] = ReadCConFloDevice,
             ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
             ["CUserDevice"] = ReadCBufferedRefillDevice,
@@ -192,6 +193,7 @@ static class Readers
             ["CAdcTransferPart"] = ReadCAdcTransferPart,
             ["CDioTransferPart"] = ReadCAdcTransferPart,
             ["CValveTransferPart"] = ReadCAdcTransferPart,
+            ["CValcoTransferPart"] = ReadCAdcTransferPart,
             ["CSplitTransferPart"] = ReadCAdcTransferPart,
             ["CDacTransferPart"] = ReadCAdcTransferPart,
             ["CBasicHvTransferPart"] = ReadCAdcTransferPart,
@@ -288,6 +290,7 @@ static class Readers
             ["CMsDeviceMethodPart"] = ReadCMsDeviceMethodPart,
             ["CStandardDeviceMethodPart"] = ReadCStandardDeviceMethodPart,
             ["CGenericGcDeviceMethodPart"] = ReadCGenericGcDeviceMethodPart,
+            ["CGasBenchDeviceMethodPart"] = ReadCGasBenchDeviceMethodPart,
             ["CGCExtendedInterfaceDeviceMethodPart"] = ReadCGCExtendedInterfaceDeviceMethodPart,
             ["CFlashEA_DeviceMethodPart"] = ReadCFlashEA_DeviceMethodPart,
             ["CMultiReferenceDeviceMethodPart"] = ReadCMultiReferenceDeviceMethodPart,
@@ -304,6 +307,7 @@ static class Readers
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
             ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
+            ["CGasBenchDeviceEvaluationPart"] = ReadCGasBenchDeviceEvaluationPart,
             ["CTraceGcDeviceEvaluationPart"] = ReadCTraceGcDeviceEvaluationPart,
             ["CMultiReferenceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CDualInletDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
@@ -1841,6 +1845,17 @@ static class Readers
         return jo;
     }
 
+    // CGasBenchDevice (DevicesDll): CGenericGcDevice parent, wSchema=1, no Serialize override
+    static JsonObject ReadCGasBenchDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDevice");
+        int version = isofile.ReadSchemaVersion("CGasBenchDevice", 1);
+        if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
     // =======================================================================
     // IsoGCEvalData / CEvalDataStorage chain
     // =======================================================================
@@ -3195,6 +3210,26 @@ static class Readers
         return jo;
     }
 
+    // CGasBenchDeviceMethodPart (DevicesDll): CGenericGcDeviceMethodPart parent, wSchema=4
+    //   always: xb0(int32); v>=2: xb8(bool), xc0(double); v>=3: xc8(int32); v>=4: xcc(CString)
+    static JsonObject ReadCGasBenchDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDeviceMethodPart");
+        int version = isofile.ReadSchemaVersion("CGasBenchDeviceMethodPart", 4);
+        if (Unabridged) jo["version"] = version;
+        jo["xb0"] = isofile.ReadInt32();
+        if (version >= 2)
+        {
+            jo["xb8"] = isofile.ReadInt32();
+            jo["xc0"] = isofile.ReadDouble();
+        }
+        if (version >= 3) jo["xc8"] = isofile.ReadInt32();
+        if (version >= 4) jo["xcc"] = isofile.ReadMfcString();
+        return jo;
+    }
+
     static JsonObject ReadCMultiReferenceDeviceMethodPart(IsodatFile isofile)
     {
         var jo = new JsonObject();
@@ -3285,6 +3320,17 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CGenericGcDeviceEvaluationPart");
         int version = isofile.ReadSchemaVersion("CFlashEA_DeviceEvaluationPart", 1);
+        if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    // CGasBenchDeviceEvaluationPart (DevicesDll): CGenericGcDeviceEvaluationPart parent, wSchema=1, no Serialize override
+    static JsonObject ReadCGasBenchDeviceEvaluationPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CGenericGcDeviceEvaluationPart");
+        int version = isofile.ReadSchemaVersion("CGasBenchDeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
         return jo;
     }
@@ -3555,8 +3601,8 @@ static class Readers
         jo["x9c"] = isofile.ReadMfcString();   // headline / description
         jo["xa0"] = isofile.ReadInt32();
         jo["xa4"] = isofile.ReadInt32();
-        ReadObjectInto(jo, isofile);          // optional WriteObject (null in observed files)
-        ReadObjectInto(jo, isofile);          // optional WriteObject (null in observed files)
+        ReadObjectInto(jo, isofile, maybeNull: true);
+        ReadObjectInto(jo, isofile, maybeNull: true);
         jo["xb0"] = isofile.ReadInt32();
         jo["xb4"] = isofile.ReadInt32();
     }
@@ -3566,7 +3612,7 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadScrBase(isofile, jo);
-        ReadObjectInto(jo, isofile, "CDynExternal");
+        ReadObjectInto(jo, isofile, maybeNull: true);
         return jo;
     }
 
@@ -3575,7 +3621,7 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         ReadScrBase(isofile, jo);
-        ReadObjectInto(jo, isofile, "CNumericValue");
+        ReadObjectInto(jo, isofile, maybeNull: true);
         return jo;
     }
 
