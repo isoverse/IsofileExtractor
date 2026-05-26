@@ -1,0 +1,1169 @@
+CFileHeader v6 0x0 "File Header"
+  1/2: CTimeObject v1 0xa5 "Date"
+  2/2: CStr v2 0xe0 "Default Result.IRW"
+  CDataIndex v1 0x142
+    1/1: CGridStorage v3 0x16c "Sequence Row Grid"
+      CGridCtrl v12 0x1d8
+CMethod v6 0x216f "Method"
+  1/9: CMolecule v1 0x21a2 "Eval@Molecule"
+  2/9: CPartMirror v0 0x2203
+  3/9: CMethodPrintoutDesc v2 0x2214
+  4/9: CBlockData v2 0x22b1 "External Dynamic Variables"
+  5/9: CMsSequencePart v1 0x2343 "SequencePart[19,0]"
+    CBlockData v2 0x23f0
+      1/1: CSequenceFlag v3 0x240c "Peak Center"
+  6/9: CGenericGcSequencePart v1 0x24ab "SequencePart[19,1]"
+    CBlockData v2 0x2565
+      1/1: CSequenceTextFiles v2 0x2581 "GC Method"
+  7/9: CSamplerSequencePart v1 0x266d "SequencePart[19,2]"
+    CBlockData v2 0x271b
+      1/2: CSequenceText v3 0x2737 "AS Sample"
+      2/2: CSequenceTextFiles v2 0x27a8 "AS Method"
+  8/9: CGasConfiguration v3 0x285c "HD"
+    1/35: CBasicScan v4 0x2891 "Peak Center"
+      CScaleHvScanPart v2 0x28e3 "Isotope MS/Integration Unit@Isotope MS/ScaleHv@456456"
+        CScaleHvHardwarePart v3 0x2979 "ScaleHv"
+          CGpibInterface v3 0x29db
+          CVisualisationData v8 0x2a24
+      CIntegrationUnitScanPart v3 0x2b9e
+        CIntegrationUnitHardwarePart v3 0x2bd2 "Intensity"
+          CFinniganInterface v6 0x2c52 "Delta"
+          CIntegrationUnitGasConfPart v2 0x2ca2 "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0x2d2e
+          CCalibration v5 0x2dd4 "JB SP 11.01.02"
+            1/3: CCalibrationPoint v3 0x2e38 "0. Point"
+            2/3: CCalibrationPoint v3 0x2ea5 "1. Point"
+            3/3: CCalibrationPoint v3 0x2efd "2. Point"
+          CVisualisationData v8 0x42d9
+          1/8: CCupHardwarePart v3 0x4446 "Cup 1"
+            CBasicInterface v2 0x44ba
+            CVisualisationData v8 0x44fd
+          2/8: CCupHardwarePart v3 0x45ca "Cup 2"
+            CBasicInterface v2 0x45f6
+            CVisualisationData v8 0x4626
+          3/8: CCupHardwarePart v3 0x46f3 "Cup 3"
+            CBasicInterface v2 0x471f
+            CVisualisationData v8 0x474f
+          4/8: CCupHardwarePart v3 0x481c "Cup 4"
+            CBasicInterface v2 0x4848
+            CVisualisationData v8 0x4878
+          5/8: CCupHardwarePart v3 0x4945 "Cup 5"
+            CBasicInterface v2 0x497d
+            CVisualisationData v8 0x49ad
+          6/8: CCupHardwarePart v3 0x4a7a "Cup 6"
+            CBasicInterface v2 0x4ab2
+            CVisualisationData v8 0x4ae2
+          7/8: CCupHardwarePart v3 0x4baf "Cup 7"
+            CBasicInterface v2 0x4bdb
+            CVisualisationData v8 0x4c0b
+          8/8: CCupHardwarePart v3 0x4cd8 "Cup 8"
+            CBasicInterface v2 0x4d04
+            CVisualisationData v8 0x4d34
+          1/8: CChannelHardwarePart v2 0x4e02 "Channel 1"
+            CBasicInterface v2 0x4e56 "Undefined"
+            CVisualisationData v8 0x4e98
+          2/8: CChannelHardwarePart v2 0x4f54 "Channel 2"
+            CBasicInterface v2 0x4f90 "Undefined"
+            CVisualisationData v8 0x4fd2
+          3/8: CChannelHardwarePart v2 0x508e "Channel 3"
+            CBasicInterface v2 0x50ca "Undefined"
+            CVisualisationData v8 0x510c
+          4/8: CChannelHardwarePart v2 0x51c8 "Channel 4"
+            CBasicInterface v2 0x5204 "Undefined"
+            CVisualisationData v8 0x5246
+          5/8: CChannelHardwarePart v2 0x5302 "Channel 5"
+            CBasicInterface v2 0x533e "Undefined"
+            CVisualisationData v8 0x5380
+          6/8: CChannelHardwarePart v2 0x543c "Channel 6"
+            CBasicInterface v2 0x5478 "Undefined"
+            CVisualisationData v8 0x54ba
+          7/8: CChannelHardwarePart v2 0x5576 "Channel 7"
+            CBasicInterface v2 0x55b2 "Undefined"
+            CVisualisationData v8 0x55f4
+          8/8: CChannelHardwarePart v2 0x56b0 "Channel 8"
+            CBasicInterface v2 0x56ec "Undefined"
+            CVisualisationData v8 0x572e
+      CBlockData v2 0x5807
+    2/35: CIntegrationUnitGasConfPart v2 0x582f "IntegrationUnit"
+      1-2/2: CChannelGasConfPart v3 0x589c
+    3/35: CMagnetCurrentTransferPart v3 0x58f6 "Magnet Current"
+    4/35: CCalculatingDacTransferPart v1 0x598c "R-Plate"
+    5/35: CCalculatingDacTransferPart v1 0x5a05 "Extraction"
+    6/35: CCalculatingDacTransferPart v1 0x5a6b "Shield"
+    7/35: CCalculatingDacTransferPart v1 0x5ac1 "Einzel-Lens 1"
+    8/35: CCalculatingDacTransferPart v1 0x5b33 "Einzel-Lens 2"
+    9/35: CCalculatingDacTransferPart v1 0x5ba5 "Electron Energie"
+    10/35: CDioTransferPart v2 0x5c23 "Resitor Channel 1"
+    11/35: CDioTransferPart v2 0x5cad "Reistor Channel 2"
+    12/35: CDioTransferPart v2 0x5d23 "Reistor Channel 3"
+    13/35: CDioTransferPart v2 0x5d99 "Reistor Channel 4"
+    14/35: CDioTransferPart v2 0x5e0f "Reistor Channel 5"
+    15/35: CDioTransferPart v2 0x5e85 "Reistor Channel 6"
+    16/35: CDioTransferPart v2 0x5efb "Reistor Channel 7"
+    17/35: CDioTransferPart v2 0x5f71 "Reistor Channel 8"
+    18/35: CIntegrationUnitBackGround v2 0x5fe7 "Background"
+      CIntegrationUnitGasConfPart v2 0x609d "IntegrationUnit"
+        1-3/3: CChannelGasConfPart v3 0x610a
+    19/35: CCalibration v5 0x6191 "JB SP 11.01.02"
+      1/3: CCalibrationPoint v3 0x61e5 "0. Point"
+      2/3: CCalibrationPoint v3 0x623d "1. Point"
+      3/3: CCalibrationPoint v3 0x6295 "2. Point"
+    20/35: CPeakCenterOffset v1 0x7661
+    21/35: CMolecule v1 0x76a8
+    22/35: CScaleHvTransferPart v2 0x76c8 "Isotope MS/ScaleHv"
+    23/35: CCalculatingDacTransferPart v1 0x7750 "Trap"
+    24/35: CCalculatingDacTransferPart v1 0x779e "Electron Energy"
+    25/35: CCalculatingDacTransferPart v1 0x7818 "Emission"
+    26/35: CCalculatingDacTransferPart v1 0x7876 "Extraction 1"
+    27/35: CCalculatingDacTransferPart v1 0x78e4 "Extraction 2"
+    28/35: CCalculatingDacTransferPart v1 0x7952 "X-Focus 1"
+    29/35: CCalculatingDacTransferPart v1 0x79b4 "X-Focus 2"
+    30/35: CCalculatingDacTransferPart v1 0x7a16 "X-Deflection"
+    31/35: CCalculatingDacTransferPart v1 0x7a84 "Y-Deflection 1"
+    32/35: CCalculatingDacTransferPart v1 0x7afa "Y-Deflection 2"
+    33/35: CCalculatingDacTransferPart v1 0x7b70 "SE Supressing"
+    34/35: CCalculatingDacTransferPart v1 0x7be2 "Retarding Lense"
+    35/35: CH3FactorResult v4 0x7c5c "H3 Factor"
+  9/9: CEvalIntegrationUnitHWInfoStore v1 0x7ce7
+    1/1: CEvalIntegrationUnitHWInfoList v1 0x7d26
+      1-2/2: CEvalIntegrationUnitHWInfo v1 0x7d64
+  CConfiguration v5 0x7dee "GC Pyrolysis"
+    1/2: CMsDevice v1 0x7e4c "Delta Plus XP"
+      1/2: CActivePort v2 0x7ea3 "Source"
+        1/1: CUserDevice v1 0x7ee6 "Propanator"
+      2/2: CPort v2 0x7f61 "Capillary"
+        1/1: CUserDevice v1 0x7faa "GC-TC"
+          1/1: CActivePort v2 0x7fda "Input"
+            1/1: CTraceGcDevice v2 0x800a "Trace GC"
+              1/1: CActivePort v2 0x8058 "Sampler"
+                1/1: CA200SDevice v1 0x808c "A200S"
+    2/2: CVisualisationDialogNamesBlockData v1 0x8176 "Visualisation Dialogs"
+      1/6: CData v3 0x81e2 "MS"
+      2/6: CData v3 0x8207 "MS State"
+      3/6: CData v3 0x823b "Focus Delta"
+      4/6: CData v3 0x827b "GC-TC Interface"
+      5/6: CData v3 0x82cb "Propanator"
+      6/6: CData v3 0x8307 "GC Interface"
+  1/3: CMsDeviceMethodPart v2 0x83ab
+    CBlockData v2 0x83f6
+    1/2: CTimeEventListMethodPart v1 0x8412
+      CTimeEventList v3 0x8460
+        1/32: CActionHwTransferContainer v2 0x84a2 "Backflush"
+          CValveTransferPart v2 0x851c "Backflush"
+        2/32: CActionHwTransferContainer v2 0x858e "Methane Ref"
+          CValveTransferPart v2 0x8604 "Methane Ref"
+        3/32: CActionHwTransferContainer v2 0x867a "Split"
+          CSplitTransferPart v1 0x86ca "Split"
+        4/32: CActionHwTransferContainer v2 0x8730 "Hydrogen Ref"
+          CValveTransferPart v2 0x8796 "Hydrogen Ref"
+        5/32: CActionHwTransferContainer v2 0x87fc "Hydrogen Ref"
+          CValveTransferPart v2 0x8862 "Hydrogen Ref"
+        6/32: CActionHwTransferContainer v2 0x88c8 "Hydrogen Ref"
+          CValveTransferPart v2 0x892e "Hydrogen Ref"
+        7/32: CActionHwTransferContainer v2 0x8994 "Hydrogen Ref"
+          CValveTransferPart v2 0x89fa "Hydrogen Ref"
+        8/32: CActionHwTransferContainer v2 0x8a60 "Hydrogen Ref"
+          CValveTransferPart v2 0x8ac6 "Hydrogen Ref"
+        9/32: CActionHwTransferContainer v2 0x8b2c "Backflush"
+          CValveTransferPart v2 0x8b88 "Backflush"
+        10/32: CActionHwTransferContainer v2 0x8be4 "Methane Ref"
+          CValveTransferPart v2 0x8c5a "Methane Ref"
+        11/32: CActionHwTransferContainer v2 0x8cd0 "Split"
+          CSplitTransferPart v1 0x8d20 "Split"
+        12/32: CActionHwTransferContainer v2 0x8d70 "Methane Ref"
+          CValveTransferPart v2 0x8de6 "Methane Ref"
+        13/32: CActionHwTransferContainer v2 0x8e5c "Methane Ref"
+          CValveTransferPart v2 0x8ed2 "Methane Ref"
+        14/32: CActionHwTransferContainer v2 0x8f48 "Methane Ref"
+          CValveTransferPart v2 0x8fbe "Methane Ref"
+        15/32: CActionHwTransferContainer v2 0x9034 "Methane Ref"
+          CValveTransferPart v2 0x90aa "Methane Ref"
+        16/32: CActionHwTransferContainer v2 0x9120 "Methane Ref"
+          CValveTransferPart v2 0x9196 "Methane Ref"
+        17/32: CActionHwTransferContainer v2 0x920c "Methane Ref"
+          CValveTransferPart v2 0x9282 "Methane Ref"
+        18/32: CActionHwTransferContainer v2 0x92f8 "Methane Ref"
+          CValveTransferPart v2 0x936e "Methane Ref"
+        19/32: CActionHwTransferContainer v2 0x93e4 "Methane Ref"
+          CValveTransferPart v2 0x945a "Methane Ref"
+        20/32: CActionHwTransferContainer v2 0x94d0 "Methane Ref"
+          CValveTransferPart v2 0x9546 "Methane Ref"
+        21/32: CActionHwTransferContainer v2 0x95bc "Methane Ref"
+          CValveTransferPart v2 0x9632 "Methane Ref"
+        22/32: CActionHwTransferContainer v2 0x96a8 "Methane Ref"
+          CValveTransferPart v2 0x971e "Methane Ref"
+        23/32: CActionHwTransferContainer v2 0x9794 "Methane Ref"
+          CValveTransferPart v2 0x980a "Methane Ref"
+        24/32: CActionHwTransferContainer v2 0x9880 "Methane Ref"
+          CValveTransferPart v2 0x98f6 "Methane Ref"
+        25/32: CActionHwTransferContainer v2 0x996c "Methane Ref"
+          CValveTransferPart v2 0x99e2 "Methane Ref"
+        26/32: CActionHwTransferContainer v2 0x9a58 "Backflush"
+          CValveTransferPart v2 0x9ab4 "Backflush"
+        27/32: CActionHwTransferContainer v2 0x9b10 "Methane Ref"
+          CValveTransferPart v2 0x9b86 "Methane Ref"
+        28/32: CActionHwTransferContainer v2 0x9bfc "Split"
+          CSplitTransferPart v1 0x9c4c "Split"
+        29/32: CActionHwTransferContainer v2 0x9c9c "Hydrogen Ref"
+          CValveTransferPart v2 0x9d02 "Hydrogen Ref"
+        30/32: CActionHwTransferContainer v2 0x9d68 "Hydrogen Ref"
+          CValveTransferPart v2 0x9dce "Hydrogen Ref"
+        31/32: CActionHwTransferContainer v2 0x9e34 "Hydrogen Ref"
+          CValveTransferPart v2 0x9e9a "Hydrogen Ref"
+        32/32: CActionHwTransferContainer v2 0x9f00 "Hydrogen Ref"
+          CValveTransferPart v2 0x9f66 "Hydrogen Ref"
+    2/2: CStandardDeviceMethodPart v1 0x9fd4
+      CBlockData v2 0xa025
+    CActionPeakCenter v1 0xa07c
+  2/3: CActiveDeviceMethodPart v1 0xa0c6
+    CBlockData v2 0xa115
+  3/3: CTraceGcDeviceMethodPart v2 0xa131
+    CBlockData v2 0xa181
+  1/2: CMsDeviceEvaluationPart v2 0xa1ad
+    CBlockData v2 0xa1e8
+    1/4: CComponentListMethodPart v1 0xa204
+      CComponentList v1 0xa25a
+    2/4: CICA_BasicMethodPart v12 0xa28c "H2 Ion Correction Method"
+      CEvalDataItemListTransferPart v1 0xa308
+      CGasConfiguration v3 0xa35b "HD"
+        1/35: CBasicScan v4 0xa37b "Peak Center"
+          CScaleHvScanPart v2 0xa3bf "Isotope MS/Integration Unit@Isotope MS/ScaleHv@456456"
+            CScaleHvHardwarePart v3 0xa441 "ScaleHv"
+              CGpibInterface v3 0xa48b
+              CVisualisationData v8 0xa4c2
+          CIntegrationUnitScanPart v3 0xa626
+            CIntegrationUnitHardwarePart v3 0xa63e "Intensity"
+              CFinniganInterface v6 0xa69e "Delta"
+              CIntegrationUnitGasConfPart v2 0xa6d8 "IntegrationUnit"
+                1-3/3: CChannelGasConfPart v3 0xa745
+              CCalibration v5 0xa7d4 "JB SP 11.01.02"
+                1/3: CCalibrationPoint v3 0xa828 "0. Point"
+                2/3: CCalibrationPoint v3 0xa880 "1. Point"
+                3/3: CCalibrationPoint v3 0xa8d8 "2. Point"
+              CVisualisationData v8 0xbcb4
+              1/8: CCupHardwarePart v3 0xbe21 "Cup 1"
+                CBasicInterface v2 0xbe81
+                CVisualisationData v8 0xbeb1
+              2/8: CCupHardwarePart v3 0xbf7e "Cup 2"
+                CBasicInterface v2 0xbfaa
+                CVisualisationData v8 0xbfda
+              3/8: CCupHardwarePart v3 0xc0a7 "Cup 3"
+                CBasicInterface v2 0xc0d3
+                CVisualisationData v8 0xc103
+              4/8: CCupHardwarePart v3 0xc1d0 "Cup 4"
+                CBasicInterface v2 0xc1fc
+                CVisualisationData v8 0xc22c
+              5/8: CCupHardwarePart v3 0xc2f9 "Cup 5"
+                CBasicInterface v2 0xc331
+                CVisualisationData v8 0xc361
+              6/8: CCupHardwarePart v3 0xc42e "Cup 6"
+                CBasicInterface v2 0xc466
+                CVisualisationData v8 0xc496
+              7/8: CCupHardwarePart v3 0xc563 "Cup 7"
+                CBasicInterface v2 0xc58f
+                CVisualisationData v8 0xc5bf
+              8/8: CCupHardwarePart v3 0xc68c "Cup 8"
+                CBasicInterface v2 0xc6b8
+                CVisualisationData v8 0xc6e8
+              1/8: CChannelHardwarePart v2 0xc7b6 "Channel 1"
+                CBasicInterface v2 0xc7f2 "Undefined"
+                CVisualisationData v8 0xc834
+              2/8: CChannelHardwarePart v2 0xc8f0 "Channel 2"
+                CBasicInterface v2 0xc92c "Undefined"
+                CVisualisationData v8 0xc96e
+              3/8: CChannelHardwarePart v2 0xca2a "Channel 3"
+                CBasicInterface v2 0xca66 "Undefined"
+                CVisualisationData v8 0xcaa8
+              4/8: CChannelHardwarePart v2 0xcb64 "Channel 4"
+                CBasicInterface v2 0xcba0 "Undefined"
+                CVisualisationData v8 0xcbe2
+              5/8: CChannelHardwarePart v2 0xcc9e "Channel 5"
+                CBasicInterface v2 0xccda "Undefined"
+                CVisualisationData v8 0xcd1c
+              6/8: CChannelHardwarePart v2 0xcdd8 "Channel 6"
+                CBasicInterface v2 0xce14 "Undefined"
+                CVisualisationData v8 0xce56
+              7/8: CChannelHardwarePart v2 0xcf12 "Channel 7"
+                CBasicInterface v2 0xcf4e "Undefined"
+                CVisualisationData v8 0xcf90
+              8/8: CChannelHardwarePart v2 0xd04c "Channel 8"
+                CBasicInterface v2 0xd088 "Undefined"
+                CVisualisationData v8 0xd0ca
+          CBlockData v2 0xd1a3
+        2/35: CIntegrationUnitGasConfPart v2 0xd1cb "IntegrationUnit"
+          1-2/2: CChannelGasConfPart v3 0xd238
+        3/35: CMagnetCurrentTransferPart v3 0xd292 "Magnet Current"
+        4/35: CCalculatingDacTransferPart v1 0xd30a "R-Plate"
+        5/35: CCalculatingDacTransferPart v1 0xd364 "Extraction"
+        6/35: CCalculatingDacTransferPart v1 0xd3ca "Shield"
+        7/35: CCalculatingDacTransferPart v1 0xd420 "Einzel-Lens 1"
+        8/35: CCalculatingDacTransferPart v1 0xd492 "Einzel-Lens 2"
+        9/35: CCalculatingDacTransferPart v1 0xd504 "Electron Energie"
+        10/35: CDioTransferPart v2 0xd582 "Resitor Channel 1"
+        11/35: CDioTransferPart v2 0xd5f8 "Reistor Channel 2"
+        12/35: CDioTransferPart v2 0xd66e "Reistor Channel 3"
+        13/35: CDioTransferPart v2 0xd6e4 "Reistor Channel 4"
+        14/35: CDioTransferPart v2 0xd75a "Reistor Channel 5"
+        15/35: CDioTransferPart v2 0xd7d0 "Reistor Channel 6"
+        16/35: CDioTransferPart v2 0xd846 "Reistor Channel 7"
+        17/35: CDioTransferPart v2 0xd8bc "Reistor Channel 8"
+        18/35: CIntegrationUnitBackGround v2 0xd932 "Background"
+          CIntegrationUnitGasConfPart v2 0xd9ca "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0xda37
+        19/35: CCalibration v5 0xdabe "JB SP 11.01.02"
+          1/3: CCalibrationPoint v3 0xdb12 "0. Point"
+          2/3: CCalibrationPoint v3 0xdb6a "1. Point"
+          3/3: CCalibrationPoint v3 0xdbc2 "2. Point"
+        20/35: CPeakCenterOffset v1 0xef8e
+        21/35: CMolecule v1 0xefc0
+        22/35: CScaleHvTransferPart v2 0xefe0 "Isotope MS/ScaleHv"
+        23/35: CCalculatingDacTransferPart v1 0xf050 "Trap"
+        24/35: CCalculatingDacTransferPart v1 0xf09e "Electron Energy"
+        25/35: CCalculatingDacTransferPart v1 0xf118 "Emission"
+        26/35: CCalculatingDacTransferPart v1 0xf176 "Extraction 1"
+        27/35: CCalculatingDacTransferPart v1 0xf1e4 "Extraction 2"
+        28/35: CCalculatingDacTransferPart v1 0xf252 "X-Focus 1"
+        29/35: CCalculatingDacTransferPart v1 0xf2b4 "X-Focus 2"
+        30/35: CCalculatingDacTransferPart v1 0xf316 "X-Deflection"
+        31/35: CCalculatingDacTransferPart v1 0xf384 "Y-Deflection 1"
+        32/35: CCalculatingDacTransferPart v1 0xf3fa "Y-Deflection 2"
+        33/35: CCalculatingDacTransferPart v1 0xf470 "SE Supressing"
+        34/35: CCalculatingDacTransferPart v1 0xf4e2 "Retarding Lense"
+        35/35: CH3FactorResult v4 0xf55c "H3 Factor"
+      CBlockData v2 0xf5d8 "Continuous Flow Primary Standards"
+        1/1: CPrimaryStandardMethodPart v2 0xf678 "VSMOW"
+          CEvalDataItemListTransferPart v1 0xf6e2
+            1-3/3: CEvalDataDoubleTransferPart v1 0xf6fe
+      CParsedEvaluationStringArray v1 0xf8ff "H2"
+        1/1: CParsedEvaluationString v1 0xf943
+    3/4: CContiniousFlowStandardizationListMethodPart v9 0xf9c6 "H2 Standard Method"
+      CBlockData v2 0xfa5e
+        1/5: CContiniousFlowStandardizationMethodPart v1 0xfa7a
+          CSecondaryStandardMethodPart v3 0xfb04 "methane ref"
+            CEvalDataItemListTransferPart v1 0xfb94
+              1/1: CEvalDataSecStdTransferPart v2 0xfbb0
+            CBlockData v2 0xfca1
+              1/1: CPrimaryStandardMethodPart v2 0xfcbd "VSMOW"
+                CEvalDataItemListTransferPart v1 0xfd09
+                  1-3/3: CEvalDataDoubleTransferPart v1 0xfd25
+        2/5: CContiniousFlowStandardizationMethodPart v1 0xfef3
+          CSecondaryStandardMethodPart v3 0xff51 "methane ref"
+            CEvalDataItemListTransferPart v1 0xffc1
+              1/1: CEvalDataSecStdTransferPart v2 0xffdd
+            CBlockData v2 0x100af
+              1/1: CPrimaryStandardMethodPart v2 0x100cb "VSMOW"
+                CEvalDataItemListTransferPart v1 0x10117
+                  1-3/3: CEvalDataDoubleTransferPart v1 0x10133
+        3/5: CContiniousFlowStandardizationMethodPart v1 0x10301
+          CSecondaryStandardMethodPart v3 0x1035f "methane ref"
+            CEvalDataItemListTransferPart v1 0x103cf
+              1/1: CEvalDataSecStdTransferPart v2 0x103eb
+            CBlockData v2 0x104bd
+              1/1: CPrimaryStandardMethodPart v2 0x104d9 "VSMOW"
+                CEvalDataItemListTransferPart v1 0x10525
+                  1-3/3: CEvalDataDoubleTransferPart v1 0x10541
+        4/5: CContiniousFlowStandardizationMethodPart v1 0x1070f
+          CSecondaryStandardMethodPart v3 0x1076d "methane ref"
+            CEvalDataItemListTransferPart v1 0x107dd
+              1/1: CEvalDataSecStdTransferPart v2 0x107f9
+            CBlockData v2 0x108cb
+              1/1: CPrimaryStandardMethodPart v2 0x108e7 "VSMOW"
+                CEvalDataItemListTransferPart v1 0x10933
+                  1-3/3: CEvalDataDoubleTransferPart v1 0x1094f
+        5/5: CContiniousFlowStandardizationMethodPart v1 0x10b1d
+          CSecondaryStandardMethodPart v3 0x10b7b "methane ref"
+            CEvalDataItemListTransferPart v1 0x10beb
+              1/1: CEvalDataSecStdTransferPart v2 0x10c07
+            CBlockData v2 0x10cd9
+              1/1: CPrimaryStandardMethodPart v2 0x10cf5 "VSMOW"
+                CEvalDataItemListTransferPart v1 0x10d41
+                  1-3/3: CEvalDataDoubleTransferPart v1 0x10d5d
+      CGasConfiguration v3 0x10f2f "HD"
+        1/35: CBasicScan v4 0x10f4f "Peak Center"
+          CScaleHvScanPart v2 0x10f93 "Isotope MS/Integration Unit@Isotope MS/ScaleHv@456456"
+            CScaleHvHardwarePart v3 0x11015 "ScaleHv"
+              CGpibInterface v3 0x1105f
+              CVisualisationData v8 0x11096
+          CIntegrationUnitScanPart v3 0x111fa
+            CIntegrationUnitHardwarePart v3 0x11212 "Intensity"
+              CFinniganInterface v6 0x11272 "Delta"
+              CIntegrationUnitGasConfPart v2 0x112ac "IntegrationUnit"
+                1-3/3: CChannelGasConfPart v3 0x11319
+              CCalibration v5 0x113a8 "JB SP 11.01.02"
+                1/3: CCalibrationPoint v3 0x113fc "0. Point"
+                2/3: CCalibrationPoint v3 0x11454 "1. Point"
+                3/3: CCalibrationPoint v3 0x114ac "2. Point"
+              CVisualisationData v8 0x12888
+              1/8: CCupHardwarePart v3 0x129f5 "Cup 1"
+                CBasicInterface v2 0x12a55
+                CVisualisationData v8 0x12a85
+              2/8: CCupHardwarePart v3 0x12b52 "Cup 2"
+                CBasicInterface v2 0x12b7e
+                CVisualisationData v8 0x12bae
+              3/8: CCupHardwarePart v3 0x12c7b "Cup 3"
+                CBasicInterface v2 0x12ca7
+                CVisualisationData v8 0x12cd7
+              4/8: CCupHardwarePart v3 0x12da4 "Cup 4"
+                CBasicInterface v2 0x12dd0
+                CVisualisationData v8 0x12e00
+              5/8: CCupHardwarePart v3 0x12ecd "Cup 5"
+                CBasicInterface v2 0x12f05
+                CVisualisationData v8 0x12f35
+              6/8: CCupHardwarePart v3 0x13002 "Cup 6"
+                CBasicInterface v2 0x1303a
+                CVisualisationData v8 0x1306a
+              7/8: CCupHardwarePart v3 0x13137 "Cup 7"
+                CBasicInterface v2 0x13163
+                CVisualisationData v8 0x13193
+              8/8: CCupHardwarePart v3 0x13260 "Cup 8"
+                CBasicInterface v2 0x1328c
+                CVisualisationData v8 0x132bc
+              1/8: CChannelHardwarePart v2 0x1338a "Channel 1"
+                CBasicInterface v2 0x133c6 "Undefined"
+                CVisualisationData v8 0x13408
+              2/8: CChannelHardwarePart v2 0x134c4 "Channel 2"
+                CBasicInterface v2 0x13500 "Undefined"
+                CVisualisationData v8 0x13542
+              3/8: CChannelHardwarePart v2 0x135fe "Channel 3"
+                CBasicInterface v2 0x1363a "Undefined"
+                CVisualisationData v8 0x1367c
+              4/8: CChannelHardwarePart v2 0x13738 "Channel 4"
+                CBasicInterface v2 0x13774 "Undefined"
+                CVisualisationData v8 0x137b6
+              5/8: CChannelHardwarePart v2 0x13872 "Channel 5"
+                CBasicInterface v2 0x138ae "Undefined"
+                CVisualisationData v8 0x138f0
+              6/8: CChannelHardwarePart v2 0x139ac "Channel 6"
+                CBasicInterface v2 0x139e8 "Undefined"
+                CVisualisationData v8 0x13a2a
+              7/8: CChannelHardwarePart v2 0x13ae6 "Channel 7"
+                CBasicInterface v2 0x13b22 "Undefined"
+                CVisualisationData v8 0x13b64
+              8/8: CChannelHardwarePart v2 0x13c20 "Channel 8"
+                CBasicInterface v2 0x13c5c "Undefined"
+                CVisualisationData v8 0x13c9e
+          CBlockData v2 0x13d77
+        2/35: CIntegrationUnitGasConfPart v2 0x13d9f "IntegrationUnit"
+          1-2/2: CChannelGasConfPart v3 0x13e0c
+        3/35: CMagnetCurrentTransferPart v3 0x13e66 "Magnet Current"
+        4/35: CCalculatingDacTransferPart v1 0x13ede "R-Plate"
+        5/35: CCalculatingDacTransferPart v1 0x13f38 "Extraction"
+        6/35: CCalculatingDacTransferPart v1 0x13f9e "Shield"
+        7/35: CCalculatingDacTransferPart v1 0x13ff4 "Einzel-Lens 1"
+        8/35: CCalculatingDacTransferPart v1 0x14066 "Einzel-Lens 2"
+        9/35: CCalculatingDacTransferPart v1 0x140d8 "Electron Energie"
+        10/35: CDioTransferPart v2 0x14156 "Resitor Channel 1"
+        11/35: CDioTransferPart v2 0x141cc "Reistor Channel 2"
+        12/35: CDioTransferPart v2 0x14242 "Reistor Channel 3"
+        13/35: CDioTransferPart v2 0x142b8 "Reistor Channel 4"
+        14/35: CDioTransferPart v2 0x1432e "Reistor Channel 5"
+        15/35: CDioTransferPart v2 0x143a4 "Reistor Channel 6"
+        16/35: CDioTransferPart v2 0x1441a "Reistor Channel 7"
+        17/35: CDioTransferPart v2 0x14490 "Reistor Channel 8"
+        18/35: CIntegrationUnitBackGround v2 0x14506 "Background"
+          CIntegrationUnitGasConfPart v2 0x1459e "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0x1460b
+        19/35: CCalibration v5 0x14692 "JB SP 11.01.02"
+          1/3: CCalibrationPoint v3 0x146e6 "0. Point"
+          2/3: CCalibrationPoint v3 0x1473e "1. Point"
+          3/3: CCalibrationPoint v3 0x14796 "2. Point"
+        20/35: CPeakCenterOffset v1 0x15b62
+        21/35: CMolecule v1 0x15b94
+        22/35: CScaleHvTransferPart v2 0x15bb4 "Isotope MS/ScaleHv"
+        23/35: CCalculatingDacTransferPart v1 0x15c24 "Trap"
+        24/35: CCalculatingDacTransferPart v1 0x15c72 "Electron Energy"
+        25/35: CCalculatingDacTransferPart v1 0x15cec "Emission"
+        26/35: CCalculatingDacTransferPart v1 0x15d4a "Extraction 1"
+        27/35: CCalculatingDacTransferPart v1 0x15db8 "Extraction 2"
+        28/35: CCalculatingDacTransferPart v1 0x15e26 "X-Focus 1"
+        29/35: CCalculatingDacTransferPart v1 0x15e88 "X-Focus 2"
+        30/35: CCalculatingDacTransferPart v1 0x15eea "X-Deflection"
+        31/35: CCalculatingDacTransferPart v1 0x15f58 "Y-Deflection 1"
+        32/35: CCalculatingDacTransferPart v1 0x15fce "Y-Deflection 2"
+        33/35: CCalculatingDacTransferPart v1 0x16044 "SE Supressing"
+        34/35: CCalculatingDacTransferPart v1 0x160b6 "Retarding Lense"
+        35/35: CH3FactorResult v4 0x16130 "H3 Factor"
+    4/4: CPeakFindMethodPart v17 0x161c0 "H2 Peak Find Method"
+      CBlockData v2 0x1623d
+        1/1: CPeakFindParameter v9 0x16259
+      CGasConfiguration v3 0x16403 "HD"
+        1/35: CBasicScan v4 0x16423 "Peak Center"
+          CScaleHvScanPart v2 0x16467 "Isotope MS/Integration Unit@Isotope MS/ScaleHv@456456"
+            CScaleHvHardwarePart v3 0x164e9 "ScaleHv"
+              CGpibInterface v3 0x16533
+              CVisualisationData v8 0x1656a
+          CIntegrationUnitScanPart v3 0x166ce
+            CIntegrationUnitHardwarePart v3 0x166e6 "Intensity"
+              CFinniganInterface v6 0x16746 "Delta"
+              CIntegrationUnitGasConfPart v2 0x16780 "IntegrationUnit"
+                1-3/3: CChannelGasConfPart v3 0x167ed
+              CCalibration v5 0x1687c "JB SP 11.01.02"
+                1/3: CCalibrationPoint v3 0x168d0 "0. Point"
+                2/3: CCalibrationPoint v3 0x16928 "1. Point"
+                3/3: CCalibrationPoint v3 0x16980 "2. Point"
+              CVisualisationData v8 0x17d5c
+              1/8: CCupHardwarePart v3 0x17ec9 "Cup 1"
+                CBasicInterface v2 0x17f29
+                CVisualisationData v8 0x17f59
+              2/8: CCupHardwarePart v3 0x18026 "Cup 2"
+                CBasicInterface v2 0x18052
+                CVisualisationData v8 0x18082
+              3/8: CCupHardwarePart v3 0x1814f "Cup 3"
+                CBasicInterface v2 0x1817b
+                CVisualisationData v8 0x181ab
+              4/8: CCupHardwarePart v3 0x18278 "Cup 4"
+                CBasicInterface v2 0x182a4
+                CVisualisationData v8 0x182d4
+              5/8: CCupHardwarePart v3 0x183a1 "Cup 5"
+                CBasicInterface v2 0x183d9
+                CVisualisationData v8 0x18409
+              6/8: CCupHardwarePart v3 0x184d6 "Cup 6"
+                CBasicInterface v2 0x1850e
+                CVisualisationData v8 0x1853e
+              7/8: CCupHardwarePart v3 0x1860b "Cup 7"
+                CBasicInterface v2 0x18637
+                CVisualisationData v8 0x18667
+              8/8: CCupHardwarePart v3 0x18734 "Cup 8"
+                CBasicInterface v2 0x18760
+                CVisualisationData v8 0x18790
+              1/8: CChannelHardwarePart v2 0x1885e "Channel 1"
+                CBasicInterface v2 0x1889a "Undefined"
+                CVisualisationData v8 0x188dc
+              2/8: CChannelHardwarePart v2 0x18998 "Channel 2"
+                CBasicInterface v2 0x189d4 "Undefined"
+                CVisualisationData v8 0x18a16
+              3/8: CChannelHardwarePart v2 0x18ad2 "Channel 3"
+                CBasicInterface v2 0x18b0e "Undefined"
+                CVisualisationData v8 0x18b50
+              4/8: CChannelHardwarePart v2 0x18c0c "Channel 4"
+                CBasicInterface v2 0x18c48 "Undefined"
+                CVisualisationData v8 0x18c8a
+              5/8: CChannelHardwarePart v2 0x18d46 "Channel 5"
+                CBasicInterface v2 0x18d82 "Undefined"
+                CVisualisationData v8 0x18dc4
+              6/8: CChannelHardwarePart v2 0x18e80 "Channel 6"
+                CBasicInterface v2 0x18ebc "Undefined"
+                CVisualisationData v8 0x18efe
+              7/8: CChannelHardwarePart v2 0x18fba "Channel 7"
+                CBasicInterface v2 0x18ff6 "Undefined"
+                CVisualisationData v8 0x19038
+              8/8: CChannelHardwarePart v2 0x190f4 "Channel 8"
+                CBasicInterface v2 0x19130 "Undefined"
+                CVisualisationData v8 0x19172
+          CBlockData v2 0x1924b
+        2/35: CIntegrationUnitGasConfPart v2 0x19273 "IntegrationUnit"
+          1-2/2: CChannelGasConfPart v3 0x192e0
+        3/35: CMagnetCurrentTransferPart v3 0x1933a "Magnet Current"
+        4/35: CCalculatingDacTransferPart v1 0x193b2 "R-Plate"
+        5/35: CCalculatingDacTransferPart v1 0x1940c "Extraction"
+        6/35: CCalculatingDacTransferPart v1 0x19472 "Shield"
+        7/35: CCalculatingDacTransferPart v1 0x194c8 "Einzel-Lens 1"
+        8/35: CCalculatingDacTransferPart v1 0x1953a "Einzel-Lens 2"
+        9/35: CCalculatingDacTransferPart v1 0x195ac "Electron Energie"
+        10/35: CDioTransferPart v2 0x1962a "Resitor Channel 1"
+        11/35: CDioTransferPart v2 0x196a0 "Reistor Channel 2"
+        12/35: CDioTransferPart v2 0x19716 "Reistor Channel 3"
+        13/35: CDioTransferPart v2 0x1978c "Reistor Channel 4"
+        14/35: CDioTransferPart v2 0x19802 "Reistor Channel 5"
+        15/35: CDioTransferPart v2 0x19878 "Reistor Channel 6"
+        16/35: CDioTransferPart v2 0x198ee "Reistor Channel 7"
+        17/35: CDioTransferPart v2 0x19964 "Reistor Channel 8"
+        18/35: CIntegrationUnitBackGround v2 0x199da "Background"
+          CIntegrationUnitGasConfPart v2 0x19a72 "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0x19adf
+        19/35: CCalibration v5 0x19b66 "JB SP 11.01.02"
+          1/3: CCalibrationPoint v3 0x19bba "0. Point"
+          2/3: CCalibrationPoint v3 0x19c12 "1. Point"
+          3/3: CCalibrationPoint v3 0x19c6a "2. Point"
+        20/35: CPeakCenterOffset v1 0x1b036
+        21/35: CMolecule v1 0x1b068
+        22/35: CScaleHvTransferPart v2 0x1b088 "Isotope MS/ScaleHv"
+        23/35: CCalculatingDacTransferPart v1 0x1b0f8 "Trap"
+        24/35: CCalculatingDacTransferPart v1 0x1b146 "Electron Energy"
+        25/35: CCalculatingDacTransferPart v1 0x1b1c0 "Emission"
+        26/35: CCalculatingDacTransferPart v1 0x1b21e "Extraction 1"
+        27/35: CCalculatingDacTransferPart v1 0x1b28c "Extraction 2"
+        28/35: CCalculatingDacTransferPart v1 0x1b2fa "X-Focus 1"
+        29/35: CCalculatingDacTransferPart v1 0x1b35c "X-Focus 2"
+        30/35: CCalculatingDacTransferPart v1 0x1b3be "X-Deflection"
+        31/35: CCalculatingDacTransferPart v1 0x1b42c "Y-Deflection 1"
+        32/35: CCalculatingDacTransferPart v1 0x1b4a2 "Y-Deflection 2"
+        33/35: CCalculatingDacTransferPart v1 0x1b518 "SE Supressing"
+        34/35: CCalculatingDacTransferPart v1 0x1b58a "Retarding Lense"
+        35/35: CH3FactorResult v4 0x1b604 "H3 Factor"
+      CH3FactorResult v4 0x1b688 "H3 Factor"
+  2/2: CTraceGcDeviceEvaluationPart v1 0x1b74e
+    CBlockData v2 0x1b7a2
+CPlotSettings v4 0x1b814 "Plot Settings"
+  1/5: CWinSettings v3 0x1b85b "Windows Settings"
+    1/1: CGasSettings v4 0x1b8a7 "Gas Settings"
+      1/1: CTraceSettings v4 0x1b8eb
+      CPkDataItemList v1 0x1b943 "Peak Data ItemList"
+        1-24/24: CPeakDataItem v1 0x1b996
+      CShrinkInfo v2 0x1c89b
+    CViewColors v1 0x1c95c
+      1/3: CWinColor v1 0x1c987
+        CBlockData v2 0x1c996
+        1-8/8: CTraceLinCol v1 0x1c9b2
+      2/3: CGridColors v1 0x1ca32
+      3/3: CAxisPara v1 0x1ca67
+        CTraceLinCol v1 0x1ca7a
+  2/5: CWinSettings v3 0x1ca9c "Windows Settings"
+    1/1: CGasSettings v4 0x1cad8 "Gas Settings"
+      1/1: CTraceSettings v4 0x1cb0c
+      CPkDataItemList v1 0x1cb52 "Peak Data ItemList"
+        1-24/24: CPeakDataItem v1 0x1cb92
+      CShrinkInfo v2 0x1da86
+    CViewColors v1 0x1db38
+      1/3: CWinColor v1 0x1db54
+        CBlockData v2 0x1db56
+        1-8/8: CTraceLinCol v1 0x1db72
+      2/3: CGridColors v1 0x1dbe2
+      3/3: CAxisPara v1 0x1dc08
+        CTraceLinCol v1 0x1dc0e
+  3/5: CWinSettings v3 0x1dc30 "Windows Settings"
+    1/1: CGasSettings v4 0x1dc6c "Gas Settings"
+      1-2/2: CTraceSettings v4 0x1dca0
+      CPkDataItemList v1 0x1dd28 "Peak Data ItemList"
+        1-24/24: CPeakDataItem v1 0x1dd68
+      CShrinkInfo v2 0x1ec5c
+    CViewColors v1 0x1ed0e
+      1/3: CWinColor v1 0x1ed2a
+        CBlockData v2 0x1ed2c
+        1-8/8: CTraceLinCol v1 0x1ed48
+      2/3: CGridColors v1 0x1edb8
+      3/3: CAxisPara v1 0x1edde
+        CTraceLinCol v1 0x1ede4
+  4/5: CWinSettings v3 0x1ee06 "Windows Settings"
+    1/1: CGasSettings v4 0x1ee42 "Gas Settings"
+      1/1: CTraceSettings v4 0x1ee76
+      CPkDataItemList v1 0x1eeb4 "Peak Data ItemList"
+        1-24/24: CPeakDataItem v1 0x1eef4
+      CShrinkInfo v2 0x1fde8
+    CViewColors v1 0x1fe9a
+      1/3: CWinColor v1 0x1feb6
+        CBlockData v2 0x1feb8
+        1-8/8: CTraceLinCol v1 0x1fed4
+      2/3: CGridColors v1 0x1ff44
+      3/3: CAxisPara v1 0x1ff6a
+        CTraceLinCol v1 0x1ff70
+  5/5: CWinSettings v3 0x1ff92 "Windows Settings"
+    1/1: CGasSettings v4 0x1ffce "Gas Settings"
+      1/1: CTraceSettings v4 0x20002
+      CPkDataItemList v1 0x20048 "Peak Data ItemList"
+        1-24/24: CPeakDataItem v1 0x20088
+      CShrinkInfo v2 0x20f7c
+    CViewColors v1 0x21046
+      1/3: CWinColor v1 0x21062
+        CBlockData v2 0x21064
+        1-8/8: CTraceLinCol v1 0x21080
+      2/3: CGridColors v1 0x210f0
+      3/3: CAxisPara v1 0x21116
+        CTraceLinCol v1 0x2111c
+1/4: CBlockData v2 0x21152 "Data Block"
+  1/1: CBlockDataContext v2 0x21182 "H2"
+    1/3: CBlockData v2 0x211b7 "Raw Data"
+      1/2: CRawDataScanStorage v1 0x211e3 "Trace Data H2"
+        CBinary v2 0x21240
+        CClockScanPart v2 0x4b32a
+          CClockHardwarePart v2 0x4b354 "Clock"
+            CBasicInterface v2 0x4b3ac
+            CVisualisationData v8 0x4b3dc
+        CIntegrationUnitScanPart v3 0x4b51c
+          CIntegrationUnitHardwarePart v3 0x4b534 "Intensity"
+            CFinniganInterface v6 0x4b594 "Delta"
+            CIntegrationUnitGasConfPart v2 0x4b5ce "IntegrationUnit"
+              1-3/3: CChannelGasConfPart v3 0x4b63b
+            CCalibration v5 0x4b6ca "JB SP 11.01.02"
+              1/3: CCalibrationPoint v3 0x4b71e "0. Point"
+              2/3: CCalibrationPoint v3 0x4b776 "1. Point"
+              3/3: CCalibrationPoint v3 0x4b7ce "2. Point"
+            CVisualisationData v8 0x4cbaa
+            1/8: CCupHardwarePart v3 0x4cd17 "Cup 1"
+              CBasicInterface v2 0x4cd9b
+              CVisualisationData v8 0x4cdcb
+            2/8: CCupHardwarePart v3 0x4ce98 "Cup 2"
+              CBasicInterface v2 0x4cec8
+              CVisualisationData v8 0x4cef8
+            3/8: CCupHardwarePart v3 0x4cfc5 "Cup 3"
+              CBasicInterface v2 0x4cff5
+              CVisualisationData v8 0x4d025
+            4/8: CCupHardwarePart v3 0x4d0f2 "Cup 4"
+              CBasicInterface v2 0x4d122
+              CVisualisationData v8 0x4d152
+            5/8: CCupHardwarePart v3 0x4d21f "Cup 5"
+              CBasicInterface v2 0x4d25b
+              CVisualisationData v8 0x4d28b
+            6/8: CCupHardwarePart v3 0x4d358 "Cup 6"
+              CBasicInterface v2 0x4d394
+              CVisualisationData v8 0x4d3c4
+            7/8: CCupHardwarePart v3 0x4d491 "Cup 7"
+              CBasicInterface v2 0x4d4c1
+              CVisualisationData v8 0x4d4f1
+            8/8: CCupHardwarePart v3 0x4d5be "Cup 8"
+              CBasicInterface v2 0x4d5f2
+              CVisualisationData v8 0x4d622
+            1/8: CChannelHardwarePart v2 0x4d6f0 "Channel 1"
+              CBasicInterface v2 0x4d72c "Undefined"
+              CVisualisationData v8 0x4d76e
+            2/8: CChannelHardwarePart v2 0x4d82a "Channel 2"
+              CBasicInterface v2 0x4d866 "Undefined"
+              CVisualisationData v8 0x4d8a8
+            3/8: CChannelHardwarePart v2 0x4d964 "Channel 3"
+              CBasicInterface v2 0x4d9a0 "Undefined"
+              CVisualisationData v8 0x4d9e2
+            4/8: CChannelHardwarePart v2 0x4da9e "Channel 4"
+              CBasicInterface v2 0x4dada "Undefined"
+              CVisualisationData v8 0x4db1c
+            5/8: CChannelHardwarePart v2 0x4dbd8 "Channel 5"
+              CBasicInterface v2 0x4dc14 "Undefined"
+              CVisualisationData v8 0x4dc56
+            6/8: CChannelHardwarePart v2 0x4dd12 "Channel 6"
+              CBasicInterface v2 0x4dd4e "Undefined"
+              CVisualisationData v8 0x4dd90
+            7/8: CChannelHardwarePart v2 0x4de4c "Channel 7"
+              CBasicInterface v2 0x4de88 "Undefined"
+              CVisualisationData v8 0x4deca
+            8/8: CChannelHardwarePart v2 0x4df86 "Channel 8"
+              CBasicInterface v2 0x4dfc2 "Undefined"
+              CVisualisationData v8 0x4e004
+        CGasConfiguration v3 0x4e0e9 "CO2"
+          1/16: CBasicScan v4 0x4e10b "Peak Center"
+            CScaleHvScanPart v2 0x4e14f "Isotope MS/Integration Unit@Isotope MS/ScaleHv@"
+              CScaleHvHardwarePart v3 0x4e1c5 "High Voltage"
+                CFinniganInterface v6 0x4e219 "Delta"
+                CVisualisationData v8 0x4e26b
+            CIntegrationUnitScanPart v3 0x4e3cd
+              CIntegrationUnitHardwarePart v3 0x4e3e5 "Integration Unit"
+                CGpibInterface v3 0x4e453
+                CIntegrationUnitGasConfPart v2 0x4e472 "IntegrationUnit"
+                  1-3/3: CChannelGasConfPart v3 0x4e4df
+                CVisualisationData v8 0x4e57e
+                1/8: CCupHardwarePart v3 0x4e6c7 "Cup 1"
+                  CBasicInterface v2 0x4e6f3
+                  CVisualisationData v8 0x4e723
+                2/8: CCupHardwarePart v3 0x4e7f0 "Cup 2"
+                  CBasicInterface v2 0x4e81c
+                  CVisualisationData v8 0x4e84c
+                3/8: CCupHardwarePart v3 0x4e919 "Cup 3"
+                  CBasicInterface v2 0x4e945
+                  CVisualisationData v8 0x4e975
+                4/8: CCupHardwarePart v3 0x4ea42 "Cup 4"
+                  CBasicInterface v2 0x4ea6e
+                  CVisualisationData v8 0x4ea9e
+                5/8: CCupHardwarePart v3 0x4eb6b "Cup 5"
+                  CBasicInterface v2 0x4eb97
+                  CVisualisationData v8 0x4ebc7
+                6/8: CCupHardwarePart v3 0x4ec94 "Cup 6"
+                  CBasicInterface v2 0x4ecc0
+                  CVisualisationData v8 0x4ecf0
+                7/8: CCupHardwarePart v3 0x4edbd "Cup 7"
+                  CBasicInterface v2 0x4ede9
+                  CVisualisationData v8 0x4ee19
+                8/8: CCupHardwarePart v3 0x4eee6 "Cup 8"
+                  CBasicInterface v2 0x4ef12
+                  CVisualisationData v8 0x4ef42
+                1/3: CChannelHardwarePart v2 0x4f010 "Channel 1"
+                  CBasicInterface v2 0x4f04c
+                  CVisualisationData v8 0x4f07c
+                2/3: CChannelHardwarePart v2 0x4f138 "Channel 2"
+                  CBasicInterface v2 0x4f174
+                  CVisualisationData v8 0x4f1a4
+                3/3: CChannelHardwarePart v2 0x4f260 "Channel 3"
+                  CBasicInterface v2 0x4f29c
+                  CVisualisationData v8 0x4f2cc
+            CBlockData v2 0x4f3a5
+          2/16: CMolecule v1 0x4f3cd "Molecule"
+          3/16: CIntegrationUnitGasConfPart v2 0x4f40f "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0x4f47c
+          4/16: CMagnetCurrentTransferPart v3 0x4f503 "MagnetCurrent"
+          5/16: CDioTransferPart v2 0x4f579 "Resitor Channel 1"
+          6/16: CDioTransferPart v2 0x4f5ef "Resitor Channel 2"
+          7/16: CDioTransferPart v2 0x4f665 "Resitor Channel 3"
+          8/16: CDioTransferPart v2 0x4f6db "Resitor Channel 4"
+          9/16: CDioTransferPart v2 0x4f751 "Resitor Channel 5"
+          10/16: CDioTransferPart v2 0x4f7c7 "Resitor Channel 6"
+          11/16: CDioTransferPart v2 0x4f83d "Resitor Channel 7"
+          12/16: CDioTransferPart v2 0x4f8b3 "Resitor Channel 8"
+          13/16: CCalibration v5 0x4f929 "Default"
+            1/6: CCalibrationParameter v2 0x4f961 "CalibrationParameter"
+            2/6: CDouble v2 0x4f9f7
+            3/6: CPeakDetectionParameter v5 0x4fa30 "PeakDetectionParameter"
+            4/6: CCalibrationPoint v3 0x4fae9 "0. Point"
+            5/6: CCalibrationPoint v3 0x4fb41 "1. Point"
+            6/6: CCalibrationPoint v3 0x4fb99 "2. Point"
+          14/16: CPeakCenterOffset v1 0x50b07
+          15/16: CScaleHvTransferPart v2 0x50b39 "Isotope MS/ScaleHv"
+          16/16: CCalculatingDacTransferPart v1 0x50ba9 "Emission"
+        1/1: CPeakList v2 0x50c13
+          1-19/19: CPeak v5 0x50c3c
+          CPeakDetectionParameter v5 0x51214
+      2/2: CRatioDataScanStorage v1 0x51266 "Ratio Data H2"
+        CBinary v2 0x512c5
+        CClockScanPart v2 0x6a6b2
+          CClockHardwarePart v2 0x6a6ca "Clock"
+            CBasicInterface v2 0x6a70c
+            CVisualisationData v8 0x6a73c
+        CIntegrationUnitScanPart v3 0x6a87c
+          CIntegrationUnitHardwarePart v3 0x6a894 "Intensity"
+            CFinniganInterface v6 0x6a8f4 "Delta"
+            CIntegrationUnitGasConfPart v2 0x6a92e "IntegrationUnit"
+              1-3/3: CChannelGasConfPart v3 0x6a99b
+            CCalibration v5 0x6aa2a "JB SP 11.01.02"
+              1/3: CCalibrationPoint v3 0x6aa7e "0. Point"
+              2/3: CCalibrationPoint v3 0x6aad6 "1. Point"
+              3/3: CCalibrationPoint v3 0x6ab2e "2. Point"
+            CVisualisationData v8 0x6bf0a
+            1/8: CCupHardwarePart v3 0x6c077 "Cup 1"
+              CBasicInterface v2 0x6c0fb
+              CVisualisationData v8 0x6c12b
+            2/8: CCupHardwarePart v3 0x6c1f8 "Cup 2"
+              CBasicInterface v2 0x6c228
+              CVisualisationData v8 0x6c258
+            3/8: CCupHardwarePart v3 0x6c325 "Cup 3"
+              CBasicInterface v2 0x6c355
+              CVisualisationData v8 0x6c385
+            4/8: CCupHardwarePart v3 0x6c452 "Cup 4"
+              CBasicInterface v2 0x6c482
+              CVisualisationData v8 0x6c4b2
+            5/8: CCupHardwarePart v3 0x6c57f "Cup 5"
+              CBasicInterface v2 0x6c5bb
+              CVisualisationData v8 0x6c5eb
+            6/8: CCupHardwarePart v3 0x6c6b8 "Cup 6"
+              CBasicInterface v2 0x6c6f4
+              CVisualisationData v8 0x6c724
+            7/8: CCupHardwarePart v3 0x6c7f1 "Cup 7"
+              CBasicInterface v2 0x6c821
+              CVisualisationData v8 0x6c851
+            8/8: CCupHardwarePart v3 0x6c91e "Cup 8"
+              CBasicInterface v2 0x6c952
+              CVisualisationData v8 0x6c982
+            1/8: CChannelHardwarePart v2 0x6ca50 "Channel 1"
+              CBasicInterface v2 0x6ca8c "Undefined"
+              CVisualisationData v8 0x6cace
+            2/8: CChannelHardwarePart v2 0x6cb8a "Channel 2"
+              CBasicInterface v2 0x6cbc6 "Undefined"
+              CVisualisationData v8 0x6cc08
+            3/8: CChannelHardwarePart v2 0x6ccc4 "Channel 3"
+              CBasicInterface v2 0x6cd00 "Undefined"
+              CVisualisationData v8 0x6cd42
+            4/8: CChannelHardwarePart v2 0x6cdfe "Channel 4"
+              CBasicInterface v2 0x6ce3a "Undefined"
+              CVisualisationData v8 0x6ce7c
+            5/8: CChannelHardwarePart v2 0x6cf38 "Channel 5"
+              CBasicInterface v2 0x6cf74 "Undefined"
+              CVisualisationData v8 0x6cfb6
+            6/8: CChannelHardwarePart v2 0x6d072 "Channel 6"
+              CBasicInterface v2 0x6d0ae "Undefined"
+              CVisualisationData v8 0x6d0f0
+            7/8: CChannelHardwarePart v2 0x6d1ac "Channel 7"
+              CBasicInterface v2 0x6d1e8 "Undefined"
+              CVisualisationData v8 0x6d22a
+            8/8: CChannelHardwarePart v2 0x6d2e6 "Channel 8"
+              CBasicInterface v2 0x6d322 "Undefined"
+              CVisualisationData v8 0x6d364
+        CGasConfiguration v3 0x6d449 "CO2"
+          1/16: CBasicScan v4 0x6d46b "Peak Center"
+            CScaleHvScanPart v2 0x6d4af "Isotope MS/Integration Unit@Isotope MS/ScaleHv@"
+              CScaleHvHardwarePart v3 0x6d525 "High Voltage"
+                CFinniganInterface v6 0x6d579 "Delta"
+                CVisualisationData v8 0x6d5cb
+            CIntegrationUnitScanPart v3 0x6d72d
+              CIntegrationUnitHardwarePart v3 0x6d745 "Integration Unit"
+                CGpibInterface v3 0x6d7b3
+                CIntegrationUnitGasConfPart v2 0x6d7d2 "IntegrationUnit"
+                  1-3/3: CChannelGasConfPart v3 0x6d83f
+                CVisualisationData v8 0x6d8de
+                1/8: CCupHardwarePart v3 0x6da27 "Cup 1"
+                  CBasicInterface v2 0x6da53
+                  CVisualisationData v8 0x6da83
+                2/8: CCupHardwarePart v3 0x6db50 "Cup 2"
+                  CBasicInterface v2 0x6db7c
+                  CVisualisationData v8 0x6dbac
+                3/8: CCupHardwarePart v3 0x6dc79 "Cup 3"
+                  CBasicInterface v2 0x6dca5
+                  CVisualisationData v8 0x6dcd5
+                4/8: CCupHardwarePart v3 0x6dda2 "Cup 4"
+                  CBasicInterface v2 0x6ddce
+                  CVisualisationData v8 0x6ddfe
+                5/8: CCupHardwarePart v3 0x6decb "Cup 5"
+                  CBasicInterface v2 0x6def7
+                  CVisualisationData v8 0x6df27
+                6/8: CCupHardwarePart v3 0x6dff4 "Cup 6"
+                  CBasicInterface v2 0x6e020
+                  CVisualisationData v8 0x6e050
+                7/8: CCupHardwarePart v3 0x6e11d "Cup 7"
+                  CBasicInterface v2 0x6e149
+                  CVisualisationData v8 0x6e179
+                8/8: CCupHardwarePart v3 0x6e246 "Cup 8"
+                  CBasicInterface v2 0x6e272
+                  CVisualisationData v8 0x6e2a2
+                1/3: CChannelHardwarePart v2 0x6e370 "Channel 1"
+                  CBasicInterface v2 0x6e3ac
+                  CVisualisationData v8 0x6e3dc
+                2/3: CChannelHardwarePart v2 0x6e498 "Channel 2"
+                  CBasicInterface v2 0x6e4d4
+                  CVisualisationData v8 0x6e504
+                3/3: CChannelHardwarePart v2 0x6e5c0 "Channel 3"
+                  CBasicInterface v2 0x6e5fc
+                  CVisualisationData v8 0x6e62c
+            CBlockData v2 0x6e705
+          2/16: CMolecule v1 0x6e72d "Molecule"
+          3/16: CIntegrationUnitGasConfPart v2 0x6e76f "IntegrationUnit"
+            1-3/3: CChannelGasConfPart v3 0x6e7dc
+          4/16: CMagnetCurrentTransferPart v3 0x6e863 "MagnetCurrent"
+          5/16: CDioTransferPart v2 0x6e8d9 "Resitor Channel 1"
+          6/16: CDioTransferPart v2 0x6e94f "Resitor Channel 2"
+          7/16: CDioTransferPart v2 0x6e9c5 "Resitor Channel 3"
+          8/16: CDioTransferPart v2 0x6ea3b "Resitor Channel 4"
+          9/16: CDioTransferPart v2 0x6eab1 "Resitor Channel 5"
+          10/16: CDioTransferPart v2 0x6eb27 "Resitor Channel 6"
+          11/16: CDioTransferPart v2 0x6eb9d "Resitor Channel 7"
+          12/16: CDioTransferPart v2 0x6ec13 "Resitor Channel 8"
+          13/16: CCalibration v5 0x6ec89 "Default"
+            1/6: CCalibrationParameter v2 0x6ecc1 "CalibrationParameter"
+            2/6: CDouble v2 0x6ed3e
+            3/6: CPeakDetectionParameter v5 0x6ed6c "PeakDetectionParameter"
+            4/6: CCalibrationPoint v3 0x6ee0a "0. Point"
+            5/6: CCalibrationPoint v3 0x6ee62 "1. Point"
+            6/6: CCalibrationPoint v3 0x6eeba "2. Point"
+          14/16: CPeakCenterOffset v1 0x6fe28
+          15/16: CScaleHvTransferPart v2 0x6fe5a "Isotope MS/ScaleHv"
+          16/16: CCalculatingDacTransferPart v1 0x6feca "Emission"
+    2/3: CPeakDataGridStorage v1 0x6ff40 "Peak Data H2"
+      CPkDataListBox v2 0x6ff88
+    3/3: CGCPeakList v5 0x74480 "H2"
+      1/19: CSPeak v1 0x744af "H2"
+        1-2/2: CGCPeak v2 0x744d9
+        CEvalDataItemListTransferPart v1 0x74630
+          1/22: CEvalDataItemTransferPart v7 0x7464c "Overwritten"
+          2/22: CEvalDataIntTransferPart v1 0x746f1
+          3-8/22: CEvalDataDoubleTransferPart v1 0x74775
+          9/22: CEvalDataIntTransferPart v1 0x74afb
+          10/22: CEvalDataDoubleTransferPart v1 0x74b8f
+          11-12/22: CEvalDataTransferPart v1 0x74c2f
+          13/22: CEvalDataIntTransferPart v1 0x74d56
+          14-15/22: CEvalDataTransferPart v1 0x74dce
+          16/22: CEvalDataDoubleTransferPart v1 0x74edc
+          17/22: CEvalDataStringTransferPart v1 0x74f78
+          18-22/22: CEvalDataDoubleTransferPart v1 0x7502b
+      2/19: CSPeak v1 0x7536b "H2"
+        1-2/2: CGCPeak v2 0x7538b
+        CEvalDataItemListTransferPart v1 0x754d7
+          1/21: CEvalDataItemTransferPart v7 0x754f3 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7557b
+          3-9/21: CEvalDataDoubleTransferPart v1 0x755e3
+          10-11/21: CEvalDataTransferPart v1 0x75a09
+          12/21: CEvalDataIntTransferPart v1 0x75b17
+          13-14/21: CEvalDataTransferPart v1 0x75b8f
+          15/21: CEvalDataDoubleTransferPart v1 0x75c9d
+          16/21: CEvalDataStringTransferPart v1 0x75d39
+          17-21/21: CEvalDataDoubleTransferPart v1 0x75dcd
+      3/19: CSPeak v1 0x7610d "H2"
+        1-2/2: CGCPeak v2 0x7612d
+        CEvalDataItemListTransferPart v1 0x76279
+          1/21: CEvalDataItemTransferPart v7 0x76295 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7631d
+          3-9/21: CEvalDataDoubleTransferPart v1 0x76385
+          10-11/21: CEvalDataTransferPart v1 0x767ab
+          12/21: CEvalDataIntTransferPart v1 0x768b9
+          13-14/21: CEvalDataTransferPart v1 0x76931
+          15/21: CEvalDataDoubleTransferPart v1 0x76a3f
+          16/21: CEvalDataStringTransferPart v1 0x76adb
+          17-21/21: CEvalDataDoubleTransferPart v1 0x76b6f
+      4/19: CSPeak v1 0x76eaf "H2"
+        1-2/2: CGCPeak v2 0x76ecf
+        CEvalDataItemListTransferPart v1 0x7701b
+          1/19: CEvalDataIntTransferPart v1 0x77037
+          2-8/19: CEvalDataDoubleTransferPart v1 0x7709f
+          9-10/19: CEvalDataTransferPart v1 0x774c5
+          11/19: CEvalDataDoubleTransferPart v1 0x775d3
+          12/19: CEvalDataIntTransferPart v1 0x7765f
+          13/19: CEvalDataDoubleTransferPart v1 0x776d7
+          14/19: CEvalDataStringTransferPart v1 0x77773
+          15-19/19: CEvalDataDoubleTransferPart v1 0x77807
+      5/19: CSPeak v1 0x77b47 "H2"
+        1-2/2: CGCPeak v2 0x77b67
+        CEvalDataItemListTransferPart v1 0x77cb3
+          1/21: CEvalDataItemTransferPart v7 0x77ccf "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x77d57
+          3-9/21: CEvalDataDoubleTransferPart v1 0x77dbf
+          10-11/21: CEvalDataTransferPart v1 0x781e5
+          12/21: CEvalDataIntTransferPart v1 0x782f3
+          13/21: CEvalDataDoubleTransferPart v1 0x7836b
+          14/21: CEvalDataStringTransferPart v1 0x78407
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7849b
+          20-21/21: CEvalDataTransferPart v1 0x787ab
+      6/19: CSPeak v1 0x788e9 "H2"
+        1-2/2: CGCPeak v2 0x78909
+        CEvalDataItemListTransferPart v1 0x78a55
+          1/21: CEvalDataItemTransferPart v7 0x78a71 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x78af9
+          3-9/21: CEvalDataDoubleTransferPart v1 0x78b61
+          10-11/21: CEvalDataTransferPart v1 0x78f87
+          12/21: CEvalDataIntTransferPart v1 0x79095
+          13/21: CEvalDataDoubleTransferPart v1 0x7910d
+          14/21: CEvalDataStringTransferPart v1 0x791a9
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7923d
+          20-21/21: CEvalDataTransferPart v1 0x7954d
+      7/19: CSPeak v1 0x7968b "H2"
+        1-2/2: CGCPeak v2 0x796ab
+        CEvalDataItemListTransferPart v1 0x797f7
+          1/19: CEvalDataIntTransferPart v1 0x79813
+          2-8/19: CEvalDataDoubleTransferPart v1 0x7987b
+          9-10/19: CEvalDataTransferPart v1 0x79ca1
+          11/19: CEvalDataDoubleTransferPart v1 0x79daf
+          12/19: CEvalDataIntTransferPart v1 0x79e3b
+          13/19: CEvalDataDoubleTransferPart v1 0x79eb3
+          14/19: CEvalDataStringTransferPart v1 0x79f4f
+          15-19/19: CEvalDataDoubleTransferPart v1 0x79fe3
+      8/19: CSPeak v1 0x7a323 "H2"
+        1-2/2: CGCPeak v2 0x7a343
+        CEvalDataItemListTransferPart v1 0x7a48f
+          1/21: CEvalDataItemTransferPart v7 0x7a4ab "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7a533
+          3-9/21: CEvalDataDoubleTransferPart v1 0x7a59b
+          10-11/21: CEvalDataTransferPart v1 0x7a9c1
+          12/21: CEvalDataIntTransferPart v1 0x7aacf
+          13/21: CEvalDataDoubleTransferPart v1 0x7ab47
+          14/21: CEvalDataStringTransferPart v1 0x7abe3
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7ac77
+          20-21/21: CEvalDataTransferPart v1 0x7af87
+      9/19: CSPeak v1 0x7b0c5 "H2"
+        1-2/2: CGCPeak v2 0x7b0e5
+        CEvalDataItemListTransferPart v1 0x7b231
+          1/21: CEvalDataItemTransferPart v7 0x7b24d "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7b2d5
+          3-9/21: CEvalDataDoubleTransferPart v1 0x7b33d
+          10-11/21: CEvalDataTransferPart v1 0x7b763
+          12/21: CEvalDataIntTransferPart v1 0x7b871
+          13/21: CEvalDataDoubleTransferPart v1 0x7b8e9
+          14/21: CEvalDataStringTransferPart v1 0x7b985
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7ba19
+          20-21/21: CEvalDataTransferPart v1 0x7bd29
+      10/19: CSPeak v1 0x7be67 "H2"
+        1-2/2: CGCPeak v2 0x7be87
+        CEvalDataItemListTransferPart v1 0x7bfd3
+          1/19: CEvalDataIntTransferPart v1 0x7bfef
+          2-8/19: CEvalDataDoubleTransferPart v1 0x7c057
+          9-10/19: CEvalDataTransferPart v1 0x7c47d
+          11/19: CEvalDataDoubleTransferPart v1 0x7c58b
+          12/19: CEvalDataIntTransferPart v1 0x7c617
+          13/19: CEvalDataDoubleTransferPart v1 0x7c68f
+          14/19: CEvalDataStringTransferPart v1 0x7c72b
+          15-19/19: CEvalDataDoubleTransferPart v1 0x7c7bf
+      11/19: CSPeak v1 0x7caff "H2"
+        1-2/2: CGCPeak v2 0x7cb1f
+        CEvalDataItemListTransferPart v1 0x7cc6b
+          1/21: CEvalDataItemTransferPart v7 0x7cc87 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7cd0f
+          3-9/21: CEvalDataDoubleTransferPart v1 0x7cd77
+          10-11/21: CEvalDataTransferPart v1 0x7d19d
+          12/21: CEvalDataIntTransferPart v1 0x7d2ab
+          13/21: CEvalDataDoubleTransferPart v1 0x7d323
+          14/21: CEvalDataStringTransferPart v1 0x7d3bf
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7d453
+          20-21/21: CEvalDataTransferPart v1 0x7d763
+      12/19: CSPeak v1 0x7d8a1 "H2"
+        1-2/2: CGCPeak v2 0x7d8c1
+        CEvalDataItemListTransferPart v1 0x7da0d
+          1/21: CEvalDataItemTransferPart v7 0x7da29 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7dab1
+          3-9/21: CEvalDataDoubleTransferPart v1 0x7db19
+          10-11/21: CEvalDataTransferPart v1 0x7df3f
+          12/21: CEvalDataIntTransferPart v1 0x7e04d
+          13/21: CEvalDataDoubleTransferPart v1 0x7e0c5
+          14/21: CEvalDataStringTransferPart v1 0x7e161
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7e1f5
+          20-21/21: CEvalDataTransferPart v1 0x7e505
+      13/19: CSPeak v1 0x7e643 "H2"
+        1-2/2: CGCPeak v2 0x7e663
+        CEvalDataItemListTransferPart v1 0x7e7af
+          1/19: CEvalDataIntTransferPart v1 0x7e7cb
+          2-8/19: CEvalDataDoubleTransferPart v1 0x7e833
+          9-10/19: CEvalDataTransferPart v1 0x7ec59
+          11/19: CEvalDataDoubleTransferPart v1 0x7ed67
+          12/19: CEvalDataIntTransferPart v1 0x7edf3
+          13/19: CEvalDataDoubleTransferPart v1 0x7ee6b
+          14/19: CEvalDataStringTransferPart v1 0x7ef07
+          15-19/19: CEvalDataDoubleTransferPart v1 0x7ef9b
+      14/19: CSPeak v1 0x7f2db "H2"
+        1-2/2: CGCPeak v2 0x7f2fb
+        CEvalDataItemListTransferPart v1 0x7f447
+          1/21: CEvalDataItemTransferPart v7 0x7f463 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x7f4eb
+          3-9/21: CEvalDataDoubleTransferPart v1 0x7f553
+          10-11/21: CEvalDataTransferPart v1 0x7f979
+          12/21: CEvalDataIntTransferPart v1 0x7fa87
+          13/21: CEvalDataDoubleTransferPart v1 0x7faff
+          14/21: CEvalDataStringTransferPart v1 0x7fb9b
+          15-19/21: CEvalDataDoubleTransferPart v1 0x7fc2f
+          20-21/21: CEvalDataTransferPart v1 0x7ff3f
+      15/19: CSPeak v1 0x8007d "H2"
+        1-2/2: CGCPeak v2 0x8009d
+        CEvalDataItemListTransferPart v1 0x801e9
+          1/21: CEvalDataItemTransferPart v7 0x80205 "Overwritten"
+          2/21: CEvalDataIntTransferPart v1 0x8028d
+          3-9/21: CEvalDataDoubleTransferPart v1 0x802f5
+          10-11/21: CEvalDataTransferPart v1 0x8071b
+          12/21: CEvalDataIntTransferPart v1 0x80829
+          13/21: CEvalDataDoubleTransferPart v1 0x808a1
+          14/21: CEvalDataStringTransferPart v1 0x8093d
+          15-19/21: CEvalDataDoubleTransferPart v1 0x809d1
+          20-21/21: CEvalDataTransferPart v1 0x80ce1
+      16/19: CSPeak v1 0x80e1f "H2"
+        1-2/2: CGCPeak v2 0x80e3f
+        CEvalDataItemListTransferPart v1 0x80f8b
+          1/19: CEvalDataIntTransferPart v1 0x80fa7
+          2-8/19: CEvalDataDoubleTransferPart v1 0x8100f
+          9-10/19: CEvalDataTransferPart v1 0x81435
+          11/19: CEvalDataDoubleTransferPart v1 0x81543
+          12/19: CEvalDataIntTransferPart v1 0x815cf
+          13/19: CEvalDataDoubleTransferPart v1 0x81647
+          14/19: CEvalDataStringTransferPart v1 0x816e3
+          15-19/19: CEvalDataDoubleTransferPart v1 0x81777
+      17/19: CSPeak v1 0x81ab7 "H2"
+        1-2/2: CGCPeak v2 0x81ad7
+        CEvalDataItemListTransferPart v1 0x81c23
+          1/18: CEvalDataIntTransferPart v1 0x81c3f
+          2-8/18: CEvalDataDoubleTransferPart v1 0x81ca7
+          9-10/18: CEvalDataTransferPart v1 0x820cd
+          11/18: CEvalDataIntTransferPart v1 0x821db
+          12/18: CEvalDataDoubleTransferPart v1 0x82253
+          13/18: CEvalDataStringTransferPart v1 0x822ef
+          14-18/18: CEvalDataDoubleTransferPart v1 0x82383
+      18/19: CSPeak v1 0x826c3 "H2"
+        1-2/2: CGCPeak v2 0x826e3
+        CEvalDataItemListTransferPart v1 0x8282f
+          1/18: CEvalDataIntTransferPart v1 0x8284b
+          2-8/18: CEvalDataDoubleTransferPart v1 0x828b3
+          9-10/18: CEvalDataTransferPart v1 0x82cd9
+          11/18: CEvalDataIntTransferPart v1 0x82de7
+          12/18: CEvalDataDoubleTransferPart v1 0x82e5f
+          13/18: CEvalDataStringTransferPart v1 0x82efb
+          14-18/18: CEvalDataDoubleTransferPart v1 0x82f8f
+      19/19: CSPeak v1 0x832cf "H2"
+        1-2/2: CGCPeak v2 0x832ef
+        CEvalDataItemListTransferPart v1 0x8343b
+          1/18: CEvalDataIntTransferPart v1 0x83457
+          2-8/18: CEvalDataDoubleTransferPart v1 0x834bf
+          9-10/18: CEvalDataTransferPart v1 0x838e5
+          11/18: CEvalDataIntTransferPart v1 0x839f3
+          12/18: CEvalDataDoubleTransferPart v1 0x83a6b
+          13/18: CEvalDataStringTransferPart v1 0x83b07
+          14-18/18: CEvalDataDoubleTransferPart v1 0x83b9b
+2/4: CBlockData v2 0x83f1b "Sequence Data"
+  1/3: CErrorGridStorage v1 0x83f51 "Error"
+    CGridCtrl v12 0x83f88
+  2/3: CExtendedInformationGridStorage v1 0x840da "Extended"
+    CGridCtrl v12 0x84125
+  3/3: CSequenceLineInformationGridStorage v1 0x84283 "Sequence Line"
+    CGridCtrl v12 0x842dc
+3/4: CBlockData v2 0x86250 "Primary Std. Data Block"
+  1/1: CBlockData v2 0x8629a "Jump H2"
+    1/1: CBlockData v2 0x862c4 "Continuous Flow Primary Standards H2"
+      1/1: CPrimaryStandardMethodPart v2 0x8636a "VSMOW"
+        CEvalDataItemListTransferPart v1 0x863b6
+          1-3/3: CEvalDataDoubleTransferPart v1 0x863d2
+4/4: CBlockData v2 0x865a0 "H3 Factor"
+  1/1: CH3FactorResult v4 0x865ce "H3 Factor"

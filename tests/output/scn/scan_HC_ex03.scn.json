@@ -1,0 +1,2606 @@
+{
+  "meta": {
+    "reader_version": "0.1.0.0",
+    "file_type": "scn",
+    "file_size_bytes": 36411,
+    "complete": true
+  },
+  "CScanStorage": {
+    "p": {
+      "p": {
+        "l": "200122_peakshape_C",
+        "v": "200122_peakshape_C.scn"
+      },
+      "n_objects": 0,
+      "objects": {}
+    },
+    "comment": "test this comment feature",
+    "n_points": 220,
+    "n_traces": 3,
+    "CBinary": {
+      "p": {
+        "l": ""
+      },
+      "n_bytes": 6160,
+      "data": "AKBwR1om\u002BGbYafq/aKj\u002BNcdt4j/QFJ/wEUrRPwCjcEeC0nfhKTv6v1jR/48uCuM/QBveXQiX2T8ApnBHTIMPkAoc\u002Br/wxOv3mKbjP5Asl/psdtQ/AKlwR450bjQ7zvm/IOSyF70j5D/w7/9Q9j3TPwCscEdUAVQJG6/5v8hriCi/SOM/gN5p\u002B2/50z8Ar3BHrMCnJqu\u002B\u002Bb8Isd/xdt/kP1AXkOftJdc/ALJwRxRxao1JYfm/AL\u002BIIEPo5j/Q\u002BreZbOfWPwC1cEdMUohFByP5v1gquhv6Rec/ADikUqCO0D8AuHBHYuhDxOUD\u002Bb9oUxEFW3jpP5Asl/psdtQ/ALtwR3byxgTE5Pi/AOQf/\u002BC86D\u002BQLJf6bHbUPwC\u002BcEc05N/wELb4v3i5C27ZM\u002Bo/0Pq3mWzn1j8AwXBHBMmJ/Mt3\u002BL84M/bfWXLqPwDgKl7tvd0/AMRwRxx97KEXSfi/KE0X0vOk7D84JCR3jPLgPwDHcEdWP5RIrev3vyhNF9LzpOw/gPvEKggM4j8AzHBHah6eca5\u002B97/okedPo1ruP9ifmvC0CeY/AM9wR2oennGufve/0M83pOon7D9IyZA5bDnlPwDScEdEZAks90/3vzwHa1AIZvA/4NOs8fAo5j8A1XBHKEooBdIw97843G8AZVbwP5CnWFFpZ\u002BY/ANhwR6wy7Rph0/a/6JHnT6Na7j\u002BIEGrOM1XpPwDbcEf8fkhWgYX2v8iqvwvf0e8/gP/hFAi/5z8A3nBHTMa2oDNH9r/M/5X4e67xPziZwH1x8ek/AOFwR7w/Nz296fW/FD\u002BTe1YW8z/EmomXcFTwPwDkcEcEGiJKlcr1v7zFjpxFYPE/fD9K0Zl98T8A53BHsLw35Mku9b98QrZ\u002BfMLzP9z6A8gHJPM/AOpwR7C8N\u002BTJLvW/9FM9DrQ/9D/ECgSx6Rj1PwDtcEeWaYlo\u002BJL0v5zT1IbvvPQ/uJgDTV5H\u002BD8A8HBHEM816aJU9L/QhzoDIZj1P1i0oWFXfvo/APNwR7Kuj3BMFvS/yEbGNVJe9z/Im4aM9PX7PwD2cEfMFBv7Xsjzvwi6UrUB4fY/3MeU8p5Y/j8A\u002BXBHNnJXO7Yy87/ws6rPXgX5P4q7A294DwBAAPxwR0aqumjq5PK/7C8kzQoV\u002BT\u002B\u002BGy4nJ04AQAD/cEesRhbwbWjyv2xDUkNqIvo/XE5ixrm2AUAAAnFHrEYW8G1o8r88mDiVAGH6P5qFfKno2wNAAAVxR/icgmMbnvG/xC6kden3\u002Bz\u002BmcjMR7XgEQAAIcUfGwk2tR1Dxv4geW8eQB/w/ZnFA8yiJBUAAC3FHdIlIs5u08L8AkfH7r0D9P3Rfv/rkxwVAAA5xR1IdkJkxV/C/cN2Z5GXy/D\u002BOi94zE1UGQAARcUd8FtfO0lfvv3BcOHGRif4/Thit5dpfB0AAFHFHcG0jD2P67r/Iv1M64gb/PwAN\u002BZlYrgdAABdxR5QLwSjV6Oy/Cn5sR8ovAECaBIdd1KwJQAAacUcE1DEyNmzsv6BN0NSolQBAAuq8UZPgCEAAHXFH1JFeb/Jy678GYmy9W9QAQELRTnr9LQtAACBxRwg5q8pSO\u002Bq/RN2/cleYAUAml7U1oXwLQAAjcUc8nmGGzGfovxTB7Ot\u002BJQJA3AHyTuWJDEAAJnFHMHwNpliz5r/E2dv4EdICQMyNMtWtKQxAAClxR\u002BhdhifnueW/GPpenAFvA0A8jbVbkgcNQAAscUfgWfHL7Mbjv9oAYmK95ANA2Ipc90vzDUAAL3FHYN77dpXs4r8aw\u002B74sBsEQGTTvErZZQ1AADJxR4hO03vTm\u002BC/FNIQiYgUBUBM2dnMi3QPQAA1cUdg/PGQYkTfv1zDW1TvYgVAn6PiDEcwEEAAOHFHmK4TzYQl2r8AzZIWqZwGQHU93MHIihBAADtxR4B0UCwmtde/oAMlqyNRB0DwtXWt6YIQQAA\u002BcUdIDlKrqZXSv3S/THKuBQhASexMk1CmEUAAQXFH4G2qZdhAz7/kdV13WEwIQFA5sV3WxRFAAERxRxAz0u/LiMS/TmhUYj2WCUBQObFd1sURQABHcUfATx7V2li\u002Bv8j13eeGvQlAjVbbfzOtEkAASnFHAIkybGjkl79CqccIn9AKQEp7oPtR5BJAAE1xRwB7eBXIT6E/QqnHCJ/QCkDNLDpriFYTQABQcUfgECX4OPbCP0o8tqAAugxADapgGIMfFEAAU3FHIGvkjTbRyD\u002B\u002BwL48Z0cNQGyYM8\u002B1VhRAAFZxRwCO2tfrtNQ/UklJwEoPD0B19FbJs\u002BQUQABZcUdwLM0VeF7YP8QtGqWWrA9A/k4\u002BdZ1\u002BFUAAXHFHWLC13qQX4D\u002BSDrISP1AQQAog\u002BwMbQRZAAF9xR7CRLXH95uI/yJIjyvDdEED1ozr\u002BVgYXQABicUcQFVN2EkLnP\u002BeyhlS/qhFA63qYl94OGEAAZXFHUN4Ra/Ev6j/ixMRORhASQE10LtJ/fRhAAGhxR/CN9IfgUO8/YcFmvXC9EkAHa1c2c/AZQABrcUcc7ExQwB/xP9iEXm6pbhNANrHntHSSGkAAbnFHNDOSARgu9D\u002BRScyEMJ4UQMxsFEG\u002BJBtAAHFxR9gRSJwGm/c/oajaVYmqFUCMJ4hXkRMdQAB0cUdMkBVRaQP5PzkRkjKZQRZAAmMpdpUGHkAAd3FHxFSNf8EP/T8R3G5OTHkXQAF/rfk/Wx9AAHpxR1xAPgaatv4/2WG7FpD/F0D66zxJ6/EfQAB9cUeU1siKXJcBQEgz37RZXxlAZ\u002BXpVmMcIUAAgHFHPF1hRbWxAkDjpbneMywaQMAkxUlinyFAAINxR57HWDuvoAVAser9IrgKHEAzIEjXJOwiQACGcUc8KnIjEiEHQBxx7Dhx7BxA6BZqjR6dI0AAiXFHQtFOev0tC0Dek8XCCKsfQPsNUK3YuiVAAIxxR9g6DCq42w1Avl48ii94IEAWclRXBSMnQACPcUfxltMtotASQH4w7AZxWCJAfUW9MW2yKkAAknFHeKUN\u002B2eOFUCCFR0MIs0jQE9o69s0xixAAJVxRw6runwtYx9AJrAFqxmFKEDAfFLSpukyQACYcUeOSUhreSokQLYMPdZy6StA99ZCX4/oNkAAmXFHkqGI/VtkNEA\u002BRFE6eZA1QH4l5fqHdEVAAJxxR8W6ig0IID5AdHIpls9CPUB6Spl7785PQACfcUcWe5S1detQQLrIFOh9iFBA5NrHVC23YUAAonFHPP5W0GWWWEBWTOssxfRYQOkaxEWhVmlAAKVxR7Q43dMdTWZAFe/JdwM3aED83\u002BpjefR1QACocUdjZPhL5f9sQKMzdJkuInBAFGcDzLPde0AAq3FHUwDiNnJtdkC7gTyLv7x5QEu8HwXdpYRAAK5xR2LGPxrPfXtAS61VpUXof0A3Lo0mxMaIQACxcUdoMK\u002BNqdqCQC2LCnm/LoZAO1RCSFyKkEAAtHFHk5TLsb7siEBIRsWYW5mNQF229TjnSJVAALdxR/7LGqIc9YtAvgEL1SinkEBiDjJc6LKXQAC6cUeUXOgcT4eRQMy9fd3RBJVAYhDYMv8inUAAvXFHwF3Ep783k0DMlHFHuBiXQELWHD\u002BtyZ9AAMBxR96ij55/55ZAQU69HHinm0AgcsOV9rGiQADDcUe4DbKXg66YQN/30o6R2Z1Aqhhj1\u002BcQpEAAxnFHQqRrkcmKnEC4iO0LNVGhQOddtHlxAKdAAMlxR8plORymd55AtWiEPP6CokCD6jMmwH6oQADMcUfpuIDQL1ShQAKb9YJII6VAJdeBNe\u002Bwq0AAz3FHVCHq/81ZokAKV97p\u002BWqmQIF0RpBXQq1AANJxR52sHL1vZKRApze96U33qEALLfEJFiWwQADVcUerLXpXvHmlQGWu66mdT6pArmZQpj/tsEAA2HFHerV/zMSLp0DDYLERXtusQAnAbwqiZrJAANtxR\u002B0v5tZasahAzhIz0kxCrkAFUNNKuDCzQADecUdjAqyIrLOqQAAAAJx\u002BV7BA8P//sEiVtEAA4XFHMZP3DsO3rEDqFgOP/4qxQK2dpmx857VAAORxR8W8c\u002BoQla1Aw8I/I4cMskBp2Q5iYXq2QADncUfLXk4TGmOvQKn2GN74F7NAInduugKdt0AA6nFHZsOp5BYYsEDDoR6vcIyzQATaFSfZG7hAAO1xR\u002B7ltEaO2bBAgfkynOtjtEBt0CrBjv64QADwcUdhMe7pHC2xQKbeWSGmvrRA1gMUm6VcuUAA83FHt5CS9NbCsUCkynq\u002BgFq1QGFjfs4i\u002BLlAAPZxR0zl6yiG/7FAhcXZWeaWtUDFVSohDDS6QAD5cUfAvPlVeWayQCWDYcy/\u002BLVAm5f1RyOPukAA/HFH3jkt8XGOskB52Yw1LB22QE4p54IksrpAAP9xR2H2oDcv07JAyd1GJPdZtkD77CV39em6QAACckfsja7\u002BV\u002B\u002ByQNHHB7T\u002BcbZARXDsLNb/ukAABXJHUxGNB\u002B0Xs0DagyZ82ZO2QAOheuAZIbtAAAhyR5vIR3aDJ7NAzZvThJ\u002BftkB4wKwXCy27QAALckcwdlMdMz2zQF75RA12sbZAVGYeNH4\u002Bu0AADnJHJv1Q1J1Fs0Aid4gC2be2QOXFL6CORLtAABFyR9dbRV5kUbNABp873trBtkD5I8M9wE27QAAUckeKGlxXPlazQKAbwDIOxrZA0bCWJwFSu0AAF3JHA5JyscBcs0ALCOvvKcy2QB6OyM5mV7tAABpyR3D/ixedX7NAl5ybl\u002B3OtkAJj2KsiVm7QAAdckef7DRiDGSzQB3zVtQE07ZAky/aBl1eu0AAIHJHQRM2d6dns0BhS9nhdda2QAjikLNFYrtAACNyRyvusVXmaLNACdnTWwfYtkBimqLa6WO7QAAmckcdtfGvDmuzQAr8UQE62rZA0wpQYj9lu0AAKXJHTTSiEthrs0AAAACQeNu2QLcmgczgZbtAACxyR/Z4aw1AbbNADrBJ643ctkC11u22q2e7QAAvckcp\u002Be/G9W2zQNqvCZT93LZAv\u002Bp2hx5pu0AAMnJHCTL/3xJvs0BmeYlRXd62QN5oxUBZabtAADVyR9uT7mlob7NAdHNIumnetkCOB9gPXGq7QAA4cke0cYIjR3CzQBsOnre037ZAKJPzgt1ru0AAO3JHdNYKnXxws0B7sorkm9\u002B2QAtTTvEmbLtAAD5yR0hGLCkbcbNAMNVmmIPgtkC\u002BNxhhcGy7QABBckfhIT9ue3GzQCqPiQxG4bZApYL0EBttu0AARHJHJ1eSjdpys0BYbfI9eOK2QHatBw23bbtAAEdyR5khy0m5c7NAUDSNrjrjtkBiydZpk267QABKckdXidDNK3WzQGHpv7475bZAeifGvUNxu0AATXJHAAGVr991s0AEEZnbL\u002Ba2QJBE90nCcbtAAFByR8tqV0iAdrNA4uqOirjmtkAMQY2P63C7QABTckeLnH9/3nazQJR4FRti57ZACTuLMpZxu0AAVnJHqbmjSVR3s0BLYEsVGOi2QHQmXHoacrtAAFlyR9EgwbRpd7NAyJIGOv/ntkASBOLNeHG7QABcckeGEi3/XnezQMZ3OojF57ZAomhYcFJxu0AAX3JH8pd4Fcl2s0CztlEdrOa2QDkEDNx4b7tAAGJyRxPywLKVdrNAO4zY98TmtkAd66ZxOG27QABnckdpkGT5tnWzQNRrhVIv5bZAbTUkoJRku0AAanJHvDuGGSF1s0A0R3LKLuS2QBG0\u002BL50XLtAAG1yR5dwfSdacrNAL8jomwvgtkCR4dtmgym7QABwcke0cYIjR3CzQJ33Iou/3LZAXxHzTlH\u002BukAAc3JHjqyt6XVls0BlQpu9ZMa2QEhp8L1jdbpAAHZyR3W0EMbNWrNAon8\u002BAIGutkDI6hi\u002Bfx66QAB5ckf0fL77IjGzQCF9jcnrXLZAYmqnEKJauUAAfHJHzOiIWvkOs0BPQazvFCK2QO\u002Bo5WES5bhAAH9yRzL5a38wr7JAQMg0rNuNtUCiRIZjNt\u002B3QACCckc\u002B7jUW2HCyQMsmGD90MbVA7DKfu1pKt0AAhXJHWVmxpszdsUA6\u002BOKDDmK0QBZHKUhgCrZAAIhyRwXqY8Qsg7FAgt0dE5Pks0BRn6o1u1O1QACLckd8HPm5f8ywQCH9JQEk7bJApk\u002BE5EHzs0AAjnJHNCsZ5E5nsED0dm/KXWWyQOwRf9VCObNAAJFyR4\u002B1hXPcNa9AAAAAcAhYsUCEM8zHPM\u002BxQACUckf6OmYwfUqtQLOCgdL/FrBAu5tHjYEysEAAl3JHgyhQv1dnrEBWNCyLqgmvQDxikf55265AAJpyRwd1oT3AZ6pAJhz9c7F3rECdcYYtOI\u002BrQACdckdu7C/vD3epQOIlAmukQqtACNDKx/v7qUAAoHJHdk967S1Rp0A1JTLnM3OoQKTga\u002BLqoaZAAKNyR4PMPG2zRaZAzaBNq7AUp0Cy23yUFgalQACmckfgNAylEQCkQIHeqWs5MKRAz2te6ybKoUAAqXJHRWVSLcD2okAQHN/HQeiiQMPIoyddWaBAAKxyR45Fiz5ir6BA6IgVzmApoEA/hQg/IuOaQACvckcOvVjWnSyfQF5qkZuEuZ1ASnf1yBUtmEAAsnJHZd801COumkCUKWvWlImYQETm2NHQCZNAALVyRw96KDZMkphACoSd//AplkAZmENBr7qQQAC4cke1MmODwH\u002BUQJPLRpPLuJFAp0wKwWZCiUAAu3JH\u002Bdoe7iR4kkDgwZ4zZiWPQD5tQS\u002BBfYVAAL5yR\u002BPwvEhNpo1A\u002BmJBpy\u002B2h0BGv/Ie3Nt\u002BQADBckc9poQv/ieKQAHWKNCqR4RAwr7ceXHUeUAAxHJHR4Z\u002BFAsrhED0ChTg54t9QCGZL9GJf3JAAMdyR1nLMupWR4FAjWqJtS2deECCG52bgDdvQADKckdJitFvFsl5QAN1\u002B\u002BtQ0nFAFW3dtk12Z0AAzXJHRZCHPC6MdUB97LDWda5tQJBiV5\u002BMU2RAANByR8gdTPfqAG9A6Yu6G2vaZUAFTnFgyAZgQADTckfKbS0slRVmQIutbhFFjWBATchTKEcJWkAA1nJHE3pq5mnzYkDUOZZ9VI1dQPMggMwT4ldAANlyR1QsVGC7NFxAEe6eXg0EWECZR1rAu0FUQADcckfEwOkbMctYQPPA888zD1ZAxvJNwHHhUkAA33JHMhYe/M5nU0DhaZhjQLlSQNYvhEC5gFBAAOJyR\u002B0XVm5Fc1FACRUj9oVmUUBbEIw7WBFPQADlckfxkn7MasZMQCNRMjlPZ05AEILiO7O1S0AA6HJHbwa7/k\u002BLSkAKtviu1spMQLrNrQV\u002BUEpAAOtyR4EjTX6z2EZA5jKJAzfYSUACo2b95vFHQADuckdJ\u002BPVbW19FQBtiZL\u002B\u002BpEhA1\u002BMUBU/7RkAA8XJHGkAN\u002BC/nQkD3/\u002BuSAoNGQNEeJN2wKUVAAPRyR8ljiAkJ0EFABjzS7FilRUArhq6J9k1EQAD3ckfo0K1Iqfk/QNPifjHbEERADRC4rE/fQkAA\u002BnJH1gbtQ1xtPkDc\u002BoWraWNDQOnJsJ54MkJAAP1yRy0ReM92ojtAWZcRxIkQQkDvkteoXvBAQAAAc0fc\u002BNPmxFI6QImMp92YbUFAEPmyh/t5QEAAA3NHed7xfTcvOEC4w6EzcndAQHZ8rzZJ4D5AAAZzR8py8KC0ITdA4et2lHHwP0AiItYobvA9QAAJc0dMJ33Lx3A1QFqZCmw5Rz5A3DFTBNdlPEAADHNHtvDOMlGgNED3uoq7W449QMoOYznFZTtAAA9zR5QYEvPORjNAIk79oVVDPECs1VSAGl86QAASc0dp5SxylI0yQJgEg5QKjztABXCxc2apOUAAFXNHyJBeXOhXMUBEyY8E9FQ6QC5G5ySJhThAABhzR1SwhiOvNzBAbUkVzk0iOUDJgsyWeHU3QAAbc0dm0nfkE20vQCLKM6uCqzhAgIFtoZnqNkAAHnNHXaR3yvB2LUCs8AGRqLM3QAaKn/84EDZAACFzR6LxGokKlCxAWPgotmE8N0D1rXocdZY1QAAkc0ekZEd5etYqQMtqxjF\u002BTTZAnqlswxWSNEAAJ3NHwJ/RhggZKkBEFJaAJQU2QIi/mSeTMDRAACpzR5Q5Yw3XjihA\u002B1eOUyFENUB0SnrT9pozQAAtc0e8NnCky9onQDmUNWdp2jRATyAyMg0LM0AAMHNHf6kvkolhJkBJ1cEDRhM0QMMdm4YubDJAADJzR/sNUK3YuiVAVkQ\u002B31/SM0B148U/9/sxQA=="
+    },
+    "CPlotInfo": {
+      "x10": 1,
+      "x20": 0,
+      "x14": 1,
+      "x18": 1,
+      "x1c": 1,
+      "right_left_factor": 10000,
+      "background_color": "#ffffff",
+      "labels_color": "#000000",
+      "x38": 1,
+      "x3c": 14,
+      "font": "Arial",
+      "x_label": "High Voltage",
+      "y_label": "Intensity",
+      "trace": "Ratio",
+      "CTraceInfo": {
+        "x04": 16777215,
+        "n_traces": 3,
+        "CTraceInfoEntry": [
+          {
+            "idx": 0,
+            "x05": "/w==",
+            "trace_color": "#800000",
+            "x0c": 0,
+            "x10": 0,
+            "x14": 1
+          },
+          {
+            "idx": 1,
+            "x05": "/w==",
+            "trace_color": "#008000",
+            "x0c": 0,
+            "x10": 0,
+            "x14": 1
+          },
+          {
+            "idx": 2,
+            "x05": "/w==",
+            "trace_color": "#000080",
+            "x0c": 0,
+            "x10": 0,
+            "x14": 1
+          }
+        ],
+        "trace_labels": [
+          "Mass  44.00 [C3]",
+          "Mass  45.00 [C4]",
+          "Mass  46.00 [C6]"
+        ]
+      },
+      "CPlotRange": [
+        {
+          "xmin": 9.399709701538086,
+          "xmax": 9.499961853027344,
+          "ymin": -1.6508411428680092,
+          "ymax": 7026.103429564846
+        },
+        {
+          "xmin": 9.399709701538086,
+          "xmax": 9.499961853027344,
+          "ymin": -353.0385546782537,
+          "ymax": 7377.491143100232
+        }
+      ],
+      "x08": 1,
+      "x0c": 0,
+      "plot_range_zoom2": {
+        "xmin": 9.399709701538086,
+        "xmax": 9.499961853027344,
+        "ymin": -353.0385546782537,
+        "ymax": 7377.491143100232
+      },
+      "plot_range2": {
+        "xmin": 9.399709701538086,
+        "xmax": 9.499961853027344,
+        "ymin": -1.6508411428680092,
+        "ymax": 7026.103429564846
+      },
+      "trace_labels": [
+        "Mass  44.00 [C3]",
+        "Mass  45.00 [C4]",
+        "Mass  46.00 [C6]"
+      ]
+    },
+    "timestamp_start": "2020-01-22T22:37:01.0000000\u002B00:00",
+    "timestamp_end": "2020-02-10T04:09:11.0000000\u002B00:00",
+    "x100": 0,
+    "x104": 0,
+    "x108": "Administrator",
+    "CScaleHvScanPart": {
+      "p": {
+        "p": {
+          "l": "",
+          "v": "Isotope MS/Integration Unit@Isotope MS/ScaleHv@456456"
+        },
+        "CScaleHvHardwarePart": {
+          "p": {
+            "p": {
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ScaleHv",
+                  "v": "High Voltage"
+                },
+                "CFinniganInterface": {
+                  "p": {
+                    "l": "",
+                    "v": "Delta"
+                  },
+                  "x9c": 1794,
+                  "xa0": 1538,
+                  "xa4": false,
+                  "is_fake": false,
+                  "xac": false
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [24, 8323072, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "Arial",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 10000,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "units": "KV",
+              "min_step": 0,
+              "max_step": 65535,
+              "format_mask": 3,
+              "x124": 0,
+              "x128": 0,
+              "x130": 0,
+              "x134": 0,
+              "x140": 0,
+              "x144": 16776959,
+              "x148": 0,
+              "x14c": 0,
+              "x150": 15,
+              "x154": "",
+              "x158": 0,
+              "x138": 0,
+              "x13c": 0,
+              "x15c": "",
+              "x160": 0,
+              "x164": 0,
+              "min_value": -10000,
+              "max_value": 10000
+            },
+            "x190": 0,
+            "x191": 0,
+            "x192": 0,
+            "x193": 0,
+            "format": "%.4f"
+          },
+          "x198": 10
+        },
+        "range_start": 0,
+        "range_end": 5000,
+        "step": 1
+      },
+      "start": 61602,
+      "stop": 62258,
+      "step": 3,
+      "delay": 0
+    },
+    "CIntegrationUnitScanPart": {
+      "p": {
+        "p": {
+          "l": "",
+          "v": ""
+        },
+        "CIntegrationUnitHardwarePart": {
+          "p": {
+            "p": {
+              "p": {
+                "l": "Isotope MS/Integration Unit",
+                "v": "Intensity"
+              },
+              "CFinniganInterface": {
+                "p": {
+                  "l": "",
+                  "v": "Delta"
+                },
+                "x9c": 0,
+                "xa0": 0,
+                "xa4": false,
+                "is_fake": false,
+                "xac": false
+              },
+              "has_c_gas_conf_part": true,
+              "CIntegrationUnitGasConfPart": {
+                "p": {
+                  "l": "Isotope MS/Integration Unit",
+                  "v": "IntegrationUnit"
+                },
+                "n_configs": 3,
+                "CChannelGasConfPart": [
+                  {
+                    "idx": 1,
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "cup": 2,
+                    "mass": 44,
+                    "xa8": 1,
+                    "xb0": false,
+                    "xb4": false,
+                    "xb8": 0
+                  },
+                  {
+                    "idx": 2,
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "cup": 3,
+                    "mass": 45,
+                    "xa8": 1,
+                    "xb0": false,
+                    "xb4": false,
+                    "xb8": 0
+                  },
+                  {
+                    "idx": 3,
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "cup": 4,
+                    "mass": 46,
+                    "xa8": 1,
+                    "xb0": false,
+                    "xb4": false,
+                    "xb8": 0
+                  }
+                ]
+              },
+              "has_c_method_part": false,
+              "has_extra_c_data": true,
+              "CCalibration": {
+                "p": {
+                  "p": {
+                    "l": "JB SP 11.01.02",
+                    "v": "JB SP 11.01.02"
+                  },
+                  "n_objects": 3,
+                  "objects": {
+                    "CCalibrationPoint": [
+                      {
+                        "idx": 1,
+                        "p": {
+                          "l": "Mass 12.00",
+                          "v": "0. Point"
+                        },
+                        "x94": 4447,
+                        "x98": 12,
+                        "xa0": 9255.134582519531,
+                        "xa8": 0
+                      },
+                      {
+                        "idx": 2,
+                        "p": {
+                          "l": "Mass 28.00",
+                          "v": "1. Point"
+                        },
+                        "x94": 7764,
+                        "x98": 28,
+                        "xa0": 50000,
+                        "xa8": 0
+                      },
+                      {
+                        "idx": 3,
+                        "p": {
+                          "l": "Mass 44.00",
+                          "v": "2. Point"
+                        },
+                        "x94": 10316,
+                        "x98": 44,
+                        "xa0": 50000,
+                        "xa8": 0
+                      }
+                    ]
+                  }
+                },
+                "cal_type": 3,
+                "description": "Administrator",
+                "xb0": "2002-01-11T11:59:18.0000000\u002B00:00",
+                "xbc": 58734,
+                "xc0": 255
+              },
+              "xac": false,
+              "xb0": true,
+              "xb4": false,
+              "xb8": false,
+              "CVisualisationData": {
+                "p": {
+                  "p": {
+                    "l": "",
+                    "v": ""
+                  },
+                  "n_objects": 0,
+                  "objects": {}
+                },
+                "plot_rect": [0, 0, 100, 100],
+                "trace_flags": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+                "plot_flags": [24, 8323072, 1, 0, 0, 0, 0, 0, 0, 0],
+                "font": "Arial",
+                "x10c": "",
+                "x110": "",
+                "x120": 0,
+                "x124": 0,
+                "x148": "",
+                "x11c": 14215660,
+                "x128": 0,
+                "x12c": 0
+              },
+              "xc8": 10000,
+              "xbc": 0,
+              "xa4": ""
+            },
+            "units": "mV",
+            "min_step": 0,
+            "max_step": 50000,
+            "format_mask": 3,
+            "x124": 0,
+            "x128": 0,
+            "x130": 0,
+            "x134": 0,
+            "x140": 0,
+            "x144": 16776959,
+            "x148": 0,
+            "x14c": 0,
+            "x150": 15,
+            "x154": "",
+            "x158": 0,
+            "x138": 0,
+            "x13c": 0,
+            "x15c": "",
+            "x160": 0,
+            "x164": 0,
+            "min_value": -10000,
+            "max_value": 10000
+          },
+          "x194": 0,
+          "x198": 0,
+          "x19c": 125,
+          "x1a0": 0,
+          "x199": 8,
+          "x190": 10,
+          "n_integration_times": 27,
+          "integration_times": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000],
+          "n_cups": 10,
+          "CCupHardwarePart": [
+            {
+              "idx": 1,
+              "p": {
+                "p": {
+                  "l": "                    Cup 1                    ",
+                  "v": "Cup 1"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 1000000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 2,
+              "p": {
+                "p": {
+                  "l": "   Cup 2   ",
+                  "v": "Cup 2"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 300000000,
+              "x138": 2.5,
+              "x130": 300000000
+            },
+            {
+              "idx": 3,
+              "p": {
+                "p": {
+                  "l": "      Cup 3      ",
+                  "v": "Cup 3"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 300000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 4,
+              "p": {
+                "p": {
+                  "l": "     Cup 4     ",
+                  "v": "Cup 4"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 1,
+              "resistor": 30000000000,
+              "x138": 0,
+              "x130": 1000000000
+            },
+            {
+              "idx": 5,
+              "p": {
+                "p": {
+                  "l": "    Cup 5    ",
+                  "v": "Cup 5"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 100000000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 6,
+              "p": {
+                "p": {
+                  "l": "   Cup 6   ",
+                  "v": "Cup 6"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 100000000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 7,
+              "p": {
+                "p": {
+                  "l": "    Cup 7    ",
+                  "v": "Cup 7"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 100000000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 8,
+              "p": {
+                "p": {
+                  "l": "    Cup 8    ",
+                  "v": "Cup 8"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 1,
+              "resistor": 1000000000000,
+              "x138": 0,
+              "x130": 0
+            },
+            {
+              "idx": 9,
+              "p": {
+                "p": {
+                  "l": "     Cup 9     ",
+                  "v": "Cup 9"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 2,
+              "resistor": 1000000000,
+              "x138": 2.5,
+              "x130": 0
+            },
+            {
+              "idx": 10,
+              "p": {
+                "p": {
+                  "l": "     Cup 10     ",
+                  "v": "Cup 10"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "mode": 1,
+              "resistor": 1000000000000,
+              "x138": 0,
+              "x130": 0
+            }
+          ],
+          "n_channels": 10,
+          "CChannelHardwarePart": [
+            {
+              "idx": 1,
+              "p": {
+                "p": {
+                  "l": "Channel 1",
+                  "v": "Channel 1"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 2,
+              "p": {
+                "p": {
+                  "l": "Channel 2",
+                  "v": "Channel 2"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 3,
+              "p": {
+                "p": {
+                  "l": "Channel 3",
+                  "v": "Channel 3"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 4,
+              "p": {
+                "p": {
+                  "l": "Channel 4",
+                  "v": "Channel 4"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 5,
+              "p": {
+                "p": {
+                  "l": "Channel 5",
+                  "v": "Channel 5"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 6,
+              "p": {
+                "p": {
+                  "l": "Channel 6",
+                  "v": "Channel 6"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 7,
+              "p": {
+                "p": {
+                  "l": "Channel 7",
+                  "v": "Channel 7"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 8,
+              "p": {
+                "p": {
+                  "l": "Channel 8",
+                  "v": "Channel 8"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 9,
+              "p": {
+                "p": {
+                  "l": "Channel 9",
+                  "v": "Channel 9"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            },
+            {
+              "idx": 10,
+              "p": {
+                "p": {
+                  "l": "Channel 10",
+                  "v": "Channel 10"
+                },
+                "CBasicInterface": {
+                  "l": "",
+                  "v": "Undefined"
+                },
+                "has_c_gas_conf_part": false,
+                "has_c_method_part": false,
+                "has_extra_c_data": false,
+                "xac": false,
+                "xb0": true,
+                "xb4": false,
+                "xb8": true,
+                "CVisualisationData": {
+                  "p": {
+                    "p": {
+                      "l": "",
+                      "v": ""
+                    },
+                    "n_objects": 0,
+                    "objects": {}
+                  },
+                  "plot_rect": [0, 0, 100, 100],
+                  "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                  "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                  "font": "",
+                  "x10c": "",
+                  "x110": "",
+                  "x120": 0,
+                  "x124": 0,
+                  "x148": "",
+                  "x11c": 14215660,
+                  "x128": 0,
+                  "x12c": 0
+                },
+                "xc8": 0,
+                "xbc": 0,
+                "xa4": ""
+              },
+              "x120": 0,
+              "x124": 0
+            }
+          ],
+          "x1a8": true,
+          "x1ac": false
+        },
+        "range_start": 0,
+        "range_end": 0,
+        "step": 1
+      },
+      "integ_time": 100,
+      "xc4": 8
+    },
+    "xd8": 0,
+    "xdc": 0,
+    "xe0": 62016,
+    "CGasConfiguration": {
+      "p": {
+        "p": {
+          "l": "",
+          "v": "CO2"
+        },
+        "n_objects": 29,
+        "objects": {
+          "CBasicScan": {
+            "idx": 1,
+            "p": {
+              "l": "Peak Center",
+              "v": "Peak Center"
+            },
+            "CScaleHvScanPart": {
+              "p": {
+                "p": {
+                  "l": "",
+                  "v": "Isotope MS/Integration Unit@Isotope MS/ScaleHv@"
+                },
+                "CScaleHvHardwarePart": {
+                  "p": {
+                    "p": {
+                      "p": {
+                        "p": {
+                          "l": "Isotope MS/ScaleHv",
+                          "v": "High Voltage"
+                        },
+                        "CFinniganInterface": {
+                          "p": {
+                            "l": "",
+                            "v": "Delta"
+                          },
+                          "x9c": 1794,
+                          "xa0": 1538,
+                          "xa4": false,
+                          "is_fake": false,
+                          "xac": false
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [24, 8323072, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "Arial",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 14215660,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 10000,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "units": "KV",
+                      "min_step": 0,
+                      "max_step": 65535,
+                      "format_mask": 3,
+                      "x124": 0,
+                      "x128": 0,
+                      "x130": 0,
+                      "x134": 0,
+                      "x140": 0,
+                      "x144": 16776959,
+                      "x148": 0,
+                      "x14c": 0,
+                      "x150": 15,
+                      "x154": "",
+                      "x158": 0,
+                      "x138": 0,
+                      "x13c": 0,
+                      "x15c": "",
+                      "x160": 0,
+                      "x164": 0,
+                      "min_value": -10000,
+                      "max_value": 10000
+                    },
+                    "x190": 0,
+                    "x191": 0,
+                    "x192": 0,
+                    "x193": 0,
+                    "format": "%.4f"
+                  },
+                  "x198": 3.3
+                },
+                "range_start": 0,
+                "range_end": 0,
+                "step": 1
+              },
+              "start": 0,
+              "stop": 2184,
+              "step": 39,
+              "delay": 0
+            },
+            "CIntegrationUnitScanPart": {
+              "p": {
+                "p": {
+                  "l": "",
+                  "v": ""
+                },
+                "CIntegrationUnitHardwarePart": {
+                  "p": {
+                    "p": {
+                      "p": {
+                        "l": "Isotope MS/Integration Unit",
+                        "v": "Integration Unit"
+                      },
+                      "CGpibInterface": {
+                        "p": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "x9c": 26,
+                        "x9d": 0,
+                        "x9e": 0
+                      },
+                      "has_c_gas_conf_part": true,
+                      "CIntegrationUnitGasConfPart": {
+                        "p": {
+                          "l": "Isotope MS/Integration Unit",
+                          "v": "IntegrationUnit"
+                        },
+                        "n_configs": 3,
+                        "CChannelGasConfPart": [
+                          {
+                            "idx": 1,
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "cup": 1,
+                            "mass": 44,
+                            "xa8": 0,
+                            "xb0": false,
+                            "xb4": false,
+                            "xb8": 0
+                          },
+                          {
+                            "idx": 2,
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "cup": 2,
+                            "mass": 45,
+                            "xa8": 0,
+                            "xb0": false,
+                            "xb4": false,
+                            "xb8": 0
+                          },
+                          {
+                            "idx": 3,
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "cup": 3,
+                            "mass": 46,
+                            "xa8": 0,
+                            "xb0": false,
+                            "xb4": false,
+                            "xb8": 0
+                          }
+                        ]
+                      },
+                      "has_c_method_part": false,
+                      "has_extra_c_data": false,
+                      "xac": false,
+                      "xb0": true,
+                      "xb4": false,
+                      "xb8": true,
+                      "CVisualisationData": {
+                        "p": {
+                          "p": {
+                            "l": "",
+                            "v": ""
+                          },
+                          "n_objects": 0,
+                          "objects": {}
+                        },
+                        "plot_rect": [0, 0, 100, 100],
+                        "trace_flags": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+                        "plot_flags": [24, 8323072, 1, 0, 0, 0, 0, 0, 0, 0],
+                        "font": "Arial",
+                        "x10c": "",
+                        "x110": "",
+                        "x120": 0,
+                        "x124": 0,
+                        "x148": "",
+                        "x11c": 12632256,
+                        "x128": 0,
+                        "x12c": 0
+                      },
+                      "xc8": 10000,
+                      "xbc": 0,
+                      "xa4": ""
+                    },
+                    "units": "mV",
+                    "min_step": 0,
+                    "max_step": 14000,
+                    "format_mask": 3,
+                    "x124": 0,
+                    "x128": 0,
+                    "x130": 0,
+                    "x134": 0,
+                    "x140": 1,
+                    "x144": 16776959,
+                    "x148": 0,
+                    "x14c": 0,
+                    "x150": 15,
+                    "x154": "",
+                    "x158": 0,
+                    "x138": 0,
+                    "x13c": 0,
+                    "x15c": "",
+                    "x160": 0,
+                    "x164": 0,
+                    "min_value": -10000,
+                    "max_value": 10000
+                  },
+                  "x194": 0,
+                  "x198": 1,
+                  "x19c": 1000,
+                  "x1a0": 0,
+                  "x199": 8,
+                  "x190": 3,
+                  "n_integration_times": 9,
+                  "integration_times": [62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000],
+                  "n_cups": 8,
+                  "CCupHardwarePart": [
+                    {
+                      "idx": 1,
+                      "p": {
+                        "p": {
+                          "l": "Cup 1",
+                          "v": "Cup 1"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 2,
+                      "resistor": 300000000,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 2,
+                      "p": {
+                        "p": {
+                          "l": "Cup 2",
+                          "v": "Cup 2"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 1,
+                      "resistor": 30000000000,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 3,
+                      "p": {
+                        "p": {
+                          "l": "Cup 3",
+                          "v": "Cup 3"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 2,
+                      "resistor": 100000000000,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 4,
+                      "p": {
+                        "p": {
+                          "l": "Cup 4",
+                          "v": "Cup 4"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 2,
+                      "resistor": 200,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 5,
+                      "p": {
+                        "p": {
+                          "l": "Cup 5",
+                          "v": "Cup 5"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 1,
+                      "resistor": 200,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 6,
+                      "p": {
+                        "p": {
+                          "l": "Cup 6",
+                          "v": "Cup 6"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 2,
+                      "resistor": 200,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 7,
+                      "p": {
+                        "p": {
+                          "l": "Cup 7",
+                          "v": "Cup 7"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 1,
+                      "resistor": 200,
+                      "x138": 0,
+                      "x130": 0
+                    },
+                    {
+                      "idx": 8,
+                      "p": {
+                        "p": {
+                          "l": "Cup 8",
+                          "v": "Cup 8"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "mode": 2,
+                      "resistor": 200000,
+                      "x138": 0,
+                      "x130": 0
+                    }
+                  ],
+                  "n_channels": 3,
+                  "CChannelHardwarePart": [
+                    {
+                      "idx": 1,
+                      "p": {
+                        "p": {
+                          "l": "Channel 1",
+                          "v": "Channel 1"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "x120": 0,
+                      "x124": 0
+                    },
+                    {
+                      "idx": 2,
+                      "p": {
+                        "p": {
+                          "l": "Channel 2",
+                          "v": "Channel 2"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "x120": 0,
+                      "x124": 0
+                    },
+                    {
+                      "idx": 3,
+                      "p": {
+                        "p": {
+                          "l": "Channel 3",
+                          "v": "Channel 3"
+                        },
+                        "CBasicInterface": {
+                          "l": "",
+                          "v": ""
+                        },
+                        "has_c_gas_conf_part": false,
+                        "has_c_method_part": false,
+                        "has_extra_c_data": false,
+                        "xac": false,
+                        "xb0": true,
+                        "xb4": false,
+                        "xb8": true,
+                        "CVisualisationData": {
+                          "p": {
+                            "p": {
+                              "l": "",
+                              "v": ""
+                            },
+                            "n_objects": 0,
+                            "objects": {}
+                          },
+                          "plot_rect": [0, 0, 100, 100],
+                          "trace_flags": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                          "plot_flags": [2, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+                          "font": "",
+                          "x10c": "",
+                          "x110": "",
+                          "x120": 0,
+                          "x124": 0,
+                          "x148": "",
+                          "x11c": 12632256,
+                          "x128": 0,
+                          "x12c": 0
+                        },
+                        "xc8": 0,
+                        "xbc": 0,
+                        "xa4": ""
+                      },
+                      "x120": 0,
+                      "x124": 0
+                    }
+                  ],
+                  "x1a8": true,
+                  "x1ac": false
+                },
+                "range_start": 0,
+                "range_end": 0,
+                "step": 1
+              },
+              "integ_time": 125,
+              "xc4": 8
+            },
+            "CBlockData": {
+              "p": {
+                "l": "",
+                "v": ""
+              },
+              "n_objects": 0,
+              "objects": {}
+            },
+            "x04": 15,
+            "xa4": 0,
+            "x94": 1
+          },
+          "CIntegrationUnitGasConfPart": {
+            "idx": 2,
+            "p": {
+              "l": "Isotope MS/Integration Unit",
+              "v": "IntegrationUnit"
+            },
+            "n_configs": 3,
+            "CChannelGasConfPart": [
+              {
+                "idx": 1,
+                "p": {
+                  "l": "",
+                  "v": ""
+                },
+                "cup": 3,
+                "mass": 44,
+                "xa8": 1,
+                "xb0": false,
+                "xb4": false,
+                "xb8": 0
+              },
+              {
+                "idx": 2,
+                "p": {
+                  "l": "",
+                  "v": ""
+                },
+                "cup": 4,
+                "mass": 45,
+                "xa8": 1,
+                "xb0": false,
+                "xb4": false,
+                "xb8": 0
+              },
+              {
+                "idx": 3,
+                "p": {
+                  "l": "",
+                  "v": ""
+                },
+                "cup": 6,
+                "mass": 46,
+                "xa8": 1,
+                "xb0": false,
+                "xb4": false,
+                "xb8": 0
+              }
+            ]
+          },
+          "CDioTransferPart": [
+            {
+              "idx": 3,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh0",
+                  "v": "Resitor Channel 1"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 4,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh1",
+                  "v": "Resitor Channel 2"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 5,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh2",
+                  "v": "Resitor Channel 3"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 6,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh3",
+                  "v": "Resitor Channel 4"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 1
+            },
+            {
+              "idx": 7,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh4",
+                  "v": "Resitor Channel 5"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 8,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh5",
+                  "v": "Resitor Channel 6"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 9,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh6",
+                  "v": "Resitor Channel 7"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 10,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh7",
+                  "v": "Resitor Channel 8"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 11,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh8",
+                  "v": "Resitor Channel 9"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            },
+            {
+              "idx": 12,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/ResistorCh9",
+                  "v": "Resitor Channel 10"
+                },
+                "x9c": 13240902,
+                "xa0": 0
+              },
+              "raw_value": 0
+            }
+          ],
+          "CPeakCenterOffset": {
+            "idx": 13,
+            "p": {
+              "l": "PeakCenterOffset"
+            },
+            "v": 0
+          },
+          "CMagnetCurrentTransferPart": {
+            "idx": 14,
+            "p": {
+              "p": {
+                "p": {
+                  "l": "Isotope MS/MagnetCurrent",
+                  "v": "MagnetCurrent"
+                },
+                "x9c": 0,
+                "xa0": 0
+              },
+              "raw_value": 5742
+            },
+            "xa8": true
+          },
+          "CCalibration": {
+            "idx": 15,
+            "p": {
+              "p": {
+                "l": "CO2_cal_13092016",
+                "v": "CO2_cal_13092016"
+              },
+              "n_objects": 3,
+              "objects": {
+                "CCalibrationPoint": [
+                  {
+                    "idx": 1,
+                    "p": {
+                      "l": "Mass 12.00",
+                      "v": "0. Point"
+                    },
+                    "x94": 1254,
+                    "x98": 12,
+                    "xa0": 19306,
+                    "xa8": 0
+                  },
+                  {
+                    "idx": 2,
+                    "p": {
+                      "l": "Mass 28.00",
+                      "v": "1. Point"
+                    },
+                    "x94": 3773,
+                    "x98": 28,
+                    "xa0": 44150,
+                    "xa8": 0
+                  },
+                  {
+                    "idx": 3,
+                    "p": {
+                      "l": "Mass 44.00",
+                      "v": "2. Point"
+                    },
+                    "x94": 5638,
+                    "x98": 44,
+                    "xa0": 50000,
+                    "xa8": 0
+                  }
+                ]
+              }
+            },
+            "cal_type": 4,
+            "description": "Administrator",
+            "xb0": "2016-09-13T10:17:54.0000000\u002B00:00",
+            "xbc": 62258,
+            "xc0": 255
+          },
+          "CMolecule": {
+            "idx": 16,
+            "p": {
+              "l": "",
+              "v": ""
+            },
+            "molecule": "CO2"
+          },
+          "CCalculatingDacTransferPart": [
+            {
+              "idx": 17,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Trap",
+                  "v": "Trap"
+                },
+                "x9c": 513401233,
+                "xa0": 0
+              },
+              "raw_value": 791
+            },
+            {
+              "idx": 18,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Electron Energy",
+                  "v": "Electron Energy"
+                },
+                "x9c": 513401234,
+                "xa0": 0
+              },
+              "raw_value": 268
+            },
+            {
+              "idx": 19,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Emission",
+                  "v": "Emission"
+                },
+                "x9c": 513401234,
+                "xa0": 0
+              },
+              "raw_value": 3072
+            },
+            {
+              "idx": 20,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Extraction",
+                  "v": "Extraction"
+                },
+                "x9c": 513401235,
+                "xa0": 0
+              },
+              "raw_value": 901
+            },
+            {
+              "idx": 21,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Shield",
+                  "v": "Shield"
+                },
+                "x9c": 513401235,
+                "xa0": 0
+              },
+              "raw_value": 2709
+            },
+            {
+              "idx": 22,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/R-Plate",
+                  "v": "R-Plate"
+                },
+                "x9c": 513401236,
+                "xa0": 0
+              },
+              "raw_value": 2292
+            },
+            {
+              "idx": 23,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Einzel-Lens",
+                  "v": "Einzel-Lens"
+                },
+                "x9c": 513401255,
+                "xa0": 0
+              },
+              "raw_value": 1988
+            },
+            {
+              "idx": 24,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Einzel-Lens Symmetry",
+                  "v": "Einzel-Lens Symmetry"
+                },
+                "x9c": 513401272,
+                "xa0": 0
+              },
+              "raw_value": 2410
+            },
+            {
+              "idx": 25,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/X-Focus",
+                  "v": "X-Focus"
+                },
+                "x9c": 513401290,
+                "xa0": 0
+              },
+              "raw_value": 1287
+            },
+            {
+              "idx": 26,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/X-Focus Symmetry",
+                  "v": "X-Focus Symmetry"
+                },
+                "x9c": 513401307,
+                "xa0": 0
+              },
+              "raw_value": 1911
+            },
+            {
+              "idx": 27,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Y-Deflection",
+                  "v": "Y-Deflection"
+                },
+                "x9c": 513401325,
+                "xa0": 0
+              },
+              "raw_value": 3830
+            },
+            {
+              "idx": 28,
+              "p": {
+                "p": {
+                  "l": "Isotope MS/Y-Deflection Symmetry",
+                  "v": "Y-Deflection Symmetry"
+                },
+                "x9c": 513401342,
+                "xa0": 0
+              },
+              "raw_value": 2313
+            }
+          ],
+          "CScaleHvTransferPart": {
+            "idx": 29,
+            "p": {
+              "p": {
+                "l": "Isotope MS/ScaleHv",
+                "v": "Isotope MS/ScaleHv"
+              },
+              "x9c": -1798439976,
+              "xa0": 0
+            },
+            "raw_value": 62016
+          }
+        }
+      },
+      "timestamp": "2019-12-05T18:28:11.0000000\u002B00:00"
+    },
+    "n_peak_list": 0,
+    "n_graphic_info": 0,
+    "n_custom": 0
+  }
+}
