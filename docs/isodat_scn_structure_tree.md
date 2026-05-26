@@ -1,5 +1,7 @@
 > This is an example of a scan `scn` file structure tree (generated with the `--tree` flag of `isoextract`) from the `scan_HV_ex01.scn` test file.
 
+> The headings and indentation represent the nested object tree; the `v1,2,3,..` the version number of the class serialization routine used in the file; the `0x8c8` the hexadecimal location marker where the object starts in the binary data file; and the `"value"` at the end the object value (if it has one). The data contained in each of these objects is represented in the same hierarchical structure in the `.json` files that `isoextract` generates.
+
 # CScanStorage v6 0x0
 - ## CBinary v2 0x3c
 - ## CBinary v2 0x7b65

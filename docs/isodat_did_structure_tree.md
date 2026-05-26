@@ -1,4 +1,7 @@
-> This is an example of a dual inlet `did` file structure tree (generated with the `--tree` flag of `isoextract`) from the `di_CO2_ex01.did` test file.
+> This is an example of a dual inlet `did` file structure tree (generated with the `--tree` flag of `isoextract`) from the `di_CO2_ex01.did` test file. 
+
+> The headings and indentation represent the nested object tree; the `v1,2,3,..` the version number of the class serialization routine used in the file; the `0x8c8` the hexadecimal location marker where the object starts in the binary data file; and the `"value"` at the end the object value (if it has one). The data contained in each of these objects is represented in the same hierarchical structure in the `.json` files that `isoextract` generates.
+
 
 # CFileHeader v6 0x0 "File Header"
 - ## 1/2: CTimeObject v1 0xbf "Date"
