@@ -1,5 +1,4 @@
 PROJECT := src/IsofileExtractor.csproj
-TEST_FILE := tests/data/scn
 
 DOCKER    := mcr.microsoft.com/dotnet/sdk:8.0
 UNAME     := $(shell uname -s)
@@ -18,9 +17,10 @@ endif
 
 # ── Development ───────────────────────────────────────────────────────────────
 
-# Rebuild and rerun on every file save
+# Rebuild and rerun on src file save
+TEST_FILE := tests/data/scn
 dev:
-	dotnet watch --project $(PROJECT) run -- $(TEST_FILE) --objects --tree --prettyJSON --log
+	dotnet watch --project $(PROJECT) run -- $(TEST_FILE) --objects --tree --unabridged --prettyJSON --log
 
 # Build in release mode
 build:
