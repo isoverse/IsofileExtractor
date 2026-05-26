@@ -40,7 +40,7 @@ fi
 cd "$project_folder/src"
 for runtime in $runtimes; do
   echo "Compiling $runtime..."
-  dotnet publish IsodatReader.csproj --runtime "$runtime" -c Release
+  dotnet publish IsofileExtractor.csproj --runtime "$runtime" -c Release
   echo "Finished compiling $runtime"
 done
 
