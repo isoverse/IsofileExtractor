@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace IsodatReader;
+namespace IsofileExtractor;
 
 /// <summary>
 /// Sequential binary reader for the MFC CArchive serialization protocol used

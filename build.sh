@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build IsodatReader as a self-contained single-file binary for one or more runtimes.
+# Build IsofileExtractor as a self-contained single-file binary for one or more runtimes.
 # Designed to work both as a local call and via the dotnet docker image.
 #
 # Local usage:

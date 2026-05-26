@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace IsodatReader;
+namespace IsofileExtractor;
 
 /// <summary>
 /// Thrown when binary parsing fails. Carries the full object-tree path

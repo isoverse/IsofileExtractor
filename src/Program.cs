@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using IsodatReader;
+using IsofileExtractor;
 
 if (args.Length == 1 && args[0] is "--version" or "-v")
 {
@@ -12,7 +12,7 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
@@ -64,7 +64,7 @@ string[] paths = pathList.ToArray();
 
 if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 

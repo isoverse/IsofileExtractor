@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
-namespace IsodatReader;
+namespace IsofileExtractor;
 
 // ---------------------------------------------------------------------------
 // All class reader functions for isodat binary files (.dxf, .scn).
