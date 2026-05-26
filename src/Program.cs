@@ -170,12 +170,14 @@ Parallel.ForEach(files, inputArg =>
                 root["error"] = $"Unsupported file extension '{ext}'";
                 break;
         }
+        if (caughtEx is null && archive.Position < archive.Length)
+            caughtEx = new InvalidDataException(
+                $"Read finished at 0x{archive.Position:x} but file ends at 0x{archive.Length:x} " +
+                $"({archive.Length - archive.Position} unread bytes)");
     }
     finally
     {
         meta["complete"] = caughtEx is null;
-        if (caughtEx is null && archive.Position < archive.Length)
-            Console.Error.WriteLine($"Warning: read finished at 0x{archive.Position:x} but file ends at 0x{archive.Length:x} ({archive.Length - archive.Position} unread bytes) in {Path.GetFileName(inputPath)}");
         string json = root.ToJsonString(options);
         if (prettyJson) json = CollapseNumberArrays(json);
         File.WriteAllText(outputPath, json);
@@ -210,7 +212,7 @@ if (writeLog)
     using var writer = new StreamWriter(logPath);
     writer.WriteLine("file,success,duration_ms,error");
     foreach (var (file, success, error, ms) in logEntries)
-        writer.WriteLine($"{CsvField(file)},{success.ToString().ToLowerInvariant()},{ms},{CsvField(error)}");
+        writer.WriteLine($"{CsvField(file)},{success.ToString().ToLowerInvariant()},{ms},\"{error.Replace("\"", "\"\"")}\"");
     Console.Error.WriteLine($"Log written: {logPath}");
 }
 
