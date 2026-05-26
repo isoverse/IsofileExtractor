@@ -1,4 +1,14 @@
 bin/
 obj/
 out/
-output/
+
+# generated output files
+*.json
+*.objects.csv
+*.tree.txt
+
+# specifically include tests output folder
+!tests/output/**/*.*
+
+# except for log file
+*.log
