@@ -53,9 +53,9 @@ for runtime in $runtimes; do
   if [[ "$runtime" == win-* ]]; then
     suffix=".exe"
   fi
-  cp "$source_path/IsodatReader$suffix" "$output_folder/IsodatReader-$runtime$suffix"
+  cp "$source_path/isoextract$suffix" "$output_folder/isoextract-$runtime$suffix"
   if [[ "$runtime" == osx-* || "$runtime" == linux-* ]]; then
-    chmod +x "$output_folder/IsodatReader-$runtime$suffix"
+    chmod +x "$output_folder/isoextract-$runtime$suffix"
   fi
 done
 

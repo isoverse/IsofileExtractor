@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>IsodatReader</RootNamespace>
-    <AssemblyName>IsodatReader</AssemblyName>
+    <AssemblyName>isoextract</AssemblyName>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
