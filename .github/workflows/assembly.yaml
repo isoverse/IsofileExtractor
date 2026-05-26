@@ -1,4 +1,4 @@
-name: isoextractor test
+name: isoextract testing
 
 # auto-run if there are any changes to the source files
 on:
