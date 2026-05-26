@@ -1234,17 +1234,17 @@ static class Readers
         TrackPartial(jo);
         int version = isofile.ReadSchemaVersion("CPeak", 5);
         if (Unabridged) jo["version"] = version;
-        jo["x94"] = isofile.ReadUInt32();
-        jo["x98"] = isofile.ReadUInt32();
-        jo["x9c"] = isofile.ReadUInt32();
-        jo["xb0"] = isofile.ReadDouble();
-        jo["xb8"] = isofile.ReadDouble();
-        jo["xc0"] = isofile.ReadDouble();
-        jo["xa8"] = isofile.ReadDouble();
+        jo["start"] = isofile.ReadUInt32();       // CPeak::Start()
+        jo["end"] = isofile.ReadUInt32();          // CPeak::End()
+        jo["top_pos"] = isofile.ReadUInt32();      // CPeak::TopPos()
+        jo["top"] = isofile.ReadDouble();          // CPeak::Top()
+        jo["start_height"] = isofile.ReadDouble(); // CPeak::StartHeight()
+        jo["end_height"] = isofile.ReadDouble();   // CPeak::EndHeight()
+        jo["area"] = isofile.ReadDouble();         // CPeak::Area()
         jo["xd0"] = isofile.ReadInt32();
-        jo["xd4"] = isofile.ReadMfcString();
-        if (version >= 3) jo["xa0"] = isofile.ReadDouble();
-        if (version >= 4) jo["xc8"] = isofile.ReadDouble();
+        jo["detection_mark"] = isofile.ReadMfcString(); // CPeak::DetectionMark()
+        if (version >= 3) jo["background"] = isofile.ReadDouble(); // CPeak::Background()
+        if (version >= 4) jo["center"] = isofile.ReadDouble();     // CPeak::Center()
         if (version >= 5) jo["x38"] = isofile.ReadMfcString();
         return jo;
     }
@@ -2118,7 +2118,7 @@ static class Readers
         ReadParent(jo, isofile, "CSequenceGridParam");
         int v = isofile.ReadSchemaVersion("CSequenceFlag", 3);
         if (Unabridged) jo["version"] = v;
-        jo["xc0"] = isofile.ReadMfcString();
+        jo["flag_name"] = isofile.ReadMfcString(); // init "<None>"; DDX_CBString ctrl 0x3ec
         jo["xbc"] = isofile.ReadInt32();
         if (v >= 2) jo["xb8"] = isofile.ReadInt32();
         if (v >= 3) jo["xc4"] = isofile.ReadMfcString();
@@ -2141,7 +2141,7 @@ static class Readers
         {
             jo["xa0"] = isofile.ReadInt32();
             jo["xa4"] = isofile.ReadBool32();
-            if (version >= 5) jo["xa8"] = isofile.ReadBool32();
+            if (version >= 5) jo["is_fake"] = isofile.ReadBool32(); // DDX_Check ctrl 0x40a "IsFake"
             if (version >= 6) jo["xac"] = isofile.ReadBool32();
         }
         return jo;
@@ -2324,9 +2324,9 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CScanPart", 3);
         if (Unabridged) jo["version"] = version;
         ReadObjectInto(jo, isofile, pattern: "HardwarePart");
-        jo["xa0"] = isofile.ReadInt32();
-        jo["xa4"] = isofile.ReadInt32();
-        jo["xb0"] = isofile.ReadInt32();
+        jo["range_start"] = isofile.ReadInt32(); // CScanPart::GetRange lo
+        jo["range_end"] = isofile.ReadInt32();   // CScanPart::GetRange hi
+        jo["step"] = isofile.ReadInt32();        // CScanPart::GetStep (v3+, default 1)
         return jo;
     }
 
@@ -2376,7 +2376,7 @@ static class Readers
         ReadParent(jo, isofile, "CScanPart");
         int version = isofile.ReadSchemaVersion("CIntegrationUnitScanPart", 3);
         if (Unabridged) jo["version"] = version;
-        jo["xc0"] = isofile.ReadInt32();
+        jo["integ_time"] = isofile.ReadInt32(); // CIntegrationUnit::SetNearestIntegTime(this+0xc0)
         jo["xc4"] = isofile.ReadUInt8();
         return jo;
     }
