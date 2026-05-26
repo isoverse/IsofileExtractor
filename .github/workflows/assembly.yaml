@@ -6,15 +6,16 @@ on:
     paths:
       - .github/workflows/assembly.yaml
       - src/*
+      - tests/data/**
   pull_request:
      paths:
       - .github/workflows/assembly.yaml
       - src/*
+      - tests/data/**
 
 env:
   DOTNET_DOCKER: mcr.microsoft.com/dotnet/sdk:8.0
-  EXAMPLE_RAW: test.raw
-  EXAMPLE_SPECTRA: all
+
 jobs:
   build:
     name: Build Assembly
@@ -25,51 +26,96 @@ jobs:
         run: docker pull $DOTNET_DOCKER
       - name: Build
         run: docker run --rm -v $PWD:/app -w /app $DOTNET_DOCKER /app/build.sh project=/app output=/app/out
-      - name: Publish results
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: isoextract
           path: out
           retention-days: 1
+
   verify-linux:
     name: Verify on Linux
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Download results
+      - name: Download binaries
         uses: actions/download-artifact@v4
         with:
           name: isoextract
-      - name: List result
-        run: tree
       - name: Make binary executable
         run: chmod +x ./isoextract-linux-x64
+      - name: Run against all test files
+        run: ./isoextract-linux-x64 tests/data --log isoextract-linux.log
+      - name: Check for failures
+        run: |
+          cat isoextract-linux.log
+          if grep -q ",false," isoextract-linux.log; then
+            echo "One or more files failed:" >&2
+            grep ",false," isoextract-linux.log >&2
+            exit 1
+          fi
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-linux
+          path: isoextract-linux.log
+
   verify-windows:
     name: Verify on Windows
     runs-on: windows-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Download results
+      - name: Download binaries
         uses: actions/download-artifact@v4
         with:
           name: isoextract
-      - name: List result
-        run: dir
+      - name: Run against all test files
+        run: .\isoextract-win-x64.exe tests\data --log isoextract-windows.log
+      - name: Check for failures
+        run: |
+          Get-Content isoextract-windows.log
+          if (Select-String -Path isoextract-windows.log -Pattern ",false," -Quiet) {
+            Write-Error "One or more files failed"
+            exit 1
+          }
+        shell: pwsh
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-windows
+          path: isoextract-windows.log
+
   verify-macos:
     name: Verify on MacOS
     runs-on: macos-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - name: Download results
+      - name: Download binaries
         uses: actions/download-artifact@v4
         with:
           name: isoextract
-      - name: List result
-        run: ls -l
       - name: Make binary executable
         run: chmod +x ./isoextract-osx-x64
-  
+      - name: Run against all test files
+        run: ./isoextract-osx-x64 tests/data --log isoextract-macos.log
+      - name: Check for failures
+        run: |
+          cat isoextract-macos.log
+          if grep -q ",false," isoextract-macos.log; then
+            echo "One or more files failed:" >&2
+            grep ",false," isoextract-macos.log >&2
+            exit 1
+          fi
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-macos
+          path: isoextract-macos.log
+
   # not uploading the artifacts for releases since not all new releases require new executables
