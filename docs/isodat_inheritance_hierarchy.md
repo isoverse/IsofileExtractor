@@ -270,22 +270,13 @@
 - CTraceInfo
   - CTraceInfoEntry
 
-## CStringArray
+## Other
 
-## CParsedEvaluationString
-
-## CNumericValue
-
-## CShrinkInfo
-
-## CPartMirror
-pure virtual no-op Serialize; concrete subclasses used only as runtime mirrors, not serialized
-
-## CGCBGDData
-CData-derived; no parent Serialize call
-
-## CGCPeak
-parent class CGCBGDData
-
-## CSPeak
-parent class CResultData
+- CStringArray
+- CParsedEvaluationString
+- CNumericValue
+- CShrinkInfo
+- CPartMirror (pure virtual no-op Serialize; concrete subclasses used only as runtime mirrors, not serialized)
+- CGCBGDData (CData-derived; no parent Serialize call)
+- CGCPeak (parent class CGCBGDData)
+- CSPeak (parent class CResultData)
