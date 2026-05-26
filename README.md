@@ -33,6 +33,7 @@ One or more files or directories can be provided. Directories are searched recur
 | `--file-list <path>` | Read additional file/directory paths from a text file (one per line; lines starting with `#` are ignored) |
 | `--objects` | Write a `.objects.csv` output file for each input file, listing every deserialized C++ object with its byte offset, class name, schema version, and parent–child relationships |
 | `--tree` | Write a `.tree.txt` output file for each input file showing the object hierarchy as an indented tree |
+| `--dry-run` | Parse files without writing the JSON output. All other output (`--log`, `--objects`, `--tree`, issues logs) is still written normally |
 
 ### Exit code
 

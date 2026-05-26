@@ -12,13 +12,14 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
 bool dumpObjects = args.Contains("--objects");
 bool dumpTree = args.Contains("--tree");
 bool prettyJson = args.Contains("--prettyJSON");
+bool dryRun = args.Contains("--dry-run");
 Readers.Unabridged = args.Contains("--unabridged");
 
 bool writeLog = false;
@@ -63,7 +64,7 @@ string[] paths = pathList.ToArray();
 
 if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
@@ -178,10 +179,17 @@ Parallel.ForEach(files, inputArg =>
     finally
     {
         meta["complete"] = caughtEx is null;
-        string json = root.ToJsonString(options);
-        if (prettyJson) json = CollapseNumberArrays(json);
-        File.WriteAllText(outputPath, json);
-        Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
+        if (!dryRun)
+        {
+            string json = root.ToJsonString(options);
+            if (prettyJson) json = CollapseNumberArrays(json);
+            File.WriteAllText(outputPath, json);
+            Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
+        }
+        else
+        {
+            Console.WriteLine($"Parsed (dry run): {displayPath}{(caughtEx is not null ? " (incomplete)" : "")}");
+        }
 
         if (archive.Warnings.Count > 0)
         {
