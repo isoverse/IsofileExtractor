@@ -12,21 +12,28 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
 bool dumpObjects = args.Contains("--objects");
 bool dumpTree = args.Contains("--tree");
 bool prettyJson = args.Contains("--prettyJSON");
-bool writeLog = args.Contains("--log");
 Readers.Unabridged = args.Contains("--unabridged");
 
+bool writeLog = false;
+string? logPathArg = null;
 string? fileListArg = null;
 var pathList = new List<string>();
 for (int i = 0; i < args.Length; i++)
 {
-    if (args[i] == "--file-list")
+    if (args[i] == "--log")
+    {
+        writeLog = true;
+        if (i + 1 < args.Length && !args[i + 1].StartsWith("--"))
+            logPathArg = args[++i];
+    }
+    else if (args[i] == "--file-list")
     {
         if (i + 1 >= args.Length)
         {
@@ -56,7 +63,7 @@ string[] paths = pathList.ToArray();
 
 if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
@@ -197,7 +204,9 @@ Parallel.ForEach(files, inputArg =>
 
 if (writeLog)
 {
-    string logPath = Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log");
+    string logPath = logPathArg is not null
+        ? Path.GetFullPath(logPathArg)
+        : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log");
     using var writer = new StreamWriter(logPath);
     writer.WriteLine("file,success,duration_ms,error");
     foreach (var (file, success, error, ms) in logEntries)
