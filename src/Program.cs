@@ -12,7 +12,7 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
@@ -21,11 +21,42 @@ bool dumpTree = args.Contains("--tree");
 bool prettyJson = args.Contains("--prettyJSON");
 bool writeLog = args.Contains("--log");
 Readers.Unabridged = args.Contains("--unabridged");
-string[] paths = args.Where(a => !a.StartsWith("--")).ToArray();
+
+string? fileListArg = null;
+var pathList = new List<string>();
+for (int i = 0; i < args.Length; i++)
+{
+    if (args[i] == "--file-list")
+    {
+        if (i + 1 >= args.Length)
+        {
+            Console.Error.WriteLine("--file-list requires a path argument");
+            return 1;
+        }
+        fileListArg = args[++i];
+    }
+    else if (!args[i].StartsWith("--"))
+        pathList.Add(args[i]);
+}
+
+if (fileListArg is not null)
+{
+    string listPath = Path.GetFullPath(fileListArg);
+    if (!File.Exists(listPath))
+    {
+        Console.Error.WriteLine($"File list not found: {listPath}");
+        return 1;
+    }
+    pathList.AddRange(File.ReadAllLines(listPath)
+        .Select(l => l.Trim())
+        .Where(l => l.Length > 0 && !l.StartsWith('#')));
+}
+
+string[] paths = pathList.ToArray();
 
 if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] <file|dir> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] [--file-list <path>] <file|dir> [...]");
     return 1;
 }
 
