@@ -24,12 +24,12 @@ jobs:
       - name: Pull image
         run: docker pull $DOTNET_DOCKER
       - name: Build
-        run: cd inst/assembly && docker run --rm -v $PWD:/app -w /app $DOTNET_DOCKER /app/build.sh project=/app output=/app/out
+        run: docker run --rm -v $PWD:/app -w /app $DOTNET_DOCKER /app/build.sh project=/app output=/app/out
       - name: Publish results
         uses: actions/upload-artifact@v4
         with:
           name: isoextract
-          path: inst/assembly/out
+          path: out
           retention-days: 1
   verify-linux:
     name: Verify on Linux
