@@ -13,7 +13,8 @@ if [[ ! -f "$DLL" ]]; then
     exit 1
 fi
 
-mkdir -p "$OUTPUT_DIR"
+rm -rf "$OUTPUT_DIR"
+mkdir "$OUTPUT_DIR"
 
 # Run extractor; don't abort on non-zero — failures are detected via the log
 dotnet "$DLL" "$INPUT_DIR" --tree --objects --prettyJSON --log || true
