@@ -11,7 +11,7 @@ A self-contained command-line tool for extracting data from Thermo Fisher isodat
 | `.dxf`    | Continuous flow (GC-IRMS) |
 | `.cf`     | Continuous flow (legacy) |
 | `.did`    | Dual inlet |
-| `.caf`    | Dual inlet (CAF) |
+| `.caf`    | Dual inlet (legacy) |
 | `.scn`    | Scan |
 
 ## Usage
@@ -112,10 +112,7 @@ Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download).
 # Development build (produces bin/release/isoextract.dll, run with dotnet)
 make build
 
-# Self-contained single-file binary for the current OS
-make publish        # → out/isoextract-<runtime>[.exe]
-
-# All three runtimes (linux-x64, osx-x64, win-x64) via Docker
+# Release build for all three runtimes (linux-x64, osx-x64, win-x64) via Docker
 make build-all
 ```
 
