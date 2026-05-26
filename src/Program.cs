@@ -12,21 +12,40 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
 
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] <file|dir> [...]");
     return 1;
 }
 
 bool dumpObjects = args.Contains("--objects");
 bool dumpTree = args.Contains("--tree");
 bool prettyJson = args.Contains("--prettyJSON");
+bool writeLog = args.Contains("--log");
 Readers.Unabridged = args.Contains("--unabridged");
-string[] files = args.Where(a => !a.StartsWith("--")).ToArray();
+string[] paths = args.Where(a => !a.StartsWith("--")).ToArray();
 
-if (files.Length == 0)
+if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] <file.dxf|file.scn> [...]");
+    Console.Error.WriteLine("Usage: IsodatReader [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--log] <file|dir> [...]");
     return 1;
 }
+
+HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
+    { ".dxf", ".cf", ".did", ".caf", ".scn" };
+
+string cwd = Directory.GetCurrentDirectory();
+(string Full, string Display)[] files = paths
+    .SelectMany(p =>
+    {
+        string full = Path.GetFullPath(p);
+        bool wasAbsolute = Path.IsPathRooted(p);
+        string Display(string f) => wasAbsolute ? f : Path.GetRelativePath(cwd, f);
+        if (Directory.Exists(full))
+            return Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
+                .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
+                .Select(f => (f, Display(f)));
+        return [(full, Display(full))];
+    })
+    .ToArray();
 
 var options = new JsonSerializerOptions
 {
@@ -41,10 +60,12 @@ string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
 
 int exitCode = 0;
+var logEntries = new System.Collections.Concurrent.ConcurrentQueue<(string File, bool Success, string Error, long Ms)>();
 
 Parallel.ForEach(files, inputArg =>
 {
-    string inputPath = Path.GetFullPath(inputArg);
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    var (inputPath, displayPath) = inputArg;
     if (!File.Exists(inputPath))
     {
         Console.Error.WriteLine($"File not found: {inputPath}");
@@ -138,10 +159,27 @@ Parallel.ForEach(files, inputArg =>
             DumpObjects(archive, inputPath);
         if (dumpTree)
             DumpTree(archive, inputPath);
+        if (writeLog)
+            logEntries.Enqueue((displayPath, caughtEx is null, caughtEx?.Message ?? "", sw.ElapsedMilliseconds));
     }
 });
 
+if (writeLog)
+{
+    string logPath = Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log");
+    using var writer = new StreamWriter(logPath);
+    writer.WriteLine("file,success,duration_ms,error");
+    foreach (var (file, success, error, ms) in logEntries)
+        writer.WriteLine($"{CsvField(file)},{success.ToString().ToLowerInvariant()},{ms},{CsvField(error)}");
+    Console.Error.WriteLine($"Log written: {logPath}");
+}
+
 return exitCode;
+
+static string CsvField(string value) =>
+    value.Contains(',') || value.Contains('"') || value.Contains('\n')
+        ? $"\"{value.Replace("\"", "\"\"")}\""
+        : value;
 
 // Replaces multi-line pretty-printed number arrays with a single compact line.
 static string CollapseNumberArrays(string json) =>
