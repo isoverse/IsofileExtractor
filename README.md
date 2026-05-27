@@ -105,6 +105,10 @@ Full diagnostic output (objects + tree + log):
 isoextract /data/irms --objects --tree --prettyJSON --log
 ```
 
+## File format documentation
+
+See [docs/isodat_structure.md](docs/isodat_structure.md) for an overview of how isodat files store data (MFC CArchive serialization, CRuntimeClass headers, sequential reading requirement, and per-extension entry points).
+
 ## Building from source
 
 Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download).
