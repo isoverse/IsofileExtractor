@@ -8,7 +8,7 @@ A self-contained command-line tool for extracting data from Thermo Fisher isodat
 
 | Extension | Instrument type |
 |-----------|----------------|
-| `.dxf`    | Continuous flow (GC-IRMS) |
+| `.dxf`    | Continuous flow |
 | `.cf`     | Continuous flow (legacy) |
 | `.did`    | Dual inlet |
 | `.caf`    | Dual inlet (legacy) |
