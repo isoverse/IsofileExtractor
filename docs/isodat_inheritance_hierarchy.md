@@ -18,6 +18,7 @@
       - CEvalDataIntTransferPart
     - CEvalDataStringTransferPart
 - CEvalIntegrationUnitHWInfo
+- CH3Data (no parent Serialize call despite CData base; Evaluation.dll)
 - CH3FactorResult
 - CGridColors
 - CISLScriptMessageData
@@ -112,8 +113,10 @@
     - CReferenceRefillDevice
     - CUserDevice
   - CChangeOver2Device
+  - CHDevice
   - CConFloDevice
   - CDualInletDevice
+  - CPreconDevice
   - CGenericGcDevice
     - CElementalAnalyzerDevice
       - CGCBoxDevice (same as CElementalAnalyzerDevice)
@@ -123,6 +126,7 @@
       - CFlashHT_Device (same as CFlashEA_Device)
     - CTraceGcDevice
   - CXCaliburDevice
+    - CAS1300Device
     - CAS3000Device
     - CTraceBasicDevice
       - CTrace_II_Device
@@ -131,6 +135,8 @@
 - CMsDevice
 - CSamplerDevice
   - CA200SDevice
+  - CFlashEA_AS2000Device
+    - CFlashEA_AS3000Device (Serialize = CFlashEA_AS2000Device::Serialize, vftable-confirmed)
 
 ## CData::CBlockData::CPort
 - CActivePort
@@ -140,6 +146,7 @@
 - CGpibInterface
 - CTransferPart
   - CAdcTransferPart
+    - CCalculatingAdcTransferPart (same as CAdcTransferPart)
     - CDioTransferPart
       - CValveTransferPart
         - CSplitTransferPart
@@ -193,6 +200,7 @@
 - CEvaluationPart
   - CDeviceMethodPart
     - CActiveDeviceMethodPart (same as CDeviceMethodPart)
+      - CHDeviceMethodPart
       - CHeMDeviceMethodPart
     - CCarbonateDeviceMethodPart
     - CConFloDeviceMethodPart
@@ -209,6 +217,7 @@
     - CReferenceRefillDeviceMethodPart
     - CStandardDeviceMethodPart
 - CDeviceEvaluationPart
+  - CHDeviceEvaluationPart
   - CGCExtendedInterfaceDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)
   - CConFloDeviceEvaluationPart
     - CCarbonateDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)

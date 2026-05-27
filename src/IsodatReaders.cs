@@ -72,6 +72,7 @@ static class Readers
             ["CGridColors"] = ReadCGridColors,
             ["CAxisPara"] = ReadCAxisPara,
             ["CH3FactorResult"] = ReadCH3FactorResult,
+            ["CH3Data"] = ReadCH3Data,
             ["CApplicationData"] = ReadCApplicationData,
             ["CResultForGas"] = ReadCResultForGas,
             ["CPeakFindParameter"] = ReadCPeakFindParameter,
@@ -143,6 +144,7 @@ static class Readers
             ["CFlashEaIsoLink_Device"] = ReadCFlashEaIsoLink_Device,
             ["CGasBenchDevice"] = ReadCGasBenchDevice,
             ["CElementalAnalyzerDevice"] = ReadCElementalAnalyzerDevice,
+            ["CHDevice"] = ReadCHDevice,
             ["CHeMDevice"] = ReadCElementalAnalyzerDevice,          // Serialize = CElementalAnalyzerDevice::Serialize (vftable-confirmed, DevicesDll)
             ["CGCBoxDevice"] = ReadCElementalAnalyzerDevice,         // Serialize = CElementalAnalyzerDevice::Serialize (vftable-confirmed, DevicesDll)
             ["CFlashHT_Device"] = ReadCFlashEA_Device,               // Serialize = CFlashEA_Device::Serialize (vftable-confirmed, ElementalAnalyserDll)
@@ -158,9 +160,12 @@ static class Readers
             ["CXcalRSH2Device"] = ReadCXcalRSH2Device,
             ["CXcalRSHDevice"] = ReadCXcalRSH2Device,
             ["CAS3000Device"] = ReadCAS3000Device,
+            ["CAS1300Device"] = ReadCAS1300Device,
             ["CTraceGcDevice"] = ReadCTraceGcDevice,
             ["CSamplerDevice"] = ReadCSamplerDevice,
             ["CA200SDevice"] = ReadCA200SDevice,
+            ["CFlashEA_AS3000Device"] = ReadCFlashEA_AS3000Device,
+            ["CPreconDevice"] = ReadCPreconDevice,
 
             // --- IsoGCEvalData / CEvalDataStorage chain ---
             ["IsoGCEvalData"] = ReadIsoGCEvalData,
@@ -315,6 +320,7 @@ static class Readers
             ["CTraceGcDeviceMethodPart"] = ReadCTraceGcDeviceMethodPart,
             ["CElementalAnalyzerDeviceMethodPart"] = ReadCElementalAnalyzerDeviceMethodPart,
             ["CHeMDeviceMethodPart"] = ReadCHeMDeviceMethodPart,
+            ["CHDeviceMethodPart"] = ReadCHDeviceMethodPart,
 
             // --- CDeviceEvaluationPart chain ---
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
@@ -330,6 +336,7 @@ static class Readers
             ["CCarbonateDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CElementalAnalyzerDeviceEvaluationPart"] = ReadCElementalAnalyzerDeviceEvaluationPart,
             ["CHeMDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,   // Serialize = CConFloDeviceEvaluationPart::Serialize (vftable-confirmed, DevicesDll)
+            ["CHDeviceEvaluationPart"] = ReadCHDeviceEvaluationPart,
             ["CGCBoxDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart, // Serialize = CConFloDeviceEvaluationPart::Serialize (vftable-confirmed, DevicesDll)
 
             // --- CEvalDataTransferPart chain ---
@@ -897,6 +904,20 @@ static class Readers
         TrackPartial(jo);
         jo["x94"] = isofile.ReadInt32(); // no named getter; init 0 in Init()
         ReadObjectInto(jo, isofile, "CTraceLinCol");
+        return jo;
+    }
+
+    // CH3Data::Serialize (Evaluation.dll): no parent Serialize call (CData base, but parent Serialize not invoked)
+    //   schema v1; 3 doubles: x98 (h3_factor_value used in accumulation), xa0, xa8 (h3 factor candidate)
+    static JsonObject ReadCH3Data(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        int v = isofile.ReadSchemaVersion("CH3Data", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["x98"] = isofile.ReadDouble();
+        jo["xa0"] = isofile.ReadDouble();
+        jo["xa8"] = isofile.ReadDouble();
         return jo;
     }
 
@@ -1709,6 +1730,17 @@ static class Readers
         return jo;
     }
 
+    // CHDevice::Serialize (HDeviceDll): CActiveDevice parent + schema v1, no own fields
+    static JsonObject ReadCHDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CActiveDevice");
+        int v = isofile.ReadSchemaVersion("CHDevice", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
     // CBufferedRefillDevice::Serialize = CActiveDevice::Serialize + schema version (always v1)
     static JsonObject ReadCBufferedRefillDevice(IsodatFile isofile)
     {
@@ -1783,6 +1815,17 @@ static class Readers
         return jo;
     }
 
+    // CAS1300Device::Serialize (AS3000Dll_u.dll): CXCaliburDevice parent + schema v1, no own fields
+    static JsonObject ReadCAS1300Device(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CXCaliburDevice");
+        int v = isofile.ReadSchemaVersion("CAS1300Device", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
     // CXcalRSH2Device::Serialize (TriPlusDll.dll):
     //   parent CXCaliburDevice + schema version (always v1)
     // CXcalRSHDevice uses this Serialize unchanged (no override in vftable)
@@ -1829,6 +1872,29 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CSamplerDevice");
         int v = isofile.ReadSchemaVersion("CA200SDevice", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CFlashEA_AS3000Device::Serialize = CFlashEA_AS2000Device::Serialize (vftable-confirmed, ElementalAnalyserDll)
+    // CFlashEA_AS2000Device::Serialize: CSamplerDevice parent + schema v1, no own fields
+    static JsonObject ReadCFlashEA_AS3000Device(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CSamplerDevice");
+        int v = isofile.ReadSchemaVersion("CFlashEA_AS3000Device", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CPreconDevice::Serialize (PreconDll): CActiveDevice parent + schema v1, no own fields
+    static JsonObject ReadCPreconDevice(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CActiveDevice");
+        int v = isofile.ReadSchemaVersion("CPreconDevice", 1);
         if (Unabridged) jo["version"] = v;
         return jo;
     }
@@ -3346,6 +3412,21 @@ static class Readers
         return jo;
     }
 
+    // CHDeviceMethodPart::Serialize (HDeviceDll): CDeviceMethodPart parent + schema v1 + 3 DWORDs
+    //   xac (DDX_Text ctrl 0x3ed), xb0 (DDX_Text ctrl 0x3ee), xb4 (DDX_Text ctrl 0x3ef)
+    static JsonObject ReadCHDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CHDeviceMethodPart", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["xac"] = isofile.ReadUInt32();
+        jo["xb0"] = isofile.ReadUInt32();
+        jo["xb4"] = isofile.ReadUInt32();
+        return jo;
+    }
+
     // CGasBenchDeviceMethodPart (DevicesDll): CGenericGcDeviceMethodPart parent, wSchema=4
     //   always: xb0(int32); v>=2: xb8(bool), xc0(double); v>=3: xc8(int32); v>=4: xcc(CString)
     static JsonObject ReadCGasBenchDeviceMethodPart(IsodatFile isofile)
@@ -3448,6 +3529,17 @@ static class Readers
         ReadParent(jo, isofile, "CConFloDeviceEvaluationPart");
         int version = isofile.ReadSchemaVersion("CElementalAnalyzerDeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = version;
+        return jo;
+    }
+
+    // CHDeviceEvaluationPart::Serialize (HDeviceDll): CDeviceEvaluationPart parent + schema v1, no own fields
+    static JsonObject ReadCHDeviceEvaluationPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceEvaluationPart");
+        int v = isofile.ReadSchemaVersion("CHDeviceEvaluationPart", 1);
+        if (Unabridged) jo["version"] = v;
         return jo;
     }
 
