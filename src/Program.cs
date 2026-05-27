@@ -83,6 +83,12 @@ string cwd = Directory.GetCurrentDirectory();
             return Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
                 .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
                 .Select(f => (f, Display(f)));
+        if (!File.Exists(full))
+        {
+            Console.Error.WriteLine($"Path not found: {Display(full)}");
+            Interlocked.Exchange(ref exitCode, 1);
+            return [];
+        }
         if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
         {
             Console.Error.WriteLine($"Skipping unsupported file extension: {Display(full)}");
