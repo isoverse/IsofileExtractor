@@ -73,6 +73,11 @@ HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
 
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
+
+int folderCount = paths.Count(p => Directory.Exists(Path.GetFullPath(p)));
+if (folderCount > 0)
+    Console.WriteLine($"Searching {folderCount} folder{(folderCount == 1 ? "" : "s")} recursively...");
+
 (string Full, string Display)[] files = paths
     .SelectMany(p =>
     {
