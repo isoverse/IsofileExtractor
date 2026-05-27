@@ -5,8 +5,8 @@ using IsofileExtractor;
 
 if (args.Length == 1 && args[0] is "--version" or "-v")
 {
-    Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly()
-        .GetName().Version?.ToString() ?? "unknown");
+    Console.WriteLine("isoextract version " + (System.Reflection.Assembly.GetExecutingAssembly()
+        .GetName().Version?.ToString() ?? "unknown"));
     return 0;
 }
 
@@ -148,7 +148,7 @@ Parallel.ForEach(files, inputArg =>
 
     var meta = new JsonObject
     {
-        ["reader_version"] = assemblyVersion,
+        ["isoextract_version"] = assemblyVersion,
         ["file_type"] = ext.TrimStart('.'),
         ["file_size_bytes"] = new FileInfo(inputPath).Length,
     };

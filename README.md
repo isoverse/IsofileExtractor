@@ -57,7 +57,7 @@ Every output file has a `meta` block at the top:
 ```json
 {
   "meta": {
-    "reader_version": "0.1.0.0",
+    "isoextract_version": "0.1.0.0",
     "file_type": "dxf",
     "file_size_bytes": 123456,
     "complete": true
