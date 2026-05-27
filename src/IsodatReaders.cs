@@ -321,6 +321,7 @@ static class Readers
             ["CElementalAnalyzerDeviceMethodPart"] = ReadCElementalAnalyzerDeviceMethodPart,
             ["CHeMDeviceMethodPart"] = ReadCHeMDeviceMethodPart,
             ["CHDeviceMethodPart"] = ReadCHDeviceMethodPart,
+            ["CPreconDeviceMethodPart"] = ReadCPreconDeviceMethodPart,
 
             // --- CDeviceEvaluationPart chain ---
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
@@ -338,6 +339,7 @@ static class Readers
             ["CHeMDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,   // Serialize = CConFloDeviceEvaluationPart::Serialize (vftable-confirmed, DevicesDll)
             ["CHDeviceEvaluationPart"] = ReadCHDeviceEvaluationPart,
             ["CGCBoxDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart, // Serialize = CConFloDeviceEvaluationPart::Serialize (vftable-confirmed, DevicesDll)
+            ["CPreconDeviceEvaluationPart"] = ReadCPreconDeviceEvaluationPart,
 
             // --- CEvalDataTransferPart chain ---
             ["CEvalDataTransferPart"] = ReadCEvalDataTransferPart,
@@ -3427,6 +3429,19 @@ static class Readers
         return jo;
     }
 
+    // CPreconDeviceMethodPart::Serialize (PreconDll): CDeviceMethodPart parent + schema v1 + CString script_name
+    //   0xac = script name (DDX_Text ctrl 0x3ed); used as "Precon_ScriptName" variable in ISL run
+    static JsonObject ReadCPreconDeviceMethodPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceMethodPart");
+        int v = isofile.ReadSchemaVersion("CPreconDeviceMethodPart", 1);
+        if (Unabridged) jo["version"] = v;
+        jo["script_name"] = isofile.ReadMfcString();
+        return jo;
+    }
+
     // CGasBenchDeviceMethodPart (DevicesDll): CGenericGcDeviceMethodPart parent, wSchema=4
     //   always: xb0(int32); v>=2: xb8(bool), xc0(double); v>=3: xc8(int32); v>=4: xcc(CString)
     static JsonObject ReadCGasBenchDeviceMethodPart(IsodatFile isofile)
@@ -3539,6 +3554,17 @@ static class Readers
         TrackPartial(jo);
         ReadParent(jo, isofile, "CDeviceEvaluationPart");
         int v = isofile.ReadSchemaVersion("CHDeviceEvaluationPart", 1);
+        if (Unabridged) jo["version"] = v;
+        return jo;
+    }
+
+    // CPreconDeviceEvaluationPart::Serialize (PreconDll): CDeviceEvaluationPart parent + schema v1, no own fields
+    static JsonObject ReadCPreconDeviceEvaluationPart(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CDeviceEvaluationPart");
+        int v = isofile.ReadSchemaVersion("CPreconDeviceEvaluationPart", 1);
         if (Unabridged) jo["version"] = v;
         return jo;
     }

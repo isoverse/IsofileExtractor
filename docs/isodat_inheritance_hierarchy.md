@@ -202,6 +202,7 @@
     - CActiveDeviceMethodPart (same as CDeviceMethodPart)
       - CHDeviceMethodPart
       - CHeMDeviceMethodPart
+      - CPreconDeviceMethodPart
     - CCarbonateDeviceMethodPart
     - CConFloDeviceMethodPart
       - CGCBoxDeviceMethodPart (same as CConFloDeviceMethodPart)
@@ -229,6 +230,7 @@
       - CFlashEA_DeviceEvaluationPart
       - CTraceGcDeviceEvaluationPart
     - CMultiReferenceDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)
+  - CPreconDeviceEvaluationPart
   - CMsDeviceEvaluationPart
 
 ## CMethodPart / CEvaluationPart
