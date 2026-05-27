@@ -24092,7 +24092,16 @@
                     "l": ""
                   },
                   "n_bytes": 480,
-                  "data": "AAAAABzxv/ClK/M/cOb8uQ0P9z8c8b/wpSvzP3Dm/LkND/c/5IIz\u002BPvFxD/uqHuuAPCRPxoXDoRkASM/AAB6RIv\u002B0MyTK/M/tsWQ9wUP9z\u002BL/tDMkyvzP7bFkPcFD/c/E5uPa0PFxD/w/z4\u002BfPSRP0GyJVBpaSM/AAD6RK1sH/KWK/M/hSaJJeUO9z\u002BtbB/ylivzP4UmiSXlDvc/urgyTX3FxD\u002BTLkfZbPaRP0jNDTytkSM/AIA7Rb\u002BmvXeKK/M/kmkjjcAO9z\u002B/pr13iivzP5JpI43ADvc/ZFNTN7zFxD94Y5waw/eRPwrUBze\u002BmyM/AAB6RWXZOAd0K/M/y1e4m5YO9z9l2TgHdCvzP8tXuJuWDvc/ok3EEVrFxD\u002BHdNPBVfmRP9L16R0TziM/AECcRXXTHA9sK/M/zCDj9nAO9z910xwPbCvzP8wg4/ZwDvc/unazUHzGxD9g0nNmFvyRP5sXzARoACQ/AIC7RTZ39L9cK/M/KbqJtVMO9z82d/S/XCvzPym6ibVTDvc/vvMwWYHGxD82epD52/mRPwXAeAYN/SM/AMDaRVHrR9RVK/M/gRB/A0kO9z9R60fUVSvzP4EQfwNJDvc/gSlewCbGxD\u002BTLkfZbPaRP\u002BdGouHeRiQ/"
+                  "x": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000],
+                  "traces": [
+                    [1.1981563, 1.198139, 1.198142, 1.1981301, 1.1981087, 1.1981011, 1.1980865, 1.1980799],
+                    [1.4411752, 1.4411678, 1.4411365, 1.4411016, 1.4410616, 1.4410257, 1.4409978, 1.4409876],
+                    [1.1981563, 1.198139, 1.198142, 1.1981301, 1.1981087, 1.1981011, 1.1980865, 1.1980799],
+                    [1.4411752, 1.4411678, 1.4411365, 1.4411016, 1.4410616, 1.4410257, 1.4409978, 1.4409876],
+                    [0.162292, 0.16227, 0.1622769, 0.1622844, 0.1622727, 0.1623073, 0.1623079, 0.1622971],
+                    [0.0175171, 0.0175342, 0.0175416, 0.0175467, 0.0175527, 0.0175632, 0.0175547, 0.0175416],
+                    [0.000145, 0.0001481, 0.0001493, 0.0001496, 0.0001511, 0.0001526, 0.0001525, 0.0001547]
+                  ]
                 },
                 "CPlotInfo": {
                   "x10": 1,

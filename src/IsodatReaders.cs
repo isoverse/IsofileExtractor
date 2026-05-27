@@ -2084,16 +2084,16 @@ static class Readers
             byte[] buf = Convert.FromBase64String(bufNode.GetValue<string>());
             int stride = 4 + nTraces * 8;  // float time + nTraces doubles
             int n = buf.Length / stride;
-            var time = new JsonArray();
+            var x = new JsonArray();
             var traces = Enumerable.Range(0, nTraces).Select(_ => new JsonArray()).ToArray();
             for (int i = 0; i < n; i++)
             {
                 int off = i * stride;
-                time.Add(JsonValue.Create(BitConverter.ToSingle(buf, off)));
+                x.Add(JsonValue.Create(BitConverter.ToSingle(buf, off)));
                 for (int t = 0; t < nTraces; t++)
                     traces[t].Add(JsonValue.Create(BitConverter.ToDouble(buf, off + 4 + t * 8)));
             }
-            storage["time"] = time;
+            storage["x"] = x;
             storage["traces"] = new JsonArray(traces.Select(a => (JsonNode)a).ToArray());
             if (!Unabridged) storage.Remove("buffer");
         }
@@ -4249,8 +4249,26 @@ static class Readers
         jo["n_points"] = nPoints;
         jo["n_traces"] = nTraces;
 
-        // First CBinary: actual scan data
+        // First CBinary: actual scan data — interleaved float x + nTraces doubles per point
         ReadObjectInto(jo, isofile, "CBinary");
+        if (jo["CBinary"] is JsonObject cbinary &&
+            cbinary["data"] is JsonValue dataNode && nTraces > 0 && nPoints > 0)
+        {
+            byte[] buf = Convert.FromBase64String(dataNode.GetValue<string>());
+            int stride = 4 + nTraces * 8;
+            var x = new JsonArray();
+            var traces = Enumerable.Range(0, nTraces).Select(_ => new JsonArray()).ToArray();
+            for (int i = 0; i < nPoints; i++)
+            {
+                int off = i * stride;
+                x.Add(JsonValue.Create(BitConverter.ToSingle(buf, off)));
+                for (int t = 0; t < nTraces; t++)
+                    traces[t].Add(JsonValue.Create(BitConverter.ToDouble(buf, off + 4 + t * 8)));
+            }
+            cbinary["x"] = x;
+            cbinary["traces"] = new JsonArray(traces.Select(a => (JsonNode)a).ToArray());
+            if (!Unabridged) cbinary.Remove("data");
+        }
 
         // Second CBinary: its data bytes ARE the CPlotInfo archive (fresh, independent
         // MFC session with its own class counter starting at 1). Read only the header
