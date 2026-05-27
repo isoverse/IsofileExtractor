@@ -77,6 +77,49 @@ Each file extension uses a fixed set of top-level objects as its entry point:
 
 After the last expected object, the file must be fully read. Any remaining bytes indicate a parse error or an unimplemented trailing object.
 
+## Resistor Values
+
+Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes.
+
+### Cup resistors — `CCupHardwarePart[N].resistor`
+
+The configured (nominal) resistance for each detector cup is stored as an integer (in ohms) inside `CCupHardwarePart`. This array always covers **all physical cups** in the instrument collector array (typically 8–10 entries). Cups that are not installed or not connected carry the sentinel value `200` (200 Ω), which is far below any real feedback resistor and can be used to identify inactive cups. Values of `200000` (200 kΩ) appear for the H cup in hydrogen-measurement configurations, which requires a lower resistance to handle the large H₂⁺ beam current. Active cups carry round integer values (e.g. 300,000,000 = 300 MΩ; 30,000,000,000 = 30 GΩ).
+
+The path to reach them runs through `CIntegrationUnitScanPart → CIntegrationUnitHardwarePart → CCupHardwarePart[N].resistor`. The root of that path depends on file type:
+
+| Extension | Path prefix |
+|-----------|-------------|
+| `.scn` | `CScanStorage.CIntegrationUnitScanPart.p.CIntegrationUnitHardwarePart` |
+| `.dxf` | `CContiniousFlowBlockData.p.objects.CBlockData[5].objects.CMethod.p.objects.CGasConfiguration.p.objects.CBasicScan.CIntegrationUnitScanPart.p.CIntegrationUnitHardwarePart` |
+| `.did` | `CDualInletBlockData.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CBasicScan.CIntegrationUnitScanPart.p.CIntegrationUnitHardwarePart` |
+| `.caf` | `CBlockDataContext.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CBasicScan.CIntegrationUnitScanPart.p.CIntegrationUnitHardwarePart` |
+| `.cf` | `CMethod.p.objects.CGasConfiguration.p.objects.CBasicScan.CIntegrationUnitScanPart.p.CIntegrationUnitHardwarePart` |
+
+The same `CCupHardwarePart` array is repeated inside several embedded method-part subtrees (e.g. `CICA_BasicMethodPart`, `CContiniousFlowStandardizationListMethodPart`, `CPeakFindMethodPart`) — these are copies of the same hardware configuration embedded within each method component and carry identical values.
+
+### Calibrated cup resistors — `CEvalIntegrationUnitHWInfo[N].resistor`
+
+The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number), and `cup` (the physical cup position number). These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
+
+The calibrated values are derived from the instrument's gain calibration routine with all DIO resistor switches already in their measurement position, so they reflect the actual resistance of whichever resistor is physically connected at measurement time. If a cup uses an alternate resistor bank (DIO switch in position 1), the calibrated value already reflects that alternate resistor — there is no separate stored calibration for each switch position. The calibrated values typically deviate from the nominal by up to ~1% (e.g. 297 MΩ calibrated vs. 300 MΩ nominal); in some configurations the deviation is larger.
+
+The count of `CEvalIntegrationUnitHWInfo` entries does **not** match the number of active `CCupHardwarePart` entries — it covers only the cups gain-calibrated for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
+
+For accurate conversion of raw voltages to ion currents, use the calibrated `CEvalIntegrationUnitHWInfo.resistor` values rather than the nominal `CCupHardwarePart.resistor` values. The `mass`, `channel`, and `cup` fields on each entry identify which detector the value applies to.
+
+The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitHWInfoList → CEvalIntegrationUnitHWInfo[N].resistor`:
+
+| Extension | Path prefix |
+|-----------|-------------|
+| `.dxf` | `CContiniousFlowBlockData.p.objects.CBlockData[5].objects.CMethod.p.objects.CEvalIntegrationUnitHWInfoStore.p.objects.CEvalIntegrationUnitHWInfoList.p.objects` |
+| `.did` | `CDualInletBlockData.p.objects.CMethod.p.objects.CNumericValue.CEvalIntegrationUnitHWInfoStore.p.objects.CEvalIntegrationUnitHWInfoList.p.objects` |
+| `.caf` | `CBlockDataContext.p.objects.CMethod.p.objects.CEvalIntegrationUnitHWInfoStore.p.objects.CEvalIntegrationUnitHWInfoList.p.objects` |
+| `.cf` | `CMethod.p.objects.CEvalIntegrationUnitHWInfoStore.p.objects.CEvalIntegrationUnitHWInfoList.p.objects` |
+
+### Resistor channel state — `CDioTransferPart[N].raw_value`
+
+In `.scn` files the `CGasConfiguration` object contains a list of `CDioTransferPart` objects whose `p.p.v` name follows the pattern `"Resitor Channel N"` (note: Isodat's own typo). The `raw_value` field (0 or 1) is a digital I/O state flag indicating which resistor bank is switched in for each channel, not the resistance value itself.
+
 ## Related Documentation
 
 - [Inheritance Hierarchy](isodat_inheritance_hierarchy.md) — full listing of all known C++ classes, their base classes, and which classes share a `Serialize` implementation.
