@@ -18,7 +18,7 @@
       - CEvalDataIntTransferPart
     - CEvalDataStringTransferPart
 - CEvalIntegrationUnitHWInfo
-- CH3Data (no parent Serialize call despite CData base; Evaluation.dll)
+- CH3Data (no parent Serialize call despite CData base)
 - CH3FactorResult
 - CGridColors
 - CISLScriptMessageData
@@ -136,7 +136,7 @@
 - CSamplerDevice
   - CA200SDevice
   - CFlashEA_AS2000Device
-    - CFlashEA_AS3000Device (Serialize = CFlashEA_AS2000Device::Serialize, vftable-confirmed)
+    - CFlashEA_AS3000Device (same as CFlashEA_AS2000Device)
 
 ## CData::CBlockData::CPort
 - CActivePort
@@ -287,7 +287,7 @@
 - CParsedEvaluationString
 - CNumericValue
 - CShrinkInfo
-- CPartMirror (pure virtual no-op Serialize; concrete subclasses used only as runtime mirrors, not serialized)
+- CPartMirror (pure virtual Serialize; concrete subclasses used only as runtime mirrors, not serialized)
 - CGCBGDData (CData-derived; no parent Serialize call)
 - CGCPeak (parent class CGCBGDData)
 - CSPeak (parent class CResultData)

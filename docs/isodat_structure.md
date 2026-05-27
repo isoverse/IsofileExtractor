@@ -77,6 +77,8 @@ Each file extension uses a fixed set of top-level objects as its entry point:
 
 After the last expected object, the file must be fully read. Any remaining bytes indicate a parse error or an unimplemented trailing object.
 
+# Data Locations
+
 ## Resistor Values
 
 Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes.
@@ -120,7 +122,7 @@ The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitH
 
 In `.scn` files the `CGasConfiguration` object contains a list of `CDioTransferPart` objects whose `p.p.v` name follows the pattern `"Resitor Channel N"` (note: Isodat's own typo). The `raw_value` field (0 or 1) is a digital I/O state flag indicating which resistor bank is switched in for each channel, not the resistance value itself.
 
-## Related Documentation
+# Related Documentation
 
 - [Inheritance Hierarchy](isodat_inheritance_hierarchy.md) — full listing of all known C++ classes, their base classes, and which classes share a `Serialize` implementation.
 - [Example: `.scn` structure tree](isodat_scn_structure_tree.md) — annotated object tree for a scan file, showing how `CScanStorage` nests hardware parts and gas configurations.
