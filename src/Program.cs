@@ -71,6 +71,7 @@ if (paths.Length == 0)
 HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
     { ".dxf", ".cf", ".did", ".caf", ".scn" };
 
+int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
 (string Full, string Display)[] files = paths
     .SelectMany(p =>
@@ -82,6 +83,12 @@ string cwd = Directory.GetCurrentDirectory();
             return Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
                 .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
                 .Select(f => (f, Display(f)));
+        if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
+        {
+            Console.Error.WriteLine($"Skipping unsupported file extension: {Display(full)}");
+            Interlocked.Exchange(ref exitCode, 1);
+            return [];
+        }
         return [(full, Display(full))];
     })
     .ToArray();
@@ -98,7 +105,6 @@ var options = new JsonSerializerOptions
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
 
-int exitCode = 0;
 var logEntries = new System.Collections.Concurrent.ConcurrentQueue<(string File, bool Success, string Error, long Ms)>();
 
 Parallel.ForEach(files, inputArg =>
