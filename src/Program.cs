@@ -121,6 +121,16 @@ Parallel.ForEach(files, inputArg =>
     string outputPath = inputPath + ".json";
 
     using var stream = File.OpenRead(inputPath);
+    {
+        Span<byte> magic = stackalloc byte[2];
+        if (stream.Read(magic) < 2 || magic[0] != 0xFF || magic[1] != 0xFF)
+        {
+            Console.Error.WriteLine($"Not an isodat file: {Path.GetFileName(inputPath)}");
+            Interlocked.Exchange(ref exitCode, 1);
+            return;
+        }
+        stream.Seek(0, SeekOrigin.Begin);
+    }
     using var archive = new IsodatFile(stream);
 
     string ext = Path.GetExtension(inputPath).ToLowerInvariant();
@@ -208,7 +218,7 @@ Parallel.ForEach(files, inputArg =>
             Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {caughtEx.Message}");
             Interlocked.Exchange(ref exitCode, 1);
         }
-        WriteIssuesLog(archive, inputPath, caughtEx);
+        if (!dryRun) WriteIssuesLog(archive, inputPath, caughtEx);
         if (dumpObjects)
             DumpObjects(archive, inputPath);
         if (dumpTree)
