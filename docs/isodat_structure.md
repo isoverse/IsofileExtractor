@@ -79,6 +79,85 @@ After the last expected object, the file must be fully read. Any remaining bytes
 
 # Data Locations
 
+## Raw Data
+
+Raw measurement data is stored in different container objects depending on file type. For `.scn`, `.cf`, and `.dxf` files the data is decoded from a flat binary buffer into two parallel arrays: `x` (float, the scan-axis values) and `traces` (double, one array per detector, one value per point). For `.did` and `.caf` files the raw voltages are held in `CDualInletRawData` using a different structure (`CIntensityData` blocks organised by acquisition cycle).
+
+### Trace masses
+
+For all file types, the m/z mass assigned to each detector trace is stored in `CChannelGasConfPart[N].mass` inside the `CGasConfiguration`. The index `N` corresponds to the trace index in the `traces` array (0-based). The path to these values depends on file type:
+
+| Extension | Path to `CChannelGasConfPart[N].mass` |
+|-----------|---------------------------------------|
+| `.scn` | `CScanStorage.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+| `.cf`  | `CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+| `.dxf` | `CContiniousFlowBlockData.p.objects.CBlockData[5].objects.CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+| `.did` | `CDualInletBlockData.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+| `.caf` | `CBlockDataContext.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+
+For `.scn` and `.cf` files, a human-readable `trace_labels` string array (e.g. `["Mass 44", "Mass 45", "Mass 46"]`) is also available directly on the data container (`CScanStorage` and `CRawDataScanStorage` respectively). The numeric `CChannelGasConfPart.mass` values are the authoritative source.
+
+### `.scn` — `CScanStorage.CBinary`
+
+```
+CScanStorage
+  ├── n_points          number of scan points
+  ├── n_traces          number of detector traces
+  ├── trace_labels      string[n_traces]           human-readable labels e.g. "Mass 44.00 [C1]"
+  ├── CGasConfiguration.p.objects
+  │     └── CIntegrationUnitGasConfPart
+  │           └── CChannelGasConfPart[N].mass      integer m/z for trace N
+  └── CBinary
+        ├── x           float[n_points]            scan-axis values (e.g. high-voltage steps)
+        └── traces      double[n_traces][n_points]  detector intensities
+```
+
+### `.cf` — `CRawDataScanStorage.CBinary`
+
+Each gas block (`CBlockDataContext`) contains one `CRawDataScanStorage` with the same `CBinary` layout as `.scn`. The mass assignments live in the top-level `CMethod.CGasConfiguration`:
+
+```
+CBlockData[0].objects
+  └── CBlockDataContext[N].p.objects
+        └── CBlockData.objects
+              └── CRawDataScanStorage
+                    ├── n_points
+                    ├── n_traces
+                    ├── trace_labels      string[n_traces]
+                    └── CBinary
+                          ├── x       float[n_points]
+                          └── traces  double[n_traces][n_points]
+
+CMethod.p.objects.CGasConfiguration.p.objects
+  └── CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass
+```
+
+### `.dxf` — `CRawData[N].p.CEvalGCData`
+
+One or more `CRawData` objects live inside each data `CBlockData`. Their `CEvalGCData` child carries the decoded arrays in a nested parent node. Mass assignments are in the method `CGasConfiguration`:
+
+```
+CContiniousFlowBlockData.p.objects
+  └── CBlockData[N].objects
+        └── CRawData[M].p
+              └── CEvalGCData.p.p
+                    ├── x       float[n_points]
+                    └── traces  double[n_traces][n_points]
+
+CContiniousFlowBlockData.p.objects.CBlockData[5].objects
+  └── CMethod.p.objects.CGasConfiguration.p.objects
+        └── CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass
+```
+
+### `.did` and `.caf` — `CDualInletRawData`
+
+Dual-inlet files do not use the `x`/`traces` layout. Raw voltages are stored in `CDualInletRawData` as `CIntensityData` blocks (one per detector) organised by acquisition cycle. Mass assignments follow the same `CGasConfiguration` pattern:
+
+| Extension | Path to `CDualInletRawData` | Path to `CChannelGasConfPart[N].mass` |
+|-----------|----------------------------|---------------------------------------|
+| `.did` | `CDualInletBlockData.p.objects.CDualInletRawData` | `CDualInletBlockData.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+| `.caf` | `CBlockDataContext.p.objects.CDualInletRawData` | `CBlockDataContext.p.objects.CMethod.p.objects.CGasConfiguration.p.objects.CIntegrationUnitGasConfPart.CChannelGasConfPart[N].mass` |
+
 ## Resistor Values
 
 Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes.
