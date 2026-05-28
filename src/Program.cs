@@ -123,6 +123,7 @@ string? logPath = writeLog
         ? Path.GetFullPath(logPathArg)
         : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log"))
     : null;
+string? logDisplayPath = writeLog ? (logPathArg ?? "isoextract.log") : null;
 
 StreamWriter? logWriter = null;
 object logLock = new();
@@ -259,7 +260,7 @@ Parallel.ForEach(files, inputArg =>
 });
 
 logWriter?.Dispose();
-if (logPath is not null) Console.WriteLine($"Log: {logPath}");
+if (logDisplayPath is not null) Console.WriteLine($"Log: {logDisplayPath}");
 
 return exitCode;
 
