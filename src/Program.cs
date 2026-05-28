@@ -10,9 +10,11 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
     return 0;
 }
 
+var usage = "Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]";
+
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine(usage);
     return 1;
 }
 
@@ -64,7 +66,7 @@ string[] paths = pathList.ToArray();
 
 if (paths.Length == 0)
 {
-    Console.Error.WriteLine("Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]");
+    Console.Error.WriteLine(usage);
     return 1;
 }
 
@@ -96,7 +98,7 @@ if (folderCount > 0)
         }
         if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
         {
-            Console.Error.WriteLine($"Skipping unsupported file extension: {Display(full)}");
+            Console.Error.WriteLine($"Skipping unsupported file extension: {Path.GetFileName(p)} ");
             Interlocked.Exchange(ref exitCode, 1);
             return [];
         }
@@ -116,7 +118,19 @@ var options = new JsonSerializerOptions
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
 
-var logEntries = new System.Collections.Concurrent.ConcurrentQueue<(string File, bool Success, string Error, long Ms)>();
+string? logPath = writeLog
+    ? (logPathArg is not null
+        ? Path.GetFullPath(logPathArg)
+        : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log"))
+    : null;
+
+StreamWriter? logWriter = null;
+object logLock = new();
+if (logPath is not null)
+{
+    logWriter = new StreamWriter(logPath, append: false) { AutoFlush = true };
+    logWriter.WriteLine("file,success,duration_ms,error");
+}
 
 Parallel.ForEach(files, inputArg =>
 {
@@ -211,7 +225,7 @@ Parallel.ForEach(files, inputArg =>
             string json = root.ToJsonString(options);
             if (prettyJson) json = CollapseNumberArrays(json);
             File.WriteAllText(outputPath, json);
-            Console.WriteLine($"Written: {outputPath}{(caughtEx is not null ? " (incomplete)" : "")}");
+            Console.WriteLine($"Written: {displayPath}.json{(caughtEx is not null ? " (incomplete)" : "")}");
         }
         else
         {
@@ -231,25 +245,21 @@ Parallel.ForEach(files, inputArg =>
         }
         if (!dryRun) WriteIssuesLog(archive, inputPath, caughtEx);
         if (dumpObjects)
-            DumpObjects(archive, inputPath);
+            DumpObjects(archive, inputPath, displayPath);
         if (dumpTree)
-            DumpTree(archive, inputPath);
-        if (writeLog)
-            logEntries.Enqueue((displayPath, caughtEx is null, caughtEx?.Message ?? "", sw.ElapsedMilliseconds));
+            DumpTree(archive, inputPath, displayPath);
+        if (logWriter is not null)
+        {
+            bool success = caughtEx is null;
+            string error = caughtEx?.Message ?? "";
+            string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
+            lock (logLock) logWriter.WriteLine(line);
+        }
     }
 });
 
-if (writeLog)
-{
-    string logPath = logPathArg is not null
-        ? Path.GetFullPath(logPathArg)
-        : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log");
-    using var writer = new StreamWriter(logPath);
-    writer.WriteLine("file,success,duration_ms,error");
-    foreach (var (file, success, error, ms) in logEntries)
-        writer.WriteLine($"{CsvField(file)},{success.ToString().ToLowerInvariant()},{ms},\"{error.Replace("\"", "\"\"")}\"");
-    Console.Error.WriteLine($"Log written: {logPath}");
-}
+logWriter?.Dispose();
+if (logPath is not null) Console.WriteLine($"Log: {logPath}");
 
 return exitCode;
 
@@ -267,7 +277,7 @@ static string CollapseNumberArrays(string json) =>
                  .Select(n => n.Value)) + "]",
         RegexOptions.Singleline);
 
-static void DumpObjects(IsodatFile archive, string inputPath)
+static void DumpObjects(IsodatFile archive, string inputPath, string displayPath)
 {
     string csvPath = inputPath + ".objects.csv";
     using var writer = new StreamWriter(csvPath);
@@ -276,7 +286,7 @@ static void DumpObjects(IsodatFile archive, string inputPath)
     {
         writer.WriteLine($"0x{e.Start:x},{e.ClassIdx},{e.ObjIdx},{e.ContainerObjIdx?.ToString() ?? ""},\"{e.ClassName}\",{e.ArchiveVersion},{e.NObjects?.ToString() ?? ""},{e.BlockObjectIdx?.ToString() ?? ""},{e.GroupTotal?.ToString() ?? ""},\"{e.Value ?? ""}\"");
     }
-    Console.Error.WriteLine($"Objects written: {csvPath} ({archive.ObjectLog.Count} entries)");
+    Console.WriteLine($"Objects written: {displayPath}.objects.csv ({archive.ObjectLog.Count} entries)");
 }
 
 static void WriteIssuesLog(IsodatFile archive, string inputPath, Exception? error)
@@ -294,7 +304,7 @@ static void WriteIssuesLog(IsodatFile archive, string inputPath, Exception? erro
         writer.WriteLine($"error: {error.Message}");
 }
 
-static void DumpTree(IsodatFile archive, string inputPath)
+static void DumpTree(IsodatFile archive, string inputPath, string displayPath)
 {
     string treePath = inputPath + ".tree.txt";
 
@@ -311,7 +321,7 @@ static void DumpTree(IsodatFile archive, string inputPath)
 
     using var writer = new StreamWriter(treePath);
     WriteTreeLevel(writer, childrenOf, parentObjIdx: Root, depth: 0);
-    Console.Error.WriteLine($"Tree written: {treePath}");
+    Console.WriteLine($"Tree written: {displayPath}.tree.txt");
 }
 
 static void WriteTreeLevel(
