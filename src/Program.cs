@@ -153,6 +153,7 @@ Parallel.ForEach(files, inputArg =>
         {
             Console.Error.WriteLine($"Not an isodat file: {Path.GetFileName(inputPath)}");
             Interlocked.Exchange(ref exitCode, 1);
+            if (!dryRun) File.WriteAllText(inputPath + ".issues.log", "error: Not an isodat file\n");
             return;
         }
         stream.Seek(0, SeekOrigin.Begin);
