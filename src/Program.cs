@@ -71,7 +71,7 @@ if (paths.Length == 0)
 }
 
 HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
-    { ".dxf", ".cf", ".did", ".caf", ".scn" };
+    { ".dxf", ".cf", ".did", ".caf", ".scn", ".iarc" };
 
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
@@ -145,6 +145,63 @@ Parallel.ForEach(files, inputArg =>
     }
 
     string outputPath = inputPath + ".json";
+    string ext = Path.GetExtension(inputPath).ToLowerInvariant();
+
+    if (ext == ".iarc")
+    {
+        var iarcMeta = new JsonObject
+        {
+            ["isoextract_version"] = assemblyVersion,
+            ["file_type"] = "iarc",
+            ["file_size_bytes"] = new FileInfo(inputPath).Length,
+        };
+        var iarcRoot = new JsonObject();
+        iarcRoot["meta"] = iarcMeta;
+        Exception? iarcEx = null;
+        try
+        {
+            using var zip = new System.IO.Compression.ZipArchive(
+                File.OpenRead(inputPath), System.IO.Compression.ZipArchiveMode.Read);
+            IarcReader.Read(zip, iarcRoot);
+        }
+        catch (Exception ex) { iarcEx = ex; }
+        finally
+        {
+            iarcMeta["complete"] = iarcEx is null;
+            if (!dryRun)
+            {
+                string json = iarcRoot.ToJsonString(options);
+                if (prettyJson) json = CollapseNumberArrays(json);
+                File.WriteAllText(outputPath, json);
+                Console.WriteLine($"Written: {displayPath}.json{(iarcEx is not null ? " (incomplete)" : "")}");
+            }
+            else
+            {
+                Console.WriteLine($"Parsed (dry run): {displayPath}{(iarcEx is not null ? " (incomplete)" : "")}");
+            }
+            if (iarcEx is not null)
+            {
+                Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {iarcEx.Message}");
+                Interlocked.Exchange(ref exitCode, 1);
+            }
+            if (!dryRun)
+            {
+                string issuesLogPath = inputPath + ".issues.log";
+                if (iarcEx is not null)
+                    File.WriteAllText(issuesLogPath, $"error: {iarcEx.Message}\n");
+                else
+                    File.Delete(issuesLogPath);
+            }
+            if (logWriter is not null)
+            {
+                bool success = iarcEx is null;
+                string error = iarcEx?.Message ?? "";
+                string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
+                lock (logLock) logWriter.WriteLine(line);
+            }
+        }
+        return;
+    }
 
     using var stream = File.OpenRead(inputPath);
     {
@@ -153,14 +210,12 @@ Parallel.ForEach(files, inputArg =>
         {
             Console.Error.WriteLine($"Not an isodat file: {Path.GetFileName(inputPath)}");
             Interlocked.Exchange(ref exitCode, 1);
-            if (!dryRun) File.WriteAllText(inputPath + ".issues.log", "error: Not an isodat file\n");
+            if (!dryRun) File.WriteAllText(inputPath + ".issues.log", "error: not an isodat file\n");
             return;
         }
         stream.Seek(0, SeekOrigin.Begin);
     }
     using var archive = new IsodatFile(stream);
-
-    string ext = Path.GetExtension(inputPath).ToLowerInvariant();
 
     var meta = new JsonObject
     {
