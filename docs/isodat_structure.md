@@ -79,85 +79,6 @@ After the last expected object, the file must be fully read. Any remaining bytes
 
 # Data Locations
 
-## Raw Data
-
-Raw measurement data is stored in different container objects depending on file type. For `.scn`, `.cf`, and `.dxf` files the data is decoded from a flat binary buffer into two parallel arrays: `x` (float, the scan-axis values) and `traces` (double, one array per detector, one value per point). For `.did` and `.caf` files the raw voltages are held in `CDualInletRawData` using a different structure (`CIntensityData` blocks organised by acquisition cycle).
-
-### Trace masses
-
-For all file types, the m/z mass assigned to each detector trace is stored in `CChannelGasConfPart[N]/mass` inside the `CGasConfiguration`. The index `N` corresponds to the trace index in the `traces` array (0-based). The path to these values depends on file type:
-
-| Extension | Path to `CChannelGasConfPart[N]/mass` |
-|-----------|---------------------------------------|
-| `.scn` | `CScanStorage/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-| `.cf`  | `CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-| `.dxf` | `CContiniousFlowBlockData/p/objects/CBlockData[5]/objects/CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-| `.did` | `CDualInletBlockData/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-| `.caf` | `CBlockDataContext/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-
-For `.scn` and `.cf` files, a human-readable `trace_labels` string array (e.g. `["Mass 44", "Mass 45", "Mass 46"]`) is also available directly on the data container (`CScanStorage` and `CRawDataScanStorage` respectively). The numeric `CChannelGasConfPart/mass` values are the authoritative source.
-
-### `.scn` — `CScanStorage/CBinary`
-
-```
-CScanStorage
-  ├── n_points          number of scan points
-  ├── n_traces          number of detector traces
-  ├── trace_labels      string[n_traces]           human-readable labels e.g. "Mass 44.00 [C1]"
-  ├── CGasConfiguration/p/objects
-  │     └── CIntegrationUnitGasConfPart
-  │           └── CChannelGasConfPart[N]/mass      integer m/z for trace N
-  └── CBinary
-        ├── x           float[n_points]            scan-axis values (e.g. high-voltage steps)
-        └── traces      double[n_traces][n_points]  detector intensities
-```
-
-### `.cf` — `CRawDataScanStorage/CBinary`
-
-Each gas block (`CBlockDataContext`) contains one `CRawDataScanStorage` with the same `CBinary` layout as `.scn`. The mass assignments live in the top-level `CMethod/CGasConfiguration`:
-
-```
-CBlockData[0]/objects
-  └── CBlockDataContext[N]/p/objects
-        └── CBlockData/objects
-              └── CRawDataScanStorage
-                    ├── n_points
-                    ├── n_traces
-                    ├── trace_labels      string[n_traces]
-                    └── CBinary
-                          ├── x       float[n_points]
-                          └── traces  double[n_traces][n_points]
-
-CMethod/p/objects/CGasConfiguration/p/objects
-  └── CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass
-```
-
-### `.dxf` — `CRawData[N]/p/CEvalGCData`
-
-One or more `CRawData` objects live inside each data `CBlockData`. Their `CEvalGCData` child carries the decoded arrays in a nested parent node. Mass assignments are in the method `CGasConfiguration`:
-
-```
-CContiniousFlowBlockData/p/objects
-  └── CBlockData[N]/objects
-        └── CRawData[M]/p
-              └── CEvalGCData/p/p
-                    ├── x       float[n_points]
-                    └── traces  double[n_traces][n_points]
-
-CContiniousFlowBlockData/p/objects/CBlockData[5]/objects
-  └── CMethod/p/objects/CGasConfiguration/p/objects
-        └── CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass
-```
-
-### `.did` and `.caf` — `CDualInletRawData`
-
-Dual-inlet files do not use the `x`/`traces` layout. Raw voltages are stored in `CDualInletRawData` as `CIntensityData` blocks (one per detector) organised by acquisition cycle. Mass assignments follow the same `CGasConfiguration` pattern:
-
-| Extension | Path to `CDualInletRawData` | Path to `CChannelGasConfPart[N]/mass` |
-|-----------|----------------------------|---------------------------------------|
-| `.did` | `CDualInletBlockData/p/objects/CDualInletRawData` | `CDualInletBlockData/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-| `.caf` | `CBlockDataContext/p/objects/CDualInletRawData` | `CBlockDataContext/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart[N]/mass` |
-
 ## Gas Name
 
 The measurement gas name string (e.g. `"CO2"`, `"SO2"`, `"N2"`) is stored at `CGasConfiguration/p/p/v`. For multi-gas files, the top-level method carries the first gas; each sub-method entry within `CMethod/CMethod[N]` carries the name for its respective gas.
@@ -194,13 +115,13 @@ The same `CCupHardwarePart` array is repeated inside several embedded method-par
 
 ### Calibrated cup resistors — `CEvalIntegrationUnitHWInfo[N]/resistor`
 
-The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number), and `cup` (the physical cup position number). These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
+The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number, corresponding to the trace index in the raw data arrays), and `cup` (the physical cup position number). The `mass` and `channel` fields together provide the channel-to-mass mapping: the trace at index `channel` in the raw data measures ions at m/z `mass`. These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
 
 The calibrated values are derived from the instrument's gain calibration routine with all DIO resistor switches already in their measurement position, so they reflect the actual resistance of whichever resistor is physically connected at measurement time. If a cup uses an alternate resistor bank (DIO switch in position 1), the calibrated value already reflects that alternate resistor — there is no separate stored calibration for each switch position. The calibrated values typically deviate from the nominal by up to ~1% (e.g. 297 MΩ calibrated vs. 300 MΩ nominal); in some configurations the deviation is larger.
 
 The count of `CEvalIntegrationUnitHWInfo` entries does **not** match the number of active `CCupHardwarePart` entries — it covers only the cups gain-calibrated for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
 
-For accurate conversion of raw voltages to ion currents, use the calibrated `CEvalIntegrationUnitHWInfo/resistor` values rather than the nominal `CCupHardwarePart/resistor` values. The `mass`, `channel`, and `cup` fields on each entry identify which detector the value applies to.
+For accurate conversion of raw voltages to ion currents, use the calibrated `CEvalIntegrationUnitHWInfo/resistor` values rather than the nominal `CCupHardwarePart/resistor` values.
 
 The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitHWInfoList → CEvalIntegrationUnitHWInfo[N]/resistor`:
 
@@ -214,9 +135,73 @@ The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitH
 
 For `.did` files, the `CEvalIntegrationUnitHWInfoStore` node may be wrapped inside an additional `CNumericValue` object depending on the Isodat version; both path variants must be tried.
 
+For `.scn` files, there is no calibrated resistor table. Nominal cup resistors from `CCupHardwarePart` are used instead, and the channel-to-mass mapping is obtained from `CChannelGasConfPart` inside the `CGasConfiguration`. Each row of `CChannelGasConfPart` carries `mass` (integer m/z), `cup` (physical cup position), and `idx` (1-based channel/trace index):
+
+| Extension | Path to `CChannelGasConfPart` |
+|-----------|-------------------------------|
+| `.scn` | `CScanStorage/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart` |
+
 ### Resistor channel state — `CDioTransferPart[N]/raw_value`
 
 In `.scn` files the `CGasConfiguration` object contains a list of `CDioTransferPart` objects whose `p/p/v` name follows the pattern `"Resitor Channel N"` (note: Isodat's own typo). The `raw_value` field (0 or 1) is a digital I/O state flag indicating which resistor bank is switched in for each channel, not the resistance value itself.
+
+## Raw Data
+
+Raw measurement data is stored in different container objects depending on file type. For `.scn`, `.cf`, and `.dxf` files the data is decoded from a flat binary buffer into two parallel arrays: `x` (float, the scan-axis values) and `traces` (double, one array per detector, one value per point). For `.did` and `.caf` files the raw voltages are held in `CDualInletRawData` using a different structure (`CIntensityData` blocks organised by acquisition cycle). The channel-to-mass mapping for each trace index is available from the resistor values described above.
+
+### `.scn` — `CScanStorage/CBinary`
+
+```
+CScanStorage
+  ├── n_points          number of scan points
+  ├── n_traces          number of detector traces
+  ├── trace_labels      string[n_traces]           human-readable labels e.g. "Mass 44.00 [C1]"
+  ├── CGasConfiguration/p/objects
+  │     └── CIntegrationUnitGasConfPart
+  │           └── CChannelGasConfPart[N]           channel-to-mass mapping (see Resistor Values)
+  └── CBinary
+        ├── x           float[n_points]            scan-axis values (e.g. high-voltage steps)
+        └── traces      double[n_traces][n_points]  detector intensities
+```
+
+### `.cf` — `CRawDataScanStorage/CBinary`
+
+The root-level `CBlockData[0]` holds one `CBlockDataContext` per gas. Each `CBlockDataContext` contains an inner `CBlockData` with a single `CRawDataScanStorage` carrying the `CBinary` layout. For single-gas files the `CBlockDataContext` is a plain object; for multi-gas files it is an array indexed 0…N−1, one entry per gas:
+
+```
+CBlockData[0]/objects
+  └── CBlockDataContext[N]/p/objects       ← one entry per gas (N = gas index)
+        └── CBlockData/objects
+              └── CRawDataScanStorage
+                    ├── n_points
+                    ├── n_traces
+                    ├── trace_labels      string[n_traces]
+                    └── CBinary
+                          ├── x       float[n_points]
+                          └── traces  double[n_traces][n_points]
+```
+
+### `.dxf` — `CRawData[M]/p/CEvalGCData`
+
+`CContiniousFlowBlockData` contains a fixed-layout list of six `CBlockData` children: index 0 holds plot settings, index 5 holds the method, and indices 1…(n_gases) each hold the raw data for one gas. Within each gas block there are one or more `CRawData` entries — one per GC injection of that gas. Each `CRawData/p/CEvalGCData/p/p` carries the decoded arrays:
+
+```
+CContiniousFlowBlockData/p/objects
+  └── CBlockData[N]/objects               ← N = gas index (1-based; 1 = first gas, 2 = second, …)
+        └── CRawData[M]/p                 ← M = injection index (0-based)
+              └── CEvalGCData/p/p
+                    ├── x       float[n_points]
+                    └── traces  double[n_traces][n_points]
+```
+
+### `.did` and `.caf` — `CDualInletRawData`
+
+Dual-inlet files do not use the `x`/`traces` layout. Raw voltages are stored in `CDualInletRawData` as `CIntensityData` blocks (one per detector) organised by acquisition cycle. For multi-gas dual-inlet files there is one `CDualInletRawData` per gas:
+
+| Extension | Path to `CDualInletRawData` |
+|-----------|----------------------------|
+| `.did` | `CDualInletBlockData/p/objects/CDualInletRawData` |
+| `.caf` | `CBlockDataContext/p/objects/CDualInletRawData` |
 
 # Related Documentation
 
