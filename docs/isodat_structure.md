@@ -79,6 +79,36 @@ After the last expected object, the file must be fully read. Any remaining bytes
 
 # Data Locations
 
+## File Datetime
+
+For `.dxf`, `.cf`, `.did`, and `.caf` files the measurement timestamp is at `CFileHeader/p/objects/CTimeObject/datetime` (ISO 8601 string). For `.scn` files, which have no `CFileHeader`, it is at `CScanStorage/timestamp_start`. A `timestamp_end` field is also present on `CScanStorage`.
+
+## Sequence Line Information
+
+Sample metadata (run identifier, method names, injection details, etc.) is stored in different structures depending on file type.
+
+### `.dxf` and `.did` — CData array inside a named CBlockData
+
+A `CBlockData` entry whose `p/v` equals `"Sequence Line Information"` holds an array of `CData` child objects. Each `CData` row carries `v` (field name) and `l` (field value).
+
+| Extension | CBlockData array path |
+|-----------|----------------------|
+| `.dxf` | `CContiniousFlowBlockData/p/objects/CBlockData` |
+| `.did` | `CDualInletBlockData/p/objects/CBlockData` |
+
+### `.cf` and `.caf` — `CSequenceLineInformationGridStorage/p/CGridCtrl/cells`
+
+These file types store sequence metadata in a `CSequenceLineInformationGridStorage` object. The `cells` field is a `2 × N` character matrix: row 1 contains field names, row 2 contains values. The node may be absent in some files.
+
+| Extension | Path |
+|-----------|------|
+| `.cf` | `CBlockData/1/objects/CSequenceLineInformationGridStorage/p/CGridCtrl/cells` |
+| `.caf` | `CBlockDataContext/p/objects/CSequenceLineInformationGridStorage/p/CGridCtrl/cells` |
+
+### `.scn`
+
+Scan files do not carry sequence line information.
+
 ## Gas Name
 
 The measurement gas name string (e.g. `"CO2"`, `"SO2"`, `"N2"`) is stored at `CGasConfiguration/p/p/v`. For multi-gas files, the top-level method carries the first gas; each sub-method entry within `CMethod/CMethod[N]` carries the name for its respective gas.
