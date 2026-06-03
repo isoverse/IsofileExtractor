@@ -97,29 +97,13 @@ For `.dxf` files, `CGasConfiguration` may be wrapped in a `CNumericValue` node d
 
 Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes.
 
-### Cup resistors — `CCupHardwarePart[N]/resistor`
-
-The configured (nominal) resistance for each detector cup is stored as an integer (in ohms) inside `CCupHardwarePart`. This array always covers **all physical cups** in the instrument collector array (typically 8–10 entries). Cups that are not installed or not connected carry the sentinel value `200` (200 Ω), which is far below any real feedback resistor and can be used to identify inactive cups. Values of `200000` (200 kΩ) appear for the H cup in hydrogen-measurement configurations, which requires a lower resistance to handle the large H₂⁺ beam current. Active cups carry round integer values (e.g. 300,000,000 = 300 MΩ; 30,000,000,000 = 30 GΩ).
-
-The path to reach them runs through `CIntegrationUnitScanPart → CIntegrationUnitHardwarePart → CCupHardwarePart[N]/resistor`. The root of that path depends on file type:
-
-| Extension | Path prefix |
-|-----------|-------------|
-| `.scn` | `CScanStorage/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
-| `.dxf` | `CContiniousFlowBlockData/p/objects/CBlockData[5]/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
-| `.did` | `CDualInletBlockData/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
-| `.caf` | `CBlockDataContext/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
-| `.cf` | `CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
-
-The same `CCupHardwarePart` array is repeated inside several embedded method-part subtrees (e.g. `CICA_BasicMethodPart`, `CContiniousFlowStandardizationListMethodPart`, `CPeakFindMethodPart`) — these are copies of the same hardware configuration embedded within each method component and carry identical values.
-
 ### Calibrated cup resistors — `CEvalIntegrationUnitHWInfo[N]/resistor`
 
-The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number, corresponding to the trace index in the raw data arrays), and `cup` (the physical cup position number). The `mass` and `channel` fields together provide the channel-to-mass mapping: the trace at index `channel` in the raw data measures ions at m/z `mass`. These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
+The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number - 0-based, corresponding to the trace index in the raw data arrays), and `cup` (the physical cup position number). The `mass` and `channel` fields together provide the channel-to-mass mapping: the trace at index `channel` in the raw data measures ions at m/z `mass`. These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
 
 The calibrated values are derived from the instrument's gain calibration routine with all DIO resistor switches already in their measurement position, so they reflect the actual resistance of whichever resistor is physically connected at measurement time. If a cup uses an alternate resistor bank (DIO switch in position 1), the calibrated value already reflects that alternate resistor — there is no separate stored calibration for each switch position. The calibrated values typically deviate from the nominal by up to ~1% (e.g. 297 MΩ calibrated vs. 300 MΩ nominal); in some configurations the deviation is larger.
 
-The count of `CEvalIntegrationUnitHWInfo` entries does **not** match the number of active `CCupHardwarePart` entries — it covers only the cups gain-calibrated for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
+The count of `CEvalIntegrationUnitHWInfo` covers only the cups gain-calibrated for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
 
 For accurate conversion of raw voltages to ion currents, use the calibrated `CEvalIntegrationUnitHWInfo/resistor` values rather than the nominal `CCupHardwarePart/resistor` values.
 
@@ -135,11 +119,28 @@ The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitH
 
 For `.did` files, the `CEvalIntegrationUnitHWInfoStore` node may be wrapped inside an additional `CNumericValue` object depending on the Isodat version; both path variants must be tried.
 
-For `.scn` files, there is no calibrated resistor table. Nominal cup resistors from `CCupHardwarePart` are used instead, and the channel-to-mass mapping is obtained from `CChannelGasConfPart` inside the `CGasConfiguration`. Each row of `CChannelGasConfPart` carries `mass` (integer m/z), `cup` (physical cup position), and `idx` (1-based channel/trace index):
+For `.scn` files, there is no calibrated resistor table. Nominal cup resistors from `CCupHardwarePart` are used instead, and the channel-to-mass mapping is obtained from `CChannelGasConfPart` inside the `CGasConfiguration`. Each row of `CChannelGasConfPart` carries `mass` (integer m/z), `cup` (physical cup position), and `idx` (1-based channel/trace index - note that this needs to be adjusted to to 0-base to fit the raw data stored in .scn files):
 
 | Extension | Path to `CChannelGasConfPart` |
 |-----------|-------------------------------|
 | `.scn` | `CScanStorage/CGasConfiguration/p/objects/CIntegrationUnitGasConfPart/CChannelGasConfPart` |
+
+### Nominal cup resistors — `CCupHardwarePart[N]/resistor`
+
+The configured (nominal) resistance for each detector cup is stored as an integer (in ohms) inside `CCupHardwarePart`. This array always covers **all physical cups** in the instrument collector array. Cups that are not installed or not connected carry the sentinel value `200` (200 Ω), which is far below any real feedback resistor and can be used to identify inactive cups. These values should only be used for .scn files that do not carry calibrated cup resistors.
+
+The path to reach them runs through `CIntegrationUnitScanPart → CIntegrationUnitHardwarePart → CCupHardwarePart[N]/resistor`. The root of that path depends on file type:
+
+| Extension | Path prefix |
+|-----------|-------------|
+| `.scn` | `CScanStorage/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
+| `.dxf` | `CContiniousFlowBlockData/p/objects/CBlockData[5]/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
+| `.did` | `CDualInletBlockData/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
+| `.caf` | `CBlockDataContext/p/objects/CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
+| `.cf` | `CMethod/p/objects/CGasConfiguration/p/objects/CBasicScan/CIntegrationUnitScanPart/p/CIntegrationUnitHardwarePart` |
+
+The same `CCupHardwarePart` array is repeated inside several embedded method-part subtrees (e.g. `CICA_BasicMethodPart`, `CContiniousFlowStandardizationListMethodPart`, `CPeakFindMethodPart`) — these are copies of the same hardware configuration embedded within each method component and carry identical values.
+
 
 ### Resistor channel state — `CDioTransferPart[N]/raw_value`
 
