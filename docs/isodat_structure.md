@@ -90,8 +90,9 @@ The measurement gas name string (e.g. `"CO2"`, `"SO2"`, `"N2"`) is stored at `CG
 | `.did` | `CDualInletBlockData/p/objects/CMethod/p/objects/CGasConfiguration/p/p/v` |
 | `.caf` | `CBlockDataContext/p/objects/CMethod/p/objects/CGasConfiguration/p/p/v` |
 | `.cf` | `CMethod/p/objects/CGasConfiguration/p/p/v` |
+| `.scn` | `CScanStorage/CGasConfiguration/p/p/v` |
 
-For `.dxf` files, `CGasConfiguration` may be wrapped in a `CNumericValue` node depending on the Isodat version; both path variants must be tried. The `.did`, `.caf`, and `.cf` formats do not have this variant.
+For `.dxf` files, `CGasConfiguration` may be wrapped in a `CNumericValue` node depending on the Isodat version; both path variants must be tried. The `.did`, `.caf`, `.cf`, and `.scn` formats do not have this variant.
 
 ## Resistor Values
 
