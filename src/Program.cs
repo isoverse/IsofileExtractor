@@ -73,6 +73,10 @@ if (paths.Length == 0)
 HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
     { ".dxf", ".cf", ".did", ".caf", ".scn", ".iarc" };
 
+static bool IsBchDir(string path) =>
+    Directory.Exists(path) &&
+    string.Equals(Path.GetExtension(path), ".bch", StringComparison.OrdinalIgnoreCase);
+
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
 
@@ -86,10 +90,14 @@ if (folderCount > 0)
         string full = Path.GetFullPath(p);
         bool wasAbsolute = Path.IsPathRooted(p);
         string Display(string f) => wasAbsolute ? f : Path.GetRelativePath(cwd, f);
+        if (IsBchDir(full))
+            return [(full, Display(full))];
         if (Directory.Exists(full))
             return Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
                 .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
-                .Select(f => (f, Display(f)));
+                .Select(f => (f, Display(f)))
+                .Concat(Directory.EnumerateDirectories(full, "*.bch", SearchOption.AllDirectories)
+                    .Select(d => (d, Display(d))));
         if (!File.Exists(full))
         {
             Console.Error.WriteLine($"Path not found: {Display(full)}");
@@ -137,6 +145,61 @@ Parallel.ForEach(files, inputArg =>
 {
     var sw = System.Diagnostics.Stopwatch.StartNew();
     var (inputPath, displayPath) = inputArg;
+
+    if (IsBchDir(inputPath))
+    {
+        string outputPath = inputPath + ".json";
+        var bchMeta = new JsonObject
+        {
+            ["isoextract_version"] = assemblyVersion,
+            ["file_type"] = "bch",
+        };
+        var bchRoot = new JsonObject();
+        bchRoot["meta"] = bchMeta;
+        Exception? bchEx = null;
+        try
+        {
+            BchReader.Read(inputPath, bchRoot);
+        }
+        catch (Exception ex) { bchEx = ex; }
+        finally
+        {
+            bchMeta["complete"] = bchEx is null;
+            if (!dryRun)
+            {
+                string json = bchRoot.ToJsonString(options);
+                if (prettyJson) json = CollapseNumberArrays(json);
+                File.WriteAllText(outputPath, json);
+                Console.WriteLine($"Written: {displayPath}.json{(bchEx is not null ? " (incomplete)" : "")}");
+            }
+            else
+            {
+                Console.WriteLine($"Parsed (dry run): {displayPath}{(bchEx is not null ? " (incomplete)" : "")}");
+            }
+            if (bchEx is not null)
+            {
+                Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {bchEx.Message}");
+                Interlocked.Exchange(ref exitCode, 1);
+            }
+            if (!dryRun)
+            {
+                string issuesLogPath = outputPath + ".issues.log";
+                if (bchEx is not null)
+                    File.WriteAllText(issuesLogPath, $"error: {bchEx.Message}\n");
+                else
+                    File.Delete(issuesLogPath);
+            }
+            if (logWriter is not null)
+            {
+                bool success = bchEx is null;
+                string error = bchEx?.Message ?? "";
+                string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
+                lock (logLock) logWriter.WriteLine(line);
+            }
+        }
+        return;
+    }
+
     if (!File.Exists(inputPath))
     {
         Console.Error.WriteLine($"File not found: {inputPath}");
@@ -144,7 +207,7 @@ Parallel.ForEach(files, inputArg =>
         return;
     }
 
-    string outputPath = inputPath + ".json";
+    string outputPath2 = inputPath + ".json";
     string ext = Path.GetExtension(inputPath).ToLowerInvariant();
 
     if (ext == ".iarc")
@@ -172,7 +235,7 @@ Parallel.ForEach(files, inputArg =>
             {
                 string json = iarcRoot.ToJsonString(options);
                 if (prettyJson) json = CollapseNumberArrays(json);
-                File.WriteAllText(outputPath, json);
+                File.WriteAllText(outputPath2, json);
                 Console.WriteLine($"Written: {displayPath}.json{(iarcEx is not null ? " (incomplete)" : "")}");
             }
             else
@@ -281,7 +344,7 @@ Parallel.ForEach(files, inputArg =>
         {
             string json = root.ToJsonString(options);
             if (prettyJson) json = CollapseNumberArrays(json);
-            File.WriteAllText(outputPath, json);
+            File.WriteAllText(outputPath2, json);
             Console.WriteLine($"Written: {displayPath}.json{(caughtEx is not null ? " (incomplete)" : "")}");
         }
         else
@@ -326,13 +389,18 @@ static string CsvField(string value) =>
         : value;
 
 // Replaces multi-line pretty-printed number arrays with a single compact line.
-static string CollapseNumberArrays(string json) =>
-    Regex.Replace(json,
-        @"\[(?:\s*-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\s*,)*\s*-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\s*\]",
+static string CollapseNumberArrays(string json)
+{
+    // primitive = null | true | false | number | "string"
+    const string prim = @"(?:null|true|false|-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?|""(?:[^""\\]|\\.)*"")";
+    return Regex.Replace(json,
+        @"\[(?:\s*" + prim + @"\s*,)*\s*" + prim + @"\s*\]",
         static m => "[" + string.Join(", ",
-            Regex.Matches(m.Value, @"-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?")
+            Regex.Matches(m.Value,
+                @"null|true|false|-?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?|""(?:[^""\\]|\\.)*""")
                  .Select(n => n.Value)) + "]",
         RegexOptions.Singleline);
+}
 
 static void DumpObjects(IsodatFile archive, string inputPath, string displayPath)
 {
