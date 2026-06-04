@@ -81,7 +81,7 @@ static class BchReader
         // Parse .set files for methods used by at least one rec block
         string methodDir  = Path.Combine(bchDir, "Method");
         string setupsDir  = Path.Combine(methodDir, "Setups");
-        var methodsObj = new JsonObject();
+        var methodsList = new List<JsonObject>();
         foreach (string methodName in recBlocks
             .Select(b => b.Method)
             .Where(m => !string.IsNullOrEmpty(m))
@@ -89,24 +89,33 @@ static class BchReader
         {
             string methodKey = methodName.EndsWith(".set", StringComparison.OrdinalIgnoreCase)
                 ? methodName : methodName + ".set";
+            string methodBase = methodKey[..^4]; // strip .set
             string setPath = Path.Combine(setupsDir, methodKey);
             JsonObject? setData = ParseSet(setPath);
             if (setData is not null)
             {
-                var methodObj = new JsonObject { ["source"] = Path.GetRelativePath(bchDir, setPath) };
+                var methodObj = new JsonObject
+                {
+                    ["method"] = methodBase,
+                    ["source"] = Path.GetRelativePath(bchDir, setPath),
+                };
                 foreach (var kv in setData) methodObj[kv.Key] = kv.Value?.DeepClone();
-                methodsObj[methodKey] = methodObj;
+                methodsList.Add(methodObj);
             }
         }
-        if (methodsObj.Count > 0) root["methods"] = methodsObj;
-
-        // Parse .par timing files referenced by methods — keyed by filename (e.g. "NCS.par")
-        string paramsDir = Path.Combine(methodDir, "Parameters");
-        var timingObj = new JsonObject();
-        var seenPar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var kv in methodsObj)
+        if (methodsList.Count > 0)
         {
-            if (kv.Value is not JsonObject m) continue;
+            var methodsArr = new JsonArray();
+            foreach (var m in methodsList) methodsArr.Add(m);
+            root["methods"] = methodsArr;
+        }
+
+        // Parse .par timing files referenced by methods
+        string paramsDir = Path.Combine(methodDir, "Parameters");
+        var timingsArr = new JsonArray();
+        var seenPar = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var m in methodsList)
+        {
             string? atFile = m["analysis_timing_file"]?.GetValue<string>();
             if (string.IsNullOrEmpty(atFile)) continue;
             string parBase = atFile.EndsWith(".par", StringComparison.OrdinalIgnoreCase)
@@ -116,19 +125,22 @@ static class BchReader
             string parPath = Path.Combine(paramsDir, parKey);
             JsonObject? parData = ParsePar(parPath);
             if (parData is null) continue;
-            var entry = new JsonObject { ["source"] = Path.GetRelativePath(bchDir, parPath) };
+            var entry = new JsonObject
+            {
+                ["timing"] = parBase,
+                ["source"] = Path.GetRelativePath(bchDir, parPath),
+            };
             foreach (var pkv in parData) entry[pkv.Key] = pkv.Value?.DeepClone();
-            timingObj[parKey] = entry;
+            timingsArr.Add(entry);
         }
-        if (timingObj.Count > 0) root["timing"] = timingObj;
+        if (timingsArr.Count > 0) root["timings"] = timingsArr;
 
-        // Parse .evt event sequence files referenced by methods — keyed by filename (e.g. "NCS.evt")
+        // Parse .evt event sequence files referenced by methods
         string eventsDir = Path.Combine(methodDir, "Events");
-        var eventsObj = new JsonObject();
+        var eventsArr = new JsonArray();
         var seenEvt = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var kv in methodsObj)
+        foreach (var m in methodsList)
         {
-            if (kv.Value is not JsonObject m) continue;
             string? evtFile = m["event_sequence_file"]?.GetValue<string>();
             if (string.IsNullOrEmpty(evtFile) ||
                 evtFile.Equals("NONE.evt", StringComparison.OrdinalIgnoreCase) ||
@@ -140,11 +152,15 @@ static class BchReader
             string evtPath = Path.Combine(eventsDir, evtKey);
             JsonObject? evtData = ParseEvt(evtPath);
             if (evtData is null) continue;
-            var entry = new JsonObject { ["source"] = Path.GetRelativePath(bchDir, evtPath) };
+            var entry = new JsonObject
+            {
+                ["event"] = evtBase,
+                ["source"] = Path.GetRelativePath(bchDir, evtPath),
+            };
             foreach (var ekv in evtData) entry[ekv.Key] = ekv.Value?.DeepClone();
-            eventsObj[evtKey] = entry;
+            eventsArr.Add(entry);
         }
-        if (eventsObj.Count > 0) root["events"] = eventsObj;
+        if (eventsArr.Count > 0) root["events"] = eventsArr;
 
         if (prnSections.Count == 0)
             throw new InvalidDataException($"No data sections found in: {prnPath}");
@@ -186,7 +202,7 @@ static class BchReader
             }
             for (int beam = 0; beam < b.NBeams; beam++)
                 traceObj[$"beam{beam + 1}_a"] = BuildDoubleArray(b.Beams[beam]);
-            rb["trace"] = traceObj;
+            rb["traces"] = traceObj;
 
             recBlocksArr.Add(rb);
         }
@@ -197,12 +213,13 @@ static class BchReader
         var resultsObj = new JsonObject { ["source"] = Path.GetRelativePath(bchDir, prnPath) };
 
         // Build secondary lookup by N for drift-corrected values
-        Dictionary<int, Dictionary<string, string>>? secondary = null;
-        if (prnSections.Count > 1)
+        int idxN2 = ColIdx(prnSections.Count > 1 ? prnSections[1].ColHeaders : primary.ColHeaders, "N");
+        Dictionary<int, Dictionary<int, string>>? secondary = null;
+        if (prnSections.Count > 1 && idxN2 >= 0)
         {
-            secondary = new Dictionary<int, Dictionary<string, string>>();
+            secondary = new Dictionary<int, Dictionary<int, string>>();
             foreach (var row in prnSections[1].Rows)
-                if (row.TryGetValue("N", out string? nStr) && int.TryParse(nStr, out int nv))
+                if (row.TryGetValue(idxN2, out string? nStr) && int.TryParse(nStr, out int nv))
                     secondary[nv] = row;
         }
 
@@ -225,6 +242,13 @@ static class BchReader
             columnsArr.Add(col);
         }
 
+        // Precompute structural column indices
+        int idxN      = ColIdx(primary.ColHeaders, "N");
+        int idxName   = ColIdx(primary.ColHeaders, "Name");
+        int idxType   = ColIdx(primary.ColHeaders, "Type");
+        int idxWeight = ColIdx(primary.ColHeaders, "Weight/Vol");
+        int idxStatus = ColIdx(primary.ColHeaders, "Status");
+
         // Structural columns
         var ids        = new JsonNode?[nRows];
         var names      = new JsonNode?[nRows];
@@ -239,19 +263,19 @@ static class BchReader
             var row = primary.Rows[i];
             double? recWeight = i < recBlocks.Count ? recBlocks[i].Weight : null;
 
-            ids[i] = row.TryGetValue("N", out string? nStr) && int.TryParse(nStr, out int nv)
+            ids[i] = idxN >= 0 && row.TryGetValue(idxN, out string? nStr) && int.TryParse(nStr, out int nv)
                 ? JsonValue.Create(nv) : null;
 
-            string name = row.GetValueOrDefault("Name", "");
+            string name = idxName >= 0 && row.TryGetValue(idxName, out string? nameStr) ? nameStr : "";
             names[i] = JsonValue.Create(name);
 
-            string? typeVal = row.TryGetValue("Type", out string? t) && !string.IsNullOrWhiteSpace(t) ? t : null;
+            string? typeVal = idxType >= 0 && row.TryGetValue(idxType, out string? t) && !string.IsNullOrWhiteSpace(t) ? t : null;
             types[i] = typeVal is not null ? JsonValue.Create(typeVal) : null;
 
             datasetIds[i] = ExtractDatasetId(name) is string did ? JsonValue.Create(did) : null;
 
             double? weight = null;
-            if (row.TryGetValue("Weight/Vol", out string? wstr) &&
+            if (idxWeight >= 0 && row.TryGetValue(idxWeight, out string? wstr) &&
                 double.TryParse(wstr, System.Globalization.NumberStyles.Any,
                     System.Globalization.CultureInfo.InvariantCulture, out double wv))
                 weight = wv;
@@ -260,7 +284,7 @@ static class BchReader
             weights[i] = weight.HasValue ? JsonValue.Create(weight.Value) : null;
 
             string? statusVal = null;
-            if (row.TryGetValue("Status", out string? sv) && !string.IsNullOrWhiteSpace(sv))
+            if (idxStatus >= 0 && row.TryGetValue(idxStatus, out string? sv) && !string.IsNullOrWhiteSpace(sv))
             {
                 statusVal = sv.TrimStart('#').Trim();
                 anyStatus = true;
@@ -275,11 +299,13 @@ static class BchReader
         AddCol("weight",     null, weights);
         if (anyStatus) AddCol("status", null, statuses);
 
-        // Data columns from .prn measurement section
-        foreach (string col in primary.ColHeaders)
+        // Data columns from .prn measurement section — iterate by index to handle
+        // duplicate column names (e.g. "Ratio 1" repeated per gas species section).
+        for (int colIdx = 0; colIdx < primary.ColHeaders.Count; colIdx++)
         {
+            string col = primary.ColHeaders[colIdx];
             if (!IsDataColumn(col)) continue;
-            string? units = primary.ColUnits.TryGetValue(col, out string? u) && !string.IsNullOrWhiteSpace(u) ? u : null;
+            string? units = primary.ColUnits.TryGetValue(colIdx, out string? u) && !string.IsNullOrWhiteSpace(u) ? u : null;
 
             var vals      = new JsonNode?[nRows];
             var driftVals = secondary is not null ? new JsonNode?[nRows] : null;
@@ -288,7 +314,7 @@ static class BchReader
             for (int i = 0; i < nRows; i++)
             {
                 var row = primary.Rows[i];
-                if (row.TryGetValue(col, out string? valStr))
+                if (row.TryGetValue(colIdx, out string? valStr))
                 {
                     if (double.TryParse(valStr, System.Globalization.NumberStyles.Any,
                             System.Globalization.CultureInfo.InvariantCulture, out double dv))
@@ -298,9 +324,9 @@ static class BchReader
                 }
 
                 if (secondary is not null && driftVals is not null &&
-                    row.TryGetValue("N", out string? nStr) && int.TryParse(nStr, out int nv) &&
+                    idxN >= 0 && row.TryGetValue(idxN, out string? nStr) && int.TryParse(nStr, out int nv) &&
                     secondary.TryGetValue(nv, out var secRow) &&
-                    secRow.TryGetValue(col, out string? secValStr))
+                    secRow.TryGetValue(colIdx, out string? secValStr))
                 {
                     if (double.TryParse(secValStr, System.Globalization.NumberStyles.Any,
                             System.Globalization.CultureInfo.InvariantCulture, out double sdv))
@@ -319,9 +345,14 @@ static class BchReader
 
     // ── .prn ─────────────────────────────────────────────────────────────
 
+    // Rows and ColUnits are keyed by column index, not name, so duplicate
+    // column names (e.g. "Ratio 1" repeating per gas section) are preserved.
     record PrnSection(List<string> ColHeaders,
-        Dictionary<string, string> ColUnits,
-        List<Dictionary<string, string>> Rows);
+        Dictionary<int, string> ColUnits,
+        List<Dictionary<int, string>> Rows);
+
+    static int ColIdx(List<string> headers, string name) =>
+        headers.FindIndex(h => h.Equals(name, StringComparison.OrdinalIgnoreCase));
 
     static (JsonObject Header, List<PrnSection> Sections) ParsePrn(string path)
     {
@@ -361,19 +392,15 @@ static class BchReader
             string[] unitTokens = lines[li].Split('\t');
             li++;
 
-            // Parse column names
+            // Parse column names and per-index units
             List<string> colHeaders = headerLine.Split('\t')
                 .Select(s => s.Trim()).ToList();
-            var colUnits = new Dictionary<string, string>();
+            var colUnits = new Dictionary<int, string>();
             for (int c = 0; c < colHeaders.Count; c++)
-            {
-                if (string.IsNullOrEmpty(colHeaders[c])) continue;
-                string unit = c < unitTokens.Length ? unitTokens[c].Trim() : "";
-                colUnits[colHeaders[c]] = unit;
-            }
+                colUnits[c] = c < unitTokens.Length ? unitTokens[c].Trim() : "";
 
             // Read data rows until a non-data line (next section label or EOF)
-            var rows = new List<Dictionary<string, string>>();
+            var rows = new List<Dictionary<int, string>>();
             while (li < lines.Length)
             {
                 string line = lines[li];
@@ -386,10 +413,9 @@ static class BchReader
                 { li++; continue; }
 
                 string[] vals = line.Split('\t');
-                var row = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                var row = new Dictionary<int, string>();
                 for (int c = 0; c < colHeaders.Count && c < vals.Length; c++)
-                    if (!string.IsNullOrEmpty(colHeaders[c]))
-                        row[colHeaders[c]] = vals[c].Trim();
+                    row[c] = vals[c].Trim();
                 rows.Add(row);
                 li++;
             }

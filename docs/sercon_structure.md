@@ -311,10 +311,12 @@ The actual mass monitored by each beam is determined implicitly by the gas speci
 | δ¹⁵N | N₂ | beam2 / beam1 | 29 / 28 |
 | δ¹³C | CO₂ | beam2 / beam1 | 45 / 44 |
 | δ¹⁸O | CO₂ | beam3 / beam1 | 46 / 44 |
-| δ³⁴S | SO₂ | beam3 / beam1 | 66 / 64 |
+| δ³⁴S | SO₂ | beam2 / beam1 | 66 / 64 |
 | δ²H | H₂/HD | beam2 / beam1 | 3 / 2 |
 
 These ratios are fixed by the SerCon Callisto instrument design (3-cup Faraday array with beam1 always on the major isotope). The `Ratio 1` and `Ratio 2` columns in the `.prn` output correspond to beam2/beam1 and beam3/beam1 respectively.
+
+For N₂ and CO₂ the cups sit on consecutive masses (Δm = 1). For SO₂ the magnetic field is tuned so that beam1 lands on mass 64 (³²SO₂) and beam2 lands on mass 66 (³⁴SO₂), skipping mass 65 (³³SO₂). This was confirmed empirically: raw `Ratio 1` values for SO₂ scale correctly with δ³⁴S and have the right order of magnitude for a 66/64 beam-current ratio (~0.045 for CDT-equivalent samples). The `Ratio 2` column for SO₂ does not correspond to a clean isotope ratio and the Callisto software marks the second-isotope delta slot as `None` in its output.
 
 ---
 
@@ -329,6 +331,171 @@ These ratios are fixed by the SerCon Callisto instrument design (3-cup Faraday a
 ```
 
 The `.rec` and `.prn` row order must be aligned: the N-th data row in the `.prn` corresponds to the N-th scan block in the `.rec`.
+
+---
+
+## `isoextract` JSON output structure for `.bch`
+
+`isoextract` writes one `<BatchName>.bch.json` file beside the `.bch` directory. Top-level keys, in order:
+
+```
+meta
+header
+collectors          (omitted if no .mcp found)
+methods             (omitted if no .set files found)
+timings             (omitted if no .par files found)
+events              (omitted if no .evt files found)
+data
+results
+```
+
+### `meta`
+
+| Field | Type | Content |
+|-------|------|---------|
+| `isoextract_version` | string | tool version |
+| `file_type` | string | `"bch"` |
+| `file_size_bytes` | integer | combined size of all files in the `.bch` directory |
+| `complete` | bool | `true` if parsing completed without error |
+
+### `header`
+
+| Field | Content |
+|-------|---------|
+| `source` | relative path to `Results/ReprocessedData.prn` |
+| `system_description` | line 0 of the `.prn` (e.g. `"SerCon 'Callisto CF-IRMS' system : IN1215 Gulf Bio"`) |
+| `timestamp` | line 1 of the `.prn` (`HH:MM:SS\tMM-DD-YYYY`) |
+
+### `collectors`
+
+Parsed from `Method/Setups/MultiCollector_A.mcp`.
+
+| Field | Content |
+|-------|---------|
+| `source` | relative path to the `.mcp` file |
+| `format` | integer MCP format version (3 or 4) |
+| `beams` | array of beam objects (see below) |
+
+Each beam object:
+
+| Field | Type | Content |
+|-------|------|---------|
+| `beam_num` | int | beam number (1-based) |
+| `enabled` | bool | whether this collector is active |
+| `slot` | int | physical slot in the collector array |
+| `res_type` | int | resistor type (1=I-type, 2=P-type, 3=high-ohm I-type, 4=P-only) |
+| `resistance_1_ohm` | int | primary resistor in ohms |
+| `resistance_2_ohm` | int | secondary resistor in ohms |
+| `active_resistance_ohm` | int | whichever resistance is currently active (`flag2` selects) |
+| `usage_type` | string | omitted if `"Spare"`; otherwise e.g. `"I-Ratio"`, `"P-Ratio"` |
+| `denominator_beam_num` | int | omitted if 0 (self = reference beam) |
+
+### `methods`
+
+Array; one entry per distinct method name used by any `.rec` block. Each element:
+
+| Field | Content |
+|-------|---------|
+| `method` | method name without `.set` extension (e.g. `"NCS"`) |
+| `source` | relative path to the `.set` file |
+| `description` | free-text label |
+| `reference_file` | `.ref` basename |
+| `analysis_timing_file` | `.par` basename (without extension) |
+| `run_mode` | e.g. `"Normal"`, `"Linearity"` |
+| `event_sequence_file` | `.evt` basename; `"NONE"` if absent |
+| `auto_sampler_sequence_file` | `.spr` basename |
+| `multicollector_file` | `.mcp` basename |
+| `peak_centre_file` | `.pcn` basename |
+| `data_rate_hz` | integer: `1` or `10` |
+| `element_by_tcd` | bool (newer format only) |
+
+### `timings`
+
+Array; one entry per distinct `.par` file referenced by the methods. Each element:
+
+| Field | Content |
+|-------|---------|
+| `timing` | timing name without `.par` extension (e.g. `"NCS"`) |
+| `source` | relative path to the `.par` file |
+| `description` | free-text label |
+| `total_time_s` | total run duration in seconds |
+| `peaks` | array of peak objects (see below) |
+
+Each peak object contains timing windows, isotope info, and gas species:
+
+| Field | Type | Content |
+|-------|------|---------|
+| `gas_species` | string | gas measured (e.g. `"N2"`, `"CO2"`, `"SO2"`, `"HD"`) |
+| `active` | bool | whether this peak is enabled |
+| `type` | string | `"Sample"` or `"Reference"` |
+| `base1_start_s` … `base2_end_s` | int | baseline and integration window boundaries |
+| `mode1` | string | delta reference scale (e.g. `"DeltaAir"`, `"DeltaPDB"`, `"DeltaCDT"`) |
+| `isotope1` | string | e.g. `"15N"`, `"13C"`, `"34S"` (omitted if index unrecognised) |
+| `isotope2` | string | second isotope (omitted if absent) |
+| `mode2` | string | second isotope scale (omitted if absent or `"0"`) |
+| `linear_regression` | bool | |
+| `group` | int | grouping index |
+| `at_time_s` | int | time offset for stitching analyses |
+| `auto_dilute` | bool | optional; present in newer format only |
+
+### `events`
+
+Array; one entry per distinct `.evt` file referenced by methods. Each element:
+
+| Field | Content |
+|-------|---------|
+| `event` | event sequence name without `.evt` extension (e.g. `"NCS"`) |
+| `source` | relative path to the `.evt` file |
+| `total_run_time_s` | total run duration in seconds |
+| `description` | optional free-text label |
+| `events` | array of `{ time_s, event, side, [comment] }` objects |
+
+### `data`
+
+Raw scan traces from the `.rec` file.
+
+| Field | Content |
+|-------|---------|
+| `source` | relative path to the `.rec` file |
+| `version` | version string from the `.rec` header (e.g. `"v5.0"`, `"v3.0"`) |
+| `blocks` | array of block objects (see below) |
+
+Each block object:
+
+| Field | Type | Content |
+|-------|------|---------|
+| `type` | string | `"S"` / `"R"` / `"B"` |
+| `name` | string | analysis name from the `.rec` header |
+| `method` | string | method name (`.set` suffix stripped) |
+| `n_scans` | int | number of scans actually read |
+| `weight` | float | sample weight in mg (omitted if 0 / absent) |
+| `scan_id` | string | v5.0 scan identifier line (omitted for v3.0) |
+| `acquisition_duration_s` | float | `max(time_s) − min(time_s)`; v3.0 only |
+| `traces` | object | per-beam and time arrays (see below) |
+
+`traces` keys depend on format version:
+- **v3.0**: `time_s` (float array), `beam1_a` … `beamN_a`
+- **v5.0**: `time_counter_raw` (integer array), `beam1_a` … `beamN_a`
+
+### `results`
+
+Columnar measurement results from `Results/ReprocessedData.prn`.
+
+| Field | Content |
+|-------|---------|
+| `source` | relative path to `ReprocessedData.prn` |
+| `columns` | array of column objects |
+
+Each column object:
+
+| Field | Content |
+|-------|---------|
+| `label` | column name from the `.prn` header |
+| `units` | units string (omitted if blank); `*`-prefixed means quality check failed |
+| `values` | array of values (number or string; `null` for missing) |
+| `values_drift_corrected` | array from the second `.prn` section (omitted if no drift section) |
+
+Structural columns (`id`, `name`, `type`, `dataset_id`, `weight`, `status`) always appear first, followed by all measurement columns in `.prn` order. Because multiple gas sections repeat column names like `"Ratio 1"` and `"Beam Area"`, columns are preserved in full — duplicate names appear as separate column objects.
 
 ---
 
