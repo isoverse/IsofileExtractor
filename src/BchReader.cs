@@ -194,7 +194,7 @@ static class BchReader
                     rb["acquisition_duration_s"] = b.TimeS.Max() - b.TimeS.Min();
                 traceObj["time_s"] = BuildDoubleArray(b.TimeS);
             }
-            else if (b.TimeCounterRaw is not null)
+            if (b.TimeCounterRaw is not null)
             {
                 var tcArr = new JsonArray();
                 foreach (long v in b.TimeCounterRaw) tcArr.Add(v);
@@ -592,7 +592,30 @@ static class BchReader
             for (int b = 0; b < nBeams; b++) beams[b] = beams[b][..actual];
         }
 
-        return new RecBlock(bType, bName, weight, method, nBeams, actual, scanId, null, timeCounter, beams);
+        // Unwrap the uint16 hardware counter (wraps at 65536) before computing time.
+        // Raw values are kept in TimeCounterRaw; unwrapped values are used only for time_s.
+        var unwrapped = new long[actual];
+        unwrapped[0] = timeCounter[0];
+        long overflow = 0;
+        for (int s = 1; s < actual; s++)
+        {
+            if (timeCounter[s] < timeCounter[s - 1]) overflow += 65536L;
+            unwrapped[s] = timeCounter[s] + overflow;
+        }
+
+        // Convert hardware counter to block-relative elapsed seconds.
+        // The counter is a 10 Hz absolute clock; hardware discards the first 2 scans
+        // (stabilization delay) before writing to file, so counter[0] is already 2×dt_ticks
+        // past block start. To produce block-relative time starting at 2×dt (matching v3.0's
+        // stored time_s convention), add that 2-scan offset back:
+        //   time_s[i] = (unwrapped[i] - unwrapped[0] + 2 × dt_ticks) / 10.0
+        long dt_ticks = actual > 1 ? (unwrapped[1] - unwrapped[0]) : 10L;
+        long t0 = unwrapped[0];
+        double[] timeS = new double[actual];
+        for (int s = 0; s < actual; s++)
+            timeS[s] = (unwrapped[s] - t0 + 2 * dt_ticks) / 10.0;
+
+        return new RecBlock(bType, bName, weight, method, nBeams, actual, scanId, timeS, timeCounter[..actual], beams);
     }
 
     // ── .mcp ─────────────────────────────────────────────────────────────

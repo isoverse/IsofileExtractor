@@ -61,7 +61,18 @@ One value per line. Columns repeat in order `[beam1, beam2, …, beamN, time_s]`
 
 ### v5.0 scan data
 
-One scan per line, tab-separated. Columns are `[beam1_a, beam2_a, …, beamN_a, extra0, extra1, extra2, extra3, time_counter_raw, …]`. All leading float columns are beam currents (amperes); integer columns follow. `extra[4]` (0-indexed from the first extra column, i.e. index `n_beams + 4`) is the raw hardware time counter. No elapsed-seconds column is stored; time must be derived externally from the counter if needed.
+One scan per line, tab-separated. Columns are `[beam1_a, beam2_a, …, beamN_a, extra0, extra1, extra2, extra3, time_counter, …]`. All leading float columns are beam currents (amperes); integer columns follow. `extra[4]` (0-indexed from the first extra column, i.e. index `n_beams + 4`) is a hardware time counter.
+
+The counter is a 10 Hz absolute clock shared across all blocks in the run (1 tick = 0.1 s). At 1 Hz data collection the counter increments by 10 per scan; at 10 Hz by 1 per scan. The counter is stored as a **uint16** and wraps at 65536 (~109 minutes at 1 Hz); `isoextract` unwraps it before computing time.
+
+The hardware discards the first 2 scans of each block (stabilisation delay) before writing to the file, so `counter[0]` is already 2 × `dt_ticks` past block start. To produce block-relative elapsed time starting at 2 × dt — matching the convention in v3.0 files where `time_s[0] ≈ 2 × dt` — `isoextract` adds that offset back:
+
+```
+dt_ticks  = counter[1] − counter[0]      (scan period in counter ticks)
+time_s[i] = (counter_unwrapped[i] − counter_unwrapped[0] + 2 × dt_ticks) / 10.0
+```
+
+Both `time_s` (computed, block-relative seconds) and `time_counter_raw` (the original uint16 values as stored in the file, before unwrapping) are emitted in `traces` for v5.0 blocks.
 
 ---
 
@@ -470,12 +481,15 @@ Each block object:
 | `n_scans` | int | number of scans actually read |
 | `weight` | float | sample weight in mg (omitted if 0 / absent) |
 | `scan_id` | string | v5.0 scan identifier line (omitted for v3.0) |
-| `acquisition_duration_s` | float | `max(time_s) − min(time_s)`; v3.0 only |
+| `acquisition_duration_s` | float | `max(time_s) − min(time_s)` |
 | `traces` | object | per-beam and time arrays (see below) |
 
-`traces` keys depend on format version:
-- **v3.0**: `time_s` (float array), `beam1_a` … `beamN_a`
-- **v5.0**: `time_counter_raw` (integer array), `beam1_a` … `beamN_a`
+`traces` keys:
+- `time_s` — block-relative elapsed seconds (float array); present for both v3.0 and v5.0
+- `time_counter_raw` — original uint16 hardware counter values as stored in the `.rec` file, before overflow unwrapping (integer array; v5.0 only)
+- `beam1_a` … `beamN_a` — beam currents in amperes
+
+For v3.0 files `time_s` is stored directly in the `.rec` file (first scan ≈ 2 × dt). For v5.0 files it is derived from the hardware counter with overflow unwrapping and the 2-scan offset added back, so the first scan is also at 2 × dt (see the `.rec` v5.0 section above).
 
 ### `results`
 
