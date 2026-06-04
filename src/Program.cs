@@ -149,10 +149,13 @@ Parallel.ForEach(files, inputArg =>
     if (IsBchDir(inputPath))
     {
         string outputPath = inputPath + ".json";
+        long bchSize = Directory.GetFiles(inputPath, "*", SearchOption.AllDirectories)
+            .Sum(f => new FileInfo(f).Length);
         var bchMeta = new JsonObject
         {
             ["isoextract_version"] = assemblyVersion,
             ["file_type"] = "bch",
+            ["file_size_bytes"] = bchSize,
         };
         var bchRoot = new JsonObject();
         bchRoot["meta"] = bchMeta;
