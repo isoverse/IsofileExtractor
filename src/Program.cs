@@ -77,6 +77,10 @@ static bool IsBchDir(string path) =>
     Directory.Exists(path) &&
     string.Equals(Path.GetExtension(path), ".bch", StringComparison.OrdinalIgnoreCase);
 
+static bool IsImexpZip(string path) =>
+    File.Exists(path) &&
+    path.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase);
+
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
 
@@ -97,13 +101,17 @@ if (folderCount > 0)
                 .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
                 .Select(f => (f, Display(f)))
                 .Concat(Directory.EnumerateDirectories(full, "*.bch", SearchOption.AllDirectories)
-                    .Select(d => (d, Display(d))));
+                    .Select(d => (d, Display(d))))
+                .Concat(Directory.EnumerateFiles(full, "*.imexp.zip", SearchOption.AllDirectories)
+                    .Select(f => (f, Display(f))));
         if (!File.Exists(full))
         {
             Console.Error.WriteLine($"Path not found: {Display(full)}");
             Interlocked.Exchange(ref exitCode, 1);
             return [];
         }
+        if (full.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
+            return [(full, Display(full))];
         if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
         {
             Console.Error.WriteLine($"Skipping unsupported file extension: {Path.GetFileName(p)} ");
@@ -196,6 +204,61 @@ Parallel.ForEach(files, inputArg =>
             {
                 bool success = bchEx is null;
                 string error = bchEx?.Message ?? "";
+                string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
+                lock (logLock) logWriter.WriteLine(line);
+            }
+        }
+        return;
+    }
+
+    if (IsImexpZip(inputPath))
+    {
+        string outputPath = inputPath + ".json";
+        var imexpMeta = new JsonObject
+        {
+            ["isoextract_version"] = assemblyVersion,
+            ["file_type"] = "imexp",
+            ["file_size_bytes"] = new FileInfo(inputPath).Length,
+        };
+        var imexpRoot = new JsonObject();
+        imexpRoot["meta"] = imexpMeta;
+        Exception? imexpEx = null;
+        try
+        {
+            ImexpReader.Read(inputPath, imexpRoot);
+        }
+        catch (Exception ex) { imexpEx = ex; }
+        finally
+        {
+            imexpMeta["complete"] = imexpEx is null;
+            if (!dryRun)
+            {
+                string json = imexpRoot.ToJsonString(options);
+                if (prettyJson) json = CollapseNumberArrays(json);
+                File.WriteAllText(outputPath, json);
+                Console.WriteLine($"Written: {displayPath}.json{(imexpEx is not null ? " (incomplete)" : "")}");
+            }
+            else
+            {
+                Console.WriteLine($"Parsed (dry run): {displayPath}{(imexpEx is not null ? " (incomplete)" : "")}");
+            }
+            if (imexpEx is not null)
+            {
+                Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {imexpEx.Message}");
+                Interlocked.Exchange(ref exitCode, 1);
+            }
+            if (!dryRun)
+            {
+                string issuesLogPath = outputPath + ".issues.log";
+                if (imexpEx is not null)
+                    File.WriteAllText(issuesLogPath, $"error: {imexpEx.Message}\n");
+                else
+                    File.Delete(issuesLogPath);
+            }
+            if (logWriter is not null)
+            {
+                bool success = imexpEx is null;
+                string error = imexpEx?.Message ?? "";
                 string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
                 lock (logLock) logWriter.WriteLine(line);
             }

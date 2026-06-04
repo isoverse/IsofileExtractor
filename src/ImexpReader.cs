@@ -34,6 +34,7 @@ static partial class ImexpReader
             arr.Add(obj);
         }
         root["settings"] = arr;
+        ReadTraces(imexpPath, root);
     }
 
     // ── Entry gathering ──────────────────────────────────────────────────────
