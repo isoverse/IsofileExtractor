@@ -415,6 +415,7 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
 
 ```json
 {
+  "source": "ProcessingList_1",
   "id": 1,
   "name": "EA CN Demo",
   "guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
@@ -423,18 +424,29 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
     {
       "name": "CO2",
       "detection_beam": "Beam1",
+      "beam_masses": [
+        { "beam": "Beam1", "mass": 44 },
+        { "beam": "Beam2", "mass": 45 },
+        { "beam": "Beam3", "mass": 46 }
+      ],
       "ratios": [
-        { "label": "45/44", "numerator_beam": "Beam2", "denominator_beam": "Beam1", "delta_label": "RAW δ45" }
+        { "label": "45/44", "numerator_beam": "Beam2", "denominator_beam": "Beam1", "delta_label": "RAW δ45" },
+        { "label": "46/44", "numerator_beam": "Beam3", "denominator_beam": "Beam1", "delta_label": "RAW δ46" }
       ]
     }
   ]
 }
 ```
 
+`beam_masses` is derived from the ratio definitions: the numerator and denominator beam channels are collected across all ratios for a species, their masses are parsed from the ratio label (e.g. `"45/44"` → mass 45 for the numerator beam, mass 44 for the denominator beam), and the resulting entries are sorted by mass ascending. Beams that appear only in non-integer-parseable labels are included without a `mass` field.
+
+> **Note:** This derivation is a fallback for V2/V3-flat archives. In V3-nested archives, the linked method's `beam_masses` (populated from `IRMSAcquisitionDisplaySettings` files) provides explicit per-beam mass assignments that cover all active beams, not just those that appear in ratio labels. When a method-level `beam_masses` is available, it supersedes the processing-list-derived values and should be preferred.
+
 ### `methods[]`
 
 ```json
 {
+  "source": "Method_77",
   "id": 77,
   "name": "EA Analysis NC",
   "global_id": "fe49ee74-…",
@@ -457,12 +469,13 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
 }
 ```
 
-`beam_masses` is only present for methods from V3-nested archives that have `IRMSAcquisitionDisplaySettings` files. `params` shows the method-level defaults; per-task overrides are in `tasks[].values`.
+`source` is `"Method_<id>"` for V2/V3-flat archives and `"Snapshot/<id>/snapshot.xml"` for V3-nested archives. `beam_masses` is only present for methods from V3-nested archives that have `IRMSAcquisitionDisplaySettings` files. `params` shows the method-level defaults; per-task overrides are in `tasks[].values`.
 
 ### `systems[]`
 
 ```json
 {
+  "source": "System_409",
   "id": 409,
   "name": "KB007",
   "global_id": "…",
@@ -490,6 +503,7 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
 
 ```json
 {
+  "source": "Task_0e08e8b4-…",
   "name": "USGS41",
   "id": 6605,
   "global_id": "0e08e8b4-…",
@@ -509,6 +523,7 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
   },
   "datasets": [
     {
+      "source": "40.hdf5",
       "id": 40,
       "type": "Acquire",
       "status": "Completed",
@@ -525,6 +540,7 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
       }
     },
     {
+      "source": "42.hdf5",
       "id": 42,
       "type": "Vario EA Results",
       "status": "Completed",
@@ -538,6 +554,8 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
   ]
 }
 ```
+
+`source` for tasks is `"Task_<uuid>"` in V2/V3-flat archives and `"AcquisitionTask/Task_<uuid>/AcquisitionTask.xml"` in V3-nested archives. `source` for datasets is the path to the corresponding HDF5 file: `"<dataset_id>.hdf5"` in V2/V3-flat and `"AcquisitionTask/Task_<uuid>/<dataset_id>/AcquisitionDataSet.hdf5"` in V3-nested. Datasets without an HDF5 file (UUID-type datasets, some TCD/EA Results in older archives) omit the `source` field.
 
 Fields present only in V3-nested tasks: `sample_type`, `task_list_name`, `system_description`, `system_snapshot_id`. The `values` object uses resolved parameter display names as keys; if a `ParameterIdentifier` cannot be matched to a known parameter in the linked method, the raw GUID is used as the key. Datasets with no corresponding HDF5 file (some TCD and EA Results entries in older archives) or empty HDF5 files (zero-row datasets) do not include a `data` field.
 

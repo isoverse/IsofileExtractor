@@ -72,6 +72,7 @@ static class IarcReader
     {
         var jo = new JsonObject
         {
+            ["source"] = entry.FullName,
             ["id"] = plId,
             ["name"] = name,
             ["guid"] = guid,
@@ -98,20 +99,50 @@ static class IarcReader
             if (props.TryGetValue("DetectionBeamChannel", out string? detBm) && !string.IsNullOrEmpty(detBm))
                 spObj["detection_beam"] = detBm;
 
+            var beamMass = new Dictionary<string, int?>(StringComparer.OrdinalIgnoreCase);
             var ratiosArray = new JsonArray();
             foreach (var rb in ChildBags(sb, RatioListId).SelectMany(b => ChildBags(b, RatioDefId)))
             {
                 var rp = BagProps(rb);
                 rp.TryGetValue("Label", out string? label);
                 if (string.IsNullOrEmpty(label)) continue;
+                rp.TryGetValue("NumeratorBeamChannel", out string? num);
+                rp.TryGetValue("DenominatorBeamChannel", out string? den);
+
+                // Parse masses from "integer/integer" labels (e.g. "45/44")
+                var parts = label.Split('/');
+                if (parts.Length == 2
+                    && int.TryParse(parts[0].Trim(), out int numMass)
+                    && int.TryParse(parts[1].Trim(), out int denMass))
+                {
+                    if (!string.IsNullOrEmpty(num)) beamMass.TryAdd(num, numMass);
+                    if (!string.IsNullOrEmpty(den)) beamMass.TryAdd(den, denMass);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(num)) beamMass.TryAdd(num, null);
+                    if (!string.IsNullOrEmpty(den)) beamMass.TryAdd(den, null);
+                }
+
                 var ro = new JsonObject { ["label"] = label };
-                if (rp.TryGetValue("NumeratorBeamChannel", out string? num) && !string.IsNullOrEmpty(num))
-                    ro["numerator_beam"] = num;
-                if (rp.TryGetValue("DenominatorBeamChannel", out string? den) && !string.IsNullOrEmpty(den))
-                    ro["denominator_beam"] = den;
+                if (!string.IsNullOrEmpty(num)) ro["numerator_beam"] = num;
+                if (!string.IsNullOrEmpty(den)) ro["denominator_beam"] = den;
                 if (rp.TryGetValue("DeltaLabel", out string? delta) && !string.IsNullOrEmpty(delta))
                     ro["delta_label"] = delta;
                 ratiosArray.Add(ro);
+            }
+            if (beamMass.Count > 0)
+            {
+                var beamsArray = new JsonArray();
+                foreach (var (beam, mass) in beamMass
+                    .OrderBy(kv => kv.Value ?? int.MaxValue)
+                    .ThenBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase))
+                {
+                    var bo = new JsonObject { ["beam"] = beam };
+                    if (mass.HasValue) bo["mass"] = mass.Value;
+                    beamsArray.Add(bo);
+                }
+                spObj["beam_masses"] = beamsArray;
             }
             if (ratiosArray.Count > 0) spObj["ratios"] = ratiosArray;
             speciesArray.Add(spObj);
@@ -138,7 +169,7 @@ static class IarcReader
             if (!int.TryParse(entry.Name["Method_".Length..], out int id)) continue;
             var doc = LoadXml(entry);
             var snap = doc.Root?.Element("Snapshot") ?? doc.Root;
-            methodsArray.Add(ParseMethodSnapshot(snap, id));
+            methodsArray.Add(ParseMethodSnapshot(snap, id, entry.FullName));
             var pm = BuildFlowParamMap(doc);
             if (pm.Count > 0) paramMap[id] = pm;
         }
@@ -151,7 +182,7 @@ static class IarcReader
             var parts = entry.FullName.Split('/');
             if (parts.Length < 3 || !int.TryParse(parts[1], out int id)) continue;
             var doc = LoadXml(entry);
-            var methodObj = ParseMethodSnapshot(doc.Root, id);
+            var methodObj = ParseMethodSnapshot(doc.Root, id, entry.FullName);
             AddDisplayBeamMasses(zip, id, methodObj);
             methodsArray.Add(methodObj);
             var pm = BuildFlowParamMap(doc);
@@ -187,9 +218,9 @@ static class IarcReader
         return pm;
     }
 
-    static JsonObject ParseMethodSnapshot(XElement? snap, int id)
+    static JsonObject ParseMethodSnapshot(XElement? snap, int id, string source)
     {
-        var jo = new JsonObject { ["id"] = id };
+        var jo = new JsonObject { ["source"] = source, ["id"] = id };
 
         void Set(string key, string xmlTag)
         {
@@ -317,7 +348,7 @@ static class IarcReader
             var outer = LoadXml(entry).Root!;
             if (!int.TryParse(outer.Element("Id")?.Value, out int id)) continue;
 
-            var jo = new JsonObject { ["id"] = id };
+            var jo = new JsonObject { ["source"] = entry.FullName, ["id"] = id };
             var name = outer.Element("Name")?.Value;
             if (!string.IsNullOrEmpty(name)) jo["name"] = name;
             var gid = outer.Element("GlobalIdentifier")?.Value;
@@ -477,7 +508,7 @@ static class IarcReader
     {
         var doc = LoadXml(entry);
         var r = doc.Root!;
-        var jo = new JsonObject();
+        var jo = new JsonObject { ["source"] = entry.FullName };
 
         // V3-nested: "AcquisitionTask/Task_<uuid>/AcquisitionTask.xml" → taskHdfDir = "AcquisitionTask/Task_<uuid>"
         // V2/V3-flat: no directory component → root-level <id>.hdf5
@@ -531,8 +562,16 @@ static class IarcReader
         var dsArray = new JsonArray();
         foreach (var ds in datasets)
         {
+            int dsId = int.TryParse(ds.Element("Id")?.Value, out int parsedId) ? parsedId : -1;
+            string? hdfPath = dsId >= 0
+                ? taskHdfDir is not null
+                    ? $"{taskHdfDir}/{dsId}/AcquisitionDataSet.hdf5"
+                    : $"{dsId}.hdf5"
+                : null;
+
             var dsObj = new JsonObject();
-            int dsId = -1;
+            if (hdfPath is not null) dsObj["source"] = hdfPath;
+
             foreach (var (key, tag, asInt) in new (string, string, bool)[]
             {
                 ("id",     "Id",               true),
@@ -544,18 +583,12 @@ static class IarcReader
             {
                 var v = ds.Element(tag)?.Value;
                 if (string.IsNullOrEmpty(v)) continue;
-                if (asInt && int.TryParse(v, out int n))
-                {
-                    dsObj[key] = n;
-                    if (key == "id") dsId = n;
-                }
+                if (asInt && int.TryParse(v, out int n)) dsObj[key] = n;
                 else dsObj[key] = v;
             }
-            if (dsId >= 0)
+
+            if (hdfPath is not null)
             {
-                string hdfPath = taskHdfDir is not null
-                    ? $"{taskHdfDir}/{dsId}/AcquisitionDataSet.hdf5"
-                    : $"{dsId}.hdf5";
                 var hdfEntry = zip.GetEntry(hdfPath);
                 if (hdfEntry is not null)
                 {
