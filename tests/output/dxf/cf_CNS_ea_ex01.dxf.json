@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.1.3.0",
+    "isoextract_version": "0.1.4.0",
     "file_type": "dxf",
     "file_size_bytes": 439388,
     "complete": true
@@ -11840,11 +11840,7 @@
                                     "end": 0
                                   }
                                 ],
-                                "detector_gas_names": [
-                                  "Please select",
-                                  "Please select",
-                                  "Please select"
-                                ],
+                                "detector_gas_names": ["Please select", "Please select", "Please select"],
                                 "weight_pct_1": 9.52,
                                 "x128": "Fixed",
                                 "weight_pct_2": 9.52,
@@ -34499,9 +34495,7 @@
                     "x1048": 0,
                     "CStringArray": {
                       "n_strings": 1,
-                      "strings": [
-                        "Flash TCD"
-                      ]
+                      "strings": ["Flash TCD"]
                     },
                     "xf88": 0
                   }

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.1.3.0",
+    "isoextract_version": "0.1.4.0",
     "file_type": "did",
     "file_size_bytes": 205851,
     "complete": true
@@ -12982,15 +12982,7 @@
                           "xb8": 0.018335082365084805,
                           "xc0": -1,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 2,
@@ -13021,15 +13013,7 @@
                           "xb8": 0.027707850573650793,
                           "xc0": -1,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 3,
@@ -13060,15 +13044,7 @@
                           "xb8": 0.019874967628236987,
                           "xc0": -1,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 4,
@@ -13099,15 +13075,7 @@
                           "xb8": 0.027749676666752748,
                           "xc0": -1,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 5,
@@ -13138,15 +13106,7 @@
                           "xb8": 0.013824105057524903,
                           "xc0": -1,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 6,
@@ -13177,15 +13137,7 @@
                           "xb8": -1,
                           "xc0": 1.0935557927083064,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         },
                         {
                           "idx": 7,
@@ -13216,15 +13168,7 @@
                           "xb8": -1,
                           "xc0": 0.2072653384168602,
                           "xc8": 0,
-                          "xcc": [
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false
-                          ]
+                          "xcc": [false, false, false, false, false, false, false]
                         }
                       ]
                     }
