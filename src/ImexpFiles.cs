@@ -46,6 +46,7 @@ static partial class ImexpReader
     const byte RT_BinaryLibrary          = 0x0C;
     const byte RT_NullMultiple256        = 0x0D;
     const byte RT_NullMultiple           = 0x0E;
+    const byte RT_MemberPrimitiveTyped   = 0x08;
     const byte RT_ArraySinglePrimitive   = 0x0F;
     const byte RT_ArraySingleObject      = 0x10;
     const byte RT_ArraySingleString      = 0x11;
@@ -246,8 +247,13 @@ static partial class ImexpReader
         // typeEnum 2 (Object), 3 (SystemClass), 4 (Class)
         if (typeEnum is 2 or 3 or 4)
         {
-            if (d[p] == RT_MemberReference) return (new BfRef(ReadInt32(d, p + 1)), p + 5);
-            if (d[p] == RT_ObjectNull)      return (null, p + 1);
+            if (d[p] == RT_MemberReference)    return (new BfRef(ReadInt32(d, p + 1)), p + 5);
+            if (d[p] == RT_ObjectNull)          return (null, p + 1);
+            if (d[p] == RT_MemberPrimitiveTyped)
+            {
+                var primTi = new TypeInfo(PrimitiveType: d[p + 1]);
+                return ReadValue(d, p + 2, 0, primTi, objs, schemas);
+            }
             // A BinaryLibrary record may precede the class when its library is first seen
             int pp = p;
             while (pp < d.Length && d[pp] == RT_BinaryLibrary)
