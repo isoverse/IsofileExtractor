@@ -1,4 +1,4 @@
-# Isodat File Structure
+# Isodat File Structures
 
 Isodat files (`.dxf`, `.cf`, `.did`, `.caf`, `.scn`) are binary archives produced by Thermo Fisher's Isodat software. They store instrument data as a flat stream of serialized Microsoft Foundation Classes (MFC) C++ objects written by `CArchive`. Every valid isodat file begins with the two bytes `FF FF`, which is the CRuntimeClass header for the first object.
 

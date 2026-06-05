@@ -1,4 +1,4 @@
-# SerCon Callisto CF-IRMS `.bch` File Format
+# SerCon Callisto CF-IRMS `.bch` Archive Structure
 
 A `.bch` batch is a **directory**, not a single file. The directory name is the batch name (e.g. `MONTANA CARBON SAMPLES.bch`). All content lives in subdirectories:
 

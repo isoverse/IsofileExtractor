@@ -1,4 +1,4 @@
-# IARC File Structure
+# Elementar IonOS/LyticOS `.iarc` Archive Structure
 
 `.iarc` files are ZIP archives produced by Elementar's **IonOS** and **LyticOS** software for the isoprime visION IRMS instrument series. Each archive bundles together all metadata, instrument state snapshots, and raw measurement data for one run sequence (a list of tasks/samples).
 
