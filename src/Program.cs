@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -81,6 +82,10 @@ static bool IsImexpZip(string path) =>
     File.Exists(path) &&
     path.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase);
 
+static bool IsImexpFile(string path) =>
+    File.Exists(path) &&
+    Path.GetExtension(path).Equals(".imexp", StringComparison.OrdinalIgnoreCase);
+
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
 
@@ -103,6 +108,9 @@ if (folderCount > 0)
                 .Concat(Directory.EnumerateDirectories(full, "*.bch", SearchOption.AllDirectories)
                     .Select(d => (d, Display(d))))
                 .Concat(Directory.EnumerateFiles(full, "*.imexp.zip", SearchOption.AllDirectories)
+                    .Select(f => (f, Display(f))))
+                .Concat(Directory.EnumerateFiles(full, "*.imexp", SearchOption.AllDirectories)
+                    .Where(f => !File.Exists(f + ".zip"))
                     .Select(f => (f, Display(f))));
         if (!File.Exists(full))
         {
@@ -111,6 +119,8 @@ if (folderCount > 0)
             return [];
         }
         if (full.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
+            return [(full, Display(full))];
+        if (Path.GetExtension(full).Equals(".imexp", StringComparison.OrdinalIgnoreCase))
             return [(full, Display(full))];
         if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
         {
@@ -133,6 +143,33 @@ var options = new JsonSerializerOptions
 
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
+
+// Lazily resolve isosolfs.exe: prefer a file next to the executable, fall back to the
+// embedded resource (bundled in win-x64 publish builds).
+var isosolfsLazy = new Lazy<string?>(() =>
+{
+    string exeDir = Path.GetDirectoryName(
+        System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
+        ?? AppContext.BaseDirectory) ?? AppContext.BaseDirectory;
+    string sideBySide = Path.Combine(exeDir, "isosolfs.exe");
+    if (File.Exists(sideBySide)) return sideBySide;
+
+    using var stream = System.Reflection.Assembly.GetExecutingAssembly()
+        .GetManifestResourceStream("isosolfs.exe");
+    if (stream is null) return null;
+
+    string tempPath = Path.Combine(Path.GetTempPath(), $"isoextract_isosolfs_{Environment.ProcessId}.exe");
+    using var outFile = File.Create(tempPath);
+    stream.CopyTo(outFile);
+    return tempPath;
+}, LazyThreadSafetyMode.ExecutionAndPublication);
+
+AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+{
+    if (isosolfsLazy.IsValueCreated && isosolfsLazy.Value is string p
+            && Path.GetFileName(p).StartsWith("isoextract_isosolfs_"))
+        try { File.Delete(p); } catch { }
+};
 
 string? logPath = writeLog
     ? (logPathArg is not null
@@ -209,6 +246,86 @@ Parallel.ForEach(files, inputArg =>
             }
         }
         return;
+    }
+
+    if (IsImexpFile(inputPath))
+    {
+        string zipPath = inputPath + ".zip";
+        if (!File.Exists(zipPath))
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string osName = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "macOS"
+                              : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "Linux"
+                              : RuntimeInformation.OSDescription;
+                string msg = $"Cannot extract .imexp notebooks on {osName} (yet), please run this on Windows and port the resulting .json files to your operating system";
+                Console.Error.WriteLine(msg);
+                Interlocked.Exchange(ref exitCode, 1);
+                if (logWriter is not null)
+                {
+                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg.Replace("\"", "\"\"")}\"";
+                    lock (logLock) logWriter.WriteLine(line);
+                }
+                return;
+            }
+
+            string? isosolfsPath = isosolfsLazy.Value;
+            if (isosolfsPath is null)
+            {
+                string msg = "isosolfs.exe not bundled in this build and not found next to isoextract.exe";
+                Console.Error.WriteLine(msg);
+                Interlocked.Exchange(ref exitCode, 1);
+                if (logWriter is not null)
+                {
+                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg}\"";
+                    lock (logLock) logWriter.WriteLine(line);
+                }
+                return;
+            }
+
+            string extractedFolder = Path.Combine(
+                Path.GetDirectoryName(inputPath) ?? "",
+                Path.GetFileNameWithoutExtension(inputPath));
+
+            bool conversionOk = false;
+            try
+            {
+                Console.WriteLine($"Unpacking SolFS: {displayPath}...");
+                var psi = new System.Diagnostics.ProcessStartInfo(isosolfsPath)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+                psi.ArgumentList.Add(inputPath);
+                psi.ArgumentList.Add("--extract");
+                using var proc = System.Diagnostics.Process.Start(psi)!;
+                proc.WaitForExit();
+                if (proc.ExitCode != 0)
+                    throw new Exception($"isosolfs.exe exited with code {proc.ExitCode}: {proc.StandardError.ReadToEnd().Trim()}");
+                System.IO.Compression.ZipFile.CreateFromDirectory(extractedFolder, zipPath);
+                conversionOk = true;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error converting {Path.GetFileName(inputPath)} to .zip: {ex.Message}");
+                Interlocked.Exchange(ref exitCode, 1);
+                if (logWriter is not null)
+                {
+                    string err = ex.Message.Replace("\"", "\"\"");
+                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{err}\"";
+                    lock (logLock) logWriter.WriteLine(line);
+                }
+            }
+            finally
+            {
+                if (Directory.Exists(extractedFolder))
+                    Directory.Delete(extractedFolder, true);
+            }
+            if (!conversionOk) return;
+        }
+        inputPath = zipPath;
     }
 
     if (IsImexpZip(inputPath))
