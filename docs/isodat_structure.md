@@ -27,6 +27,13 @@ MFC maintains an internal counter (the "map") to assign stable indices to classe
 
 Back-reference values encode the map index at the time the class was first registered. To resolve a back-reference, a reader must replay the entire counter sequence from the beginning — there is no random-access index.
 
+### Related Documentation
+
+- [Inheritance Hierarchy](isodat_inheritance_hierarchy.md) — full listing of all known C++ classes, their base classes, and which classes share a `Serialize` implementation.
+- [Example: `.scn` structure tree](isodat_scn_structure_tree.md) — annotated object tree for a scan file, showing how `CScanStorage` nests hardware parts and gas configurations.
+- [Example: `.dxf` structure tree](isodat_dxf_structure_tree.md) — annotated object tree for a continuous-flow file, showing the `CContiniousFlowBlockData` layout.
+- [Example: `.did` structure tree](isodat_did_structure_tree.md) — annotated object tree for a dual-inlet file, showing the `CDualInletBlockData` layout.
+
 ## Sequential Reading Requirement
 
 Isodat files **cannot be parsed in any order other than start-to-finish**. Two properties enforce this:
@@ -235,9 +242,3 @@ Dual-inlet files do not use the `x`/`traces` layout. Raw voltages are stored in 
 | `.did` | `CDualInletBlockData/p/objects/CDualInletRawData` |
 | `.caf` | `CBlockDataContext/p/objects/CDualInletRawData` |
 
-# Related Documentation
-
-- [Inheritance Hierarchy](isodat_inheritance_hierarchy.md) — full listing of all known C++ classes, their base classes, and which classes share a `Serialize` implementation.
-- [Example: `.scn` structure tree](isodat_scn_structure_tree.md) — annotated object tree for a scan file, showing how `CScanStorage` nests hardware parts and gas configurations.
-- [Example: `.dxf` structure tree](isodat_dxf_structure_tree.md) — annotated object tree for a continuous-flow file, showing the `CContiniousFlowBlockData` layout.
-- [Example: `.did` structure tree](isodat_did_structure_tree.md) — annotated object tree for a dual-inlet file, showing the `CDualInletBlockData` layout.

@@ -2,17 +2,20 @@
 
 # isoextract
 
-A self-contained command-line tool for extracting data from Thermo Fisher isodat binary files. Each input file is parsed and the extracted data is written to a JSON output file in the same folder.
+A self-contained command-line tool for extracting data from stable isotope ratio mass spectrometry (IRMS) binary data files. Supports multiple vendor software formats. Each input file is parsed and the extracted data is written to a JSON output file in the same folder.
 
 ## Supported file formats
 
-| Extension | Instrument type |
-|-----------|----------------|
-| `.dxf`    | Continuous flow |
-| `.cf`     | Continuous flow (legacy) |
-| `.did`    | Dual inlet |
-| `.caf`    | Dual inlet (legacy) |
-| `.scn`    | Scan |
+| Extension | Measurement type | Produced by | Format docs |
+|-----------|-----------------|-------------|-------------|
+| `.dxf`    | Continuous flow          | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
+| `.cf`     | Continuous flow (legacy) | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
+| `.bch`    | Continuous flow          | SerCon Callisto           | [bch_structure.md](docs/bch_structure.md) |
+| `.did`    | Dual inlet               | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
+| `.caf`    | Dual inlet (legacy)      | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
+| `.imexp`  | Continuous flow / dual inlet | Thermo Fisher Qtegra  | [imexp_structure.md](docs/imexp_structure.md) |
+| `.iarc`   | Continuous flow / dual inlet | Elementar IonOS / LyticOS | [iarc_structure.md](docs/iarc_structure.md) |
+| `.scn`    | Scan                     | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 
 ## Usage
 
@@ -104,10 +107,6 @@ Full diagnostic output (objects + tree + log):
 ```sh
 isoextract /data/irms --objects --tree --prettyJSON --log
 ```
-
-## File format documentation
-
-See [docs/isodat_structure.md](docs/isodat_structure.md) for an overview of how isodat files store data (MFC CArchive serialization, CRuntimeClass headers, sequential reading requirement, and per-extension entry points).
 
 ## Building from source
 
