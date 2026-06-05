@@ -72,7 +72,7 @@ if (paths.Length == 0)
 }
 
 HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
-    { ".dxf", ".cf", ".did", ".caf", ".scn", ".iarc" };
+    { ".dxf", ".cf", ".did", ".caf", ".scn", ".iarc", ".larc" };
 
 static bool IsBchDir(string path) =>
     Directory.Exists(path) &&
@@ -105,12 +105,15 @@ if (folderCount > 0)
             return Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
                 .Where(f => isodatExtensions.Contains(Path.GetExtension(f)))
                 .Select(f => (f, Display(f)))
-                .Concat(Directory.EnumerateDirectories(full, "*.bch", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateDirectories(full, "*", SearchOption.AllDirectories)
+                    .Where(d => Path.GetExtension(d).Equals(".bch", StringComparison.OrdinalIgnoreCase))
                     .Select(d => (d, Display(d))))
-                .Concat(Directory.EnumerateFiles(full, "*.imexp.zip", SearchOption.AllDirectories)
+                .Concat(Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
+                    .Where(f => f.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
                     .Select(f => (f, Display(f))))
-                .Concat(Directory.EnumerateFiles(full, "*.imexp", SearchOption.AllDirectories)
-                    .Where(f => !File.Exists(f + ".zip"))
+                .Concat(Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
+                    .Where(f => Path.GetExtension(f).Equals(".imexp", StringComparison.OrdinalIgnoreCase)
+                             && !File.Exists(f + ".zip"))
                     .Select(f => (f, Display(f))));
         if (!File.Exists(full))
         {
@@ -231,7 +234,7 @@ Parallel.ForEach(files, inputArg =>
             }
             if (!dryRun)
             {
-                string issuesLogPath = outputPath + ".issues.log";
+                string issuesLogPath = inputPath + ".issues.log";
                 if (bchEx is not null)
                     File.WriteAllText(issuesLogPath, $"error: {bchEx.Message}\n");
                 else
@@ -330,7 +333,10 @@ Parallel.ForEach(files, inputArg =>
 
     if (IsImexpZip(inputPath))
     {
-        string outputPath = inputPath[..^".zip".Length] + ".json";
+        string imexpBase = inputPath[..^".zip".Length];           // foo.imexp
+        string displayBase = displayPath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+            ? displayPath[..^".zip".Length] : displayPath;        // handles both foo.imexp and foo.imexp.zip inputs
+        string outputPath = imexpBase + ".json";
         var imexpMeta = new JsonObject
         {
             ["isoextract_version"] = assemblyVersion,
@@ -353,11 +359,11 @@ Parallel.ForEach(files, inputArg =>
                 string json = imexpRoot.ToJsonString(options);
                 if (prettyJson) json = CollapseNumberArrays(json);
                 File.WriteAllText(outputPath, json);
-                Console.WriteLine($"Written: {displayPath[..^".zip".Length]}.json{(imexpEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Written: {displayBase}.json{(imexpEx is not null ? " (incomplete)" : "")}");
             }
             else
             {
-                Console.WriteLine($"Parsed (dry run): {displayPath}{(imexpEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Parsed (dry run): {displayBase}{(imexpEx is not null ? " (incomplete)" : "")}");
             }
             if (imexpEx is not null)
             {
@@ -366,7 +372,7 @@ Parallel.ForEach(files, inputArg =>
             }
             if (!dryRun)
             {
-                string issuesLogPath = outputPath + ".issues.log";
+                string issuesLogPath = imexpBase + ".issues.log";
                 if (imexpEx is not null)
                     File.WriteAllText(issuesLogPath, $"error: {imexpEx.Message}\n");
                 else
@@ -393,55 +399,55 @@ Parallel.ForEach(files, inputArg =>
     string outputPath2 = inputPath + ".json";
     string ext = Path.GetExtension(inputPath).ToLowerInvariant();
 
-    if (ext == ".iarc")
+    if (ext == ".iarc" || ext == ".larc")
     {
-        var iarcMeta = new JsonObject
+        var liarcMeta = new JsonObject
         {
             ["isoextract_version"] = assemblyVersion,
-            ["file_type"] = "iarc",
+            ["file_type"] = ext.TrimStart('.'),
             ["file_size_bytes"] = new FileInfo(inputPath).Length,
         };
-        var iarcRoot = new JsonObject();
-        iarcRoot["meta"] = iarcMeta;
-        Exception? iarcEx = null;
+        var liarcRoot = new JsonObject();
+        liarcRoot["meta"] = liarcMeta;
+        Exception? liarcEx = null;
         try
         {
             using var zip = new System.IO.Compression.ZipArchive(
                 File.OpenRead(inputPath), System.IO.Compression.ZipArchiveMode.Read);
-            IarcReader.Read(zip, iarcRoot);
+            LiarcReader.Read(zip, liarcRoot);
         }
-        catch (Exception ex) { iarcEx = ex; }
+        catch (Exception ex) { liarcEx = ex; }
         finally
         {
-            iarcMeta["complete"] = iarcEx is null;
+            liarcMeta["complete"] = liarcEx is null;
             if (!dryRun)
             {
-                string json = iarcRoot.ToJsonString(options);
+                string json = liarcRoot.ToJsonString(options);
                 if (prettyJson) json = CollapseNumberArrays(json);
                 File.WriteAllText(outputPath2, json);
-                Console.WriteLine($"Written: {displayPath}.json{(iarcEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Written: {displayPath}.json{(liarcEx is not null ? " (incomplete)" : "")}");
             }
             else
             {
-                Console.WriteLine($"Parsed (dry run): {displayPath}{(iarcEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Parsed (dry run): {displayPath}{(liarcEx is not null ? " (incomplete)" : "")}");
             }
-            if (iarcEx is not null)
+            if (liarcEx is not null)
             {
-                Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {iarcEx.Message}");
+                Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {liarcEx.Message}");
                 Interlocked.Exchange(ref exitCode, 1);
             }
             if (!dryRun)
             {
                 string issuesLogPath = inputPath + ".issues.log";
-                if (iarcEx is not null)
-                    File.WriteAllText(issuesLogPath, $"error: {iarcEx.Message}\n");
+                if (liarcEx is not null)
+                    File.WriteAllText(issuesLogPath, $"error: {liarcEx.Message}\n");
                 else
                     File.Delete(issuesLogPath);
             }
             if (logWriter is not null)
             {
-                bool success = iarcEx is null;
-                string error = iarcEx?.Message ?? "";
+                bool success = liarcEx is null;
+                string error = liarcEx?.Message ?? "";
                 string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
                 lock (logLock) logWriter.WriteLine(line);
             }
@@ -567,9 +573,7 @@ if (logDisplayPath is not null) Console.WriteLine($"Log: {logDisplayPath}");
 return exitCode;
 
 static string CsvField(string value) =>
-    value.Contains(',') || value.Contains('"') || value.Contains('\n')
-        ? $"\"{value.Replace("\"", "\"\"")}\""
-        : value;
+    $"\"{value.Replace("\"", "\"\"")}\"";
 
 // Replaces multi-line pretty-printed number arrays with a single compact line.
 static string CollapseNumberArrays(string json)
