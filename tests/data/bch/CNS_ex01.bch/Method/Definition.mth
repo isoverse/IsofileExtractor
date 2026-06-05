@@ -1,0 +1,23 @@
+ 1
+NCS.par
+CYSTINE.ref
+HD REF GAS PRECISION 130122 01.lst
+PYRO PRECISION CYSTINE.rec
+Blank.def
+Result1.dat
+Archive.prn
+ 1
+Magnet.def
+Pyro.tem
+STANDBY_HD.SRC
+NCS.evt
+Zero.def
+NONE.spr
+comboPeakCentre.pcn
+Auto1.seq
+****
+GSL.lck
+test.mpf
+****
+****
+_Default.ppf

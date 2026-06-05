@@ -1,0 +1,136 @@
+1
+False
+Default
+ 1 
+ 3 
+44
+True
+ 1 
+ 1 
+ 1 
+ 0 
+ 100 
+ 5000 
+ 8421631 
+ 255 
+False
+I-Ratio
+Spare
+Spare
+Spare
+Spare
+45
+True
+ 2 
+ 2 
+ 1 
+ 1 
+ 5000 
+ 5000 
+ 65408 
+ 32768 
+False
+I-Ratio
+Spare
+Spare
+Spare
+Spare
+46
+True
+ 3 
+ 3 
+ 1 
+ 1 
+ 5000 
+ 5000 
+ 16744448 
+ 16711680 
+False
+I-Ratio
+Spare
+Spare
+Spare
+Spare
+40
+True
+ 4 
+ 4 
+ 2 
+ 0 
+ 5000 
+ 100 
+ 16777215 
+-2147483643 
+True
+P-Ratio
+Spare
+Spare
+Spare
+Spare
+28
+True
+ 5 
+ 5 
+ 2 
+ 4 
+ 500 
+ 500 
+ 16777215 
+-2147483643 
+False
+P-Ratio
+Spare
+Spare
+Spare
+Spare
+29
+False
+ 6 
+ 6 
+ 3 
+ 5 
+ 500 
+ 500 
+ 16777215 
+-2147483643 
+False
+I-Ratio
+Spare
+Spare
+Spare
+Spare
+30
+False
+ 7 
+ 7 
+ 4 
+ 5 
+ 500 
+ 500 
+ 16777215 
+-2147483643 
+False
+P-only
+Spare
+Spare
+Spare
+Spare
+32
+False
+ 8 
+ 8 
+ 4 
+ 1 
+ 500 
+ 500 
+ 16777215 
+-2147483643 
+False
+P-only
+Spare
+Spare
+Spare
+Spare
+Spare
+Spare
+Spare

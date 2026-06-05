@@ -1,0 +1,21 @@
+GC Diverter only
+ 1600 
+ 6 
+ 1 
+7 VALVE ON
+L
+ 320 
+7 VALVE OFF
+L
+ 30 
+< 11 VALVE ON
+R
+ 31 
+< 11 VALVE OFF
+R
+ 850 
+<11 VALVE ON
+R
+ 851 
+<11 VALVE OFF
+R

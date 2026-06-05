@@ -1,0 +1,15 @@
+STANDARD NCS TUBES CONFIGURATION
+CYSTINE.ref
+N AND C.par
+Normal
+N AND C.evt
+NONE.spr
+Default.mcp
+comboPeakCentre.pcn
+Default
+ 0 
+Default
+None
+DefaultOLE
+False
+ 5 

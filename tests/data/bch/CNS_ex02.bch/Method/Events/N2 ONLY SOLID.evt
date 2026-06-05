@@ -1,0 +1,24 @@
+Version 2
+SOLID
+ 49 
+ 5 
+ 1 
+S 13 VALVE ON
+L
+
+ 10 
+S 8 VALVE ON
+L
+
+ 25 
+S 8 VALVE OFF
+L
+
+ 35 
+S 0 VALVE ON
+L
+
+ 45 
+S 0 VALVE OFF
+L
+

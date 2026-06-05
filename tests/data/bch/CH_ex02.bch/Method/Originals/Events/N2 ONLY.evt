@@ -1,0 +1,24 @@
+N2 + refgas
+ 280 
+ 7 
+ 5 
+8 VALVE ON
+L
+ 20 
+8 VALVE OFF
+L
+ 35 
+0 VALVE ON
+L
+ 38 
+0 VALVE OFF
+L
+ 20 
+< 8 VALVE ON
+R
+ 25 
+< 8 VALVE OFF
+R
+ 1 
+4 VALVE ON 2 VALVE ON
+L

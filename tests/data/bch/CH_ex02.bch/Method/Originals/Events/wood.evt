@@ -1,0 +1,33 @@
+wood with refgas
+ 370 
+ 10 
+ 2 
+8 VALVE ON
+L
+ 32 
+8 VALVE OFF
+L
+ 45 
+0 VALVE ON
+L
+ 50 
+0 VALVE OFF
+L
+ 310 
+8 VALVE ON
+L
+ 330 
+8 VALVE OFF
+L
+ 60 
+< 8 VALVE ON
+R
+ 62 
+< 8 VALVE OFF
+R
+ 1 
+4 VALVE ON 2 VALVE ON
+L
+ 0 
+
+L

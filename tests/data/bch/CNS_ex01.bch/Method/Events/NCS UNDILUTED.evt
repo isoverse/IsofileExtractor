@@ -1,0 +1,40 @@
+Version 2
+
+ 619 
+ 9 
+ 1 
+E 13 VALVE ON
+L
+Autosampler purge/TCD flow - OPEN
+ 5 
+E 8 VALVE ON
+L
+O2 pulse - Open
+ 25 
+E 8 VALVE OFF
+L
+O2 Pulse - Closed
+ 30 
+E 0 VALVE ON
+L
+Sample Drop - Open
+ 45 
+E 0 VALVE OFF
+L
+Sample Drop - Closed
+ 420 
+E 9 VALVE ON
+L
+Valco diver - Active
+ 420 
+E 14 VALVE ON
+L
+Backflush block - Open
+ 615 
+E 9 VALVE OFF
+L
+Valco Diverter - Deactive
+ 615 
+E 14 VALVE OFF
+L
+Backflush block - Closed

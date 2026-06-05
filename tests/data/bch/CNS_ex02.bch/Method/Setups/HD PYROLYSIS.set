@@ -1,0 +1,15 @@
+
+H2 REF GAS.ref
+HD PYROLYSIS.par
+Normal
+HD PYROLYSIS.evt
+NONE.spr
+Default.mcp
+comboPeakCentre.pcn
+Default
+ 0 
+Default
+None
+DefaultOLE
+False
+ 5 

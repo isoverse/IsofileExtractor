@@ -1,0 +1,32 @@
+Version 2
+
+ 84 
+ 7 
+ 1 
+S 5 VALVE ON
+L
+
+ 5 
+S 3 VALVE ON
+L
+
+ 5 
+S 9 VALVE ON
+L
+
+ 5 
+S 11 VALVE ON
+L
+
+ 28 
+S 3 VALVE OFF
+L
+
+ 80 
+S 9 VALVE OFF
+L
+
+ 80 
+S 11 VALVE OFF
+L
+

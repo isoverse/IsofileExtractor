@@ -1,0 +1,56 @@
+Version 2
+
+ 1064 
+ 13 
+ 1 
+!E 1 VALVE ON
+L
+
+ 1 
+E 13 VALVE ON
+L
+
+ 5 
+E 8 VALVE ON
+L
+
+ 30 
+E 8 VALVE OFF
+L
+
+ 30 
+E 0 VALVE ON
+L
+
+ 40 
+E 0 VALVE OFF
+L
+
+ 510 
+E1 VALVE OFF
+L
+
+ 565 
+E 9 VALVE ON
+L
+
+ 565 
+E 14 VALVE ON
+L
+
+ 1055 
+E 10 VALVE OFF
+L
+
+ 1000 
+E 10 VALVE ON
+L
+
+ 1060 
+E 9 VALVE OFF
+L
+
+ 1060 
+E 14 VALVE OFF
+L
+
