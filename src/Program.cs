@@ -213,7 +213,7 @@ Parallel.ForEach(files, inputArg =>
 
     if (IsImexpZip(inputPath))
     {
-        string outputPath = inputPath + ".json";
+        string outputPath = inputPath[..^".zip".Length] + ".json";
         var imexpMeta = new JsonObject
         {
             ["isoextract_version"] = assemblyVersion,
@@ -236,7 +236,7 @@ Parallel.ForEach(files, inputArg =>
                 string json = imexpRoot.ToJsonString(options);
                 if (prettyJson) json = CollapseNumberArrays(json);
                 File.WriteAllText(outputPath, json);
-                Console.WriteLine($"Written: {displayPath}.json{(imexpEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Written: {displayPath[..^".zip".Length]}.json{(imexpEx is not null ? " (incomplete)" : "")}");
             }
             else
             {
