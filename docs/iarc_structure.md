@@ -90,14 +90,15 @@ Key fields:
 
 One file per processing list. Contains the species (gas) names, the beam channel assigned to each species for detection, and the isotope ratio definitions (numerator beam, denominator beam, delta label). In V3-nested archives this file is also mirrored as `ProcessingLists/<id>/` but the root-level file is the authoritative one.
 
-The inner structure is a `SerialisablePropertyBag` hierarchy keyed by opaque GUIDs. Two GUIDs are **fixed** and stable across all archives observed:
+The inner structure is a `SerialisablePropertyBag` hierarchy keyed by opaque GUIDs. The following GUIDs are **fixed** and stable across all archives observed:
 
 | GUID | Role |
 |------|------|
-| `4CBF5188-0ECA-46D3-9A8E-F913A4164934` | Per-species bag; carries `SpeciesName`, `DetectionBeam` |
-| `7440D4F0-2E31-40FF-BF19-5BC24A3227F9` | Per-cup beam bag; carries `BeamChannel`, `UseLowGain` |
+| `10DC1602-5ED4-4D62-BAB0-2693E3FBC3AF` | Per-species bag in ProcessingList; carries `Species`, `DetectionBeamChannel` |
+| `{BE588D62-C6A7-4718-A63D-7B0BDCBD9EEA}` | Ratio list child bag |
+| `{42D28191-A6E9-4B7B-8C3D-0F0037624F7D}` | Per-ratio definition bag; carries `Label`, `NumeratorBeamChannel`, `DenominatorBeamChannel`, `DeltaLabel` |
 
-Ratio definitions live inside the species bag under a child bag identified by a ratio-list GUID, which itself contains per-ratio bags carrying `Label`, `NumeratorBeamChannel`, `DenominatorBeamChannel`, `DeltaLabel`. The IRMS device (visION) is identified by the presence of `4CBF5188` bags; other device names vary across IonOS versions.
+Ratio definitions live inside the species bag under the ratio-list child bag (`BE588D62`), which itself contains per-ratio bags (`42D28191`).
 
 ### SerialisablePropertyBag Layout
 
@@ -202,7 +203,7 @@ Each `System_*` file is a two-layer XML document. The outer layer:
 
 ### IRMS Device Identification
 
-The isoprime visION IRMS device bag is identified by the presence of child bags with identifier `4CBF5188-0ECA-46D3-9A8E-F913A4164934` (the same per-species GUID used in the ProcessingList). The device name itself varies across IonOS versions ("VisION", "isoprime visION") and should not be used for detection.
+The isoprime visION IRMS device bag is identified by the presence of child bags with identifier `4CBF5188-0ECA-46D3-9A8E-F913A4164934`. The device name itself varies across IonOS versions ("VisION", "isoprime visION") and should not be used for detection. Note: this GUID is distinct from the per-species GUID in the ProcessingList (`10DC1602`) — both describe species but in different contexts (hardware snapshot vs. processing configuration).
 
 ### Per-Beam Cup Data (Fixed GUID `7440D4F0`)
 
@@ -334,15 +335,17 @@ Three distinct column schemas appear in practice:
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `Scan` | float64 | Scan index (0-based integer stored as double) |
-| `Beam1` … `Beam10` | float64 | Ion beam current (Amperes); only the beams active for this measurement are present. Columns are not guaranteed to be in numeric order (e.g. `Beam1, Beam2, Beam4, Beam3`). |
+| `scan` | float64 | Scan index (0-based integer stored as double) |
+| `beam1` … `beam10` | float64 | Ion beam current (Amperes); only the beams active for this measurement are present. Columns are not guaranteed to be in numeric order (e.g. `beam1, beam2, beam4, beam3`). |
 
 **TCD trace data** — often 0 rows (dataset exists but is empty) in many archives:
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `Scan` | float64 | Scan index |
-| `TCD` | float64 | Thermal conductivity detector signal |
+| `scan` | float64 | Scan index |
+| `tcd` | float64 | Thermal conductivity detector signal |
+
+Column names from HDF5 are lowercased in the JSON output.
 
 **Elemental analysis results** — typically 2 rows (C and N):
 
@@ -479,8 +482,6 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
   "id": 409,
   "name": "KB007",
   "global_id": "…",
-  "species": ["N2", "CO2"],
-  "tunings": ["Normal"],
   "beams": [
     {
       "beam": "Beam1",
@@ -493,11 +494,37 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
       "high_gain_conductance_S": 9.95e-12,
       "high_gain_R_ohm": 1.005e11
     }
+  ],
+  "species": [
+    {
+      "name": "H2",
+      "is_current": true,
+      "target_beam": "Beam4",
+      "h3_correction_value": 3.4736667195952,
+      "tunings": ["H2", "H2 - Low H"]
+    },
+    {
+      "name": "CO",
+      "is_current": false,
+      "target_beam": "Beam1",
+      "h3_correction_value": 0,
+      "tunings": ["CO", "CO - Low O"]
+    }
   ]
 }
 ```
 
 `inuse_*` values come from the `mixed_gain` conductance set (calibrated values during the actual measurement). `low_gain_*` and `high_gain_*` come from cross-calibration sets. Fields absent when the corresponding calibration set was not found in the archive. `nominal_R_ohm` is derived from `UseLowGain`: 1 × 10⁹ Ω (low-gain) or 1 × 10¹¹ Ω (high-gain).
+
+Per-species fields:
+
+| Field | Source property | Notes |
+|-------|----------------|-------|
+| `name` | `SpeciesName` | Gas name (e.g. `H2`, `CO2`) |
+| `is_current` | `IsCurrentSpecies` | Whether this was the active species at time of snapshot |
+| `target_beam` | `TargetBeam` | Detection beam channel |
+| `h3_correction_value` | `H3CorrectionValue` | Measured H3⁺ correction factor recorded from reference standards during the run; 0 for species where the correction is not applicable. Only meaningful for H2 analyses. |
+| `tunings` | `TuningName` (child bags) | List of tuning names configured for this species |
 
 ### `tasks[]`
 
@@ -532,11 +559,11 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
       "data": {
         "species": "N2",
         "tuning": "Normal",
-        "Scan": [0.0, 1.0, 2.0, …],
-        "Beam1": [1.09e-9, …],
-        "Beam2": [1.08e-11, …],
-        "Beam4": [1.00e-9, …],
-        "Beam3": [1.05e-11, …]
+        "scan": [0.0, 1.0, 2.0, …],
+        "beam1": [1.09e-9, …],
+        "beam2": [1.08e-11, …],
+        "beam4": [1.00e-9, …],
+        "beam3": [1.05e-11, …]
       }
     },
     {

@@ -466,6 +466,10 @@ static class IarcReader
                 spObj["is_current"] = isCur == "True";
             if (sp.TryGetValue("TargetBeam", out string? targetBeam) && !string.IsNullOrEmpty(targetBeam))
                 spObj["target_beam"] = targetBeam;
+            if (sp.TryGetValue("H3CorrectionValue", out string? h3cv) && !string.IsNullOrEmpty(h3cv)
+                && double.TryParse(h3cv, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out double h3cvVal))
+                spObj["h3_correction_value"] = h3cvVal;
 
             // Tuning bag GUID varies across archive versions; detect by TuningName property
             var tunings = spBag.Descendants("SerialisablePropertyBag")
@@ -663,7 +667,7 @@ static class IarcReader
                 var arr = new double[n];
                 for (int i = 0; i < n; i++)
                     arr[i] = BitConverter.ToDouble(raw, i * rowSize + off);
-                data[member.Name] = JsonValue.Create(arr)!;
+                data[member.Name.ToLowerInvariant()] = JsonValue.Create(arr)!;
             }
         }
 
