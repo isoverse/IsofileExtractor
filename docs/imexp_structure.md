@@ -253,20 +253,26 @@ One object per unique `.samples` filename, sourced from the **newest** timestamp
   "rows": [
     {
       "sample_line_region": "Body",
+      "sample_line_definition_id": "27edceb9-f4f2-4cb3-be37-1b2a32029fd4",
       "guid": "a2c367be-2738-4638-ae44-d933167acf36",
       "mark_to_pause": false,
       "identifier": "WICST112",
       "comment": "SA_D1",
       "run_id": 1,
-      "analysis_number": "N/A",
-      "dilution_pattern": "0/94",
-      "con_flo_method": "ConFlo Method 1"
+      "params": [
+        { "label": "AnalysisNumber", "type": "string", "value": "N/A" },
+        { "label": "DilutionPattern", "type": "string", "value": "0/94" },
+        { "label": "ConFlo Method",   "type": "string", "value": "ConFlo Method 1" }
+      ]
     }
   ]
 }
 ```
 
-Column names are normalized from the plugin-prefixed PascalCase originals: the plugin prefix (everything up to and including the last `.`) is stripped, then PascalCase is converted to snake_case (underscores inserted before uppercase letters that follow a lowercase letter), and spaces are replaced by underscores. Example: `TFS253Plus.RunId` → `run_id`, `ConFlo Method` → `con_flo_method`.
+Each row has two kinds of fields:
+
+- **Standard columns** (always present, stored as flat snake_case fields): `sample_line_region`, `sample_line_definition_id`, `guid`, `mark_to_pause`, `identifier`, `comment`, `run_id`.
+- **Plugin-specific columns** (vary by instrument plugin and method configuration, stored in `params[]`): each entry has `label` (the original PascalCase column name with the plugin prefix stripped, e.g. `TFS253Plus.DilutionPattern` → `DilutionPattern`), `type` (the BinaryFormatter CLR type: `"string"`, `"int"`, `"double"`, `"bool"`, or `"guid"`), and `value`.
 
 Cell values retain their native types: booleans, integers, doubles, and strings. `System.Guid` values are formatted as standard UUID strings. `$`-prefixed GUID reference strings have the leading `$` stripped. Cells with no value in a column are `null`.
 
@@ -276,10 +282,11 @@ One object per `Entry_<uuid>/` directory. Entries are sourced from all timestamp
 
 ```json
 {
-  "source": "20260210-114429-570/Entry_0138d3a5-63a9-49bd-880a-60f4e45b35d1/TFS253Plus",
-  "entry_id": "0138d3a5-63a9-49bd-880a-60f4e45b35d1",
+  "source": "20250312-094429-745/Entry_0138d3a5-63a9-49bd-880a-60f4e45b35d1/TFS253Plus",
+  "guid": "0138d3a5-63a9-49bd-880a-60f4e45b35d1",
   "type": "TFS253Plus",
-  "settings_id": "CapturedSettings_2026-02-10-18-44-33-067",
+  "session_time": "2025-03-12T09:44:29.745",
+  "settings_id": "CapturedSettings_2025-03-12-14-44-36-981",
   "segments": [ … ],
   "additional_data": { … }
 }
@@ -287,8 +294,9 @@ One object per `Entry_<uuid>/` directory. Entries are sourced from all timestamp
 
 | Field | Source | Notes |
 |-------|--------|-------|
-| `entry_id` | Directory name (`Entry_<uuid>`) | UUID stripped of the `Entry_` prefix |
+| `guid` | Directory name (`Entry_<uuid>`) | UUID stripped of the `Entry_` prefix |
 | `type` | Subdirectory name inside `Entry_<uuid>/` | Typically `TFS253Plus` |
+| `session_time` | Top-level timestamp directory name | ISO 8601 datetime parsed from `YYYYMMDD-HHMMSS-mmm`; the batch run timestamp for this session |
 | `settings_id` | `CapturedSettingsFolderName.bin` | Name of the `CapturedSettings_<datetime>` folder used for this acquisition; cross-references `settings[].settings_id` |
 
 #### `segments[]`
@@ -317,7 +325,7 @@ Each segment corresponds to one non-sentinel record in `MeasureDataIndexLines.bi
 }
 ```
 
-`time_s` is seconds elapsed since the first time point of the segment (derived from the `.NET ticks` component of the BinaryFormatter timestamp). `detector` is `"analog"`, `"counter"`, or `"none"`. `intensity` units are raw ADC counts for analog detectors (not converted to Amperes).
+`time_s` is seconds elapsed since the first time point of the segment (derived from the `.NET ticks` component of the BinaryFormatter timestamp). `detector` is `"analog"`, `"counter"`, or `"none"`. `intensity` values are in **counts per second (cps)** as stored in `MeasureData.bin` — not converted to current (Amperes) or voltage.
 
 Index fields from `MeasureDataIndexLines.bin`:
 
