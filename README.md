@@ -11,10 +11,10 @@ A self-contained command-line tool for extracting data from stable isotope ratio
 | `.dxf`    | Continuous flow          | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 | `.cf`     | Continuous flow (legacy) | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 | `.bch`    | Continuous flow          | SerCon Callisto           | [bch_structure.md](docs/bch_structure.md) |
+| `.iarc`   | Continuous flow / dual inlet | Elementar IonOS / LyticOS | [iarc_structure.md](docs/iarc_structure.md) |
+| `.imexp`  | Continuous flow / dual inlet | Thermo Fisher Qtegra  | [imexp_structure.md](docs/imexp_structure.md) |
 | `.did`    | Dual inlet               | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 | `.caf`    | Dual inlet (legacy)      | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
-| `.imexp`  | Continuous flow / dual inlet | Thermo Fisher Qtegra  | [imexp_structure.md](docs/imexp_structure.md) |
-| `.iarc`   | Continuous flow / dual inlet | Elementar IonOS / LyticOS | [iarc_structure.md](docs/iarc_structure.md) |
 | `.scn`    | Scan                     | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 
 ## Usage
@@ -34,9 +34,16 @@ One or more files or directories can be provided. Directories are searched recur
 | `--unabridged` | Include verbose fields normally omitted: schema version numbers, app IDs, raw flags, etc. |
 | `--log [path]` | Write a CSV summary of all processed files. Defaults to `isoextract.log` in the current directory; an explicit path can be provided: `--log results/run.log` |
 | `--file-list <path>` | Read additional file/directory paths from a text file (one per line; lines starting with `#` are ignored) |
+| `--dry-run` | Parse files without writing the JSON output. All other output (`--log`, `--objects`, `--tree`, issues logs) is still written normally |
+
+### Isodat-specific options
+
+These options apply only to Isodat files (`.dxf`, `.cf`, `.did`, `.caf`, `.scn`) and are silently ignored for other formats.
+
+| Option | Description |
+|--------|-------------|
 | `--objects` | Write a `.objects.csv` output file for each input file, listing every deserialized C++ object with its byte offset, class name, schema version, and parent–child relationships |
 | `--tree` | Write a `.tree.txt` output file for each input file showing the object hierarchy as an indented tree |
-| `--dry-run` | Parse files without writing the JSON output. All other output (`--log`, `--objects`, `--tree`, issues logs) is still written normally |
 
 ### Exit code
 
@@ -50,8 +57,8 @@ For each input file `foo.dxf` the following files are written:
 |------|---------|-------------|
 | `foo.dxf.json` | yes | Extracted data |
 | `foo.dxf.issues.log` | only on warnings/errors | Plain-text list of warnings and the error message (if any) |
-| `foo.dxf.objects.csv` | with `--objects` | Per-object log (offset, class, version, hierarchy) |
-| `foo.dxf.tree.txt` | with `--tree` | Indented object tree |
+| `foo.dxf.objects.csv` | with `--objects` (Isodat only) | Per-object log (offset, class, version, hierarchy) |
+| `foo.dxf.tree.txt` | with `--tree` (Isodat only) | Indented object tree |
 
 ### JSON structure
 
