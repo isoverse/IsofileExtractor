@@ -7,12 +7,12 @@ using PureHDF;
 
 namespace IsofileExtractor;
 
-static class IarcReader
+static class LiarcReader
 {
     public static void Read(ZipArchive zip, JsonObject root)
     {
         var infoEntry = zip.GetEntry("Info")
-            ?? throw new InvalidDataException("no 'Info' entry in .iarc archive");
+            ?? throw new InvalidDataException("no 'Info' entry in .iarc/.larc archive");
 
         ParseInfo(infoEntry, root, out int archiveVersion, out var plMeta);
 

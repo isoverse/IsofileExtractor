@@ -1,10 +1,16 @@
-# Elementar IonOS/LyticOS `.iarc` Archive Structure
+# Elementar IonOS/LyticOS `.iarc` / `.larc` Archive Structure
 
-`.iarc` files are ZIP archives produced by Elementar's **IonOS** and **LyticOS** software for the isoprime visION IRMS instrument series. Each archive bundles together all metadata, instrument state snapshots, and raw measurement data for one run sequence (a list of tasks/samples).
+`.iarc` and `.larc` files are ZIP archives produced by Elementar's **IonOS** and **LyticOS** software for the isoprime visION IRMS instrument series. Each archive bundles together all metadata, instrument state snapshots, and raw measurement data for one run sequence (a list of tasks/samples).
+
+The file extension reflects the software generation that produced the archive:
+- `.iarc` — produced by **IonOS** (archive versions 2 and 3)
+- `.larc` — produced by **LyticOS** (archive version 4)
+
+Both formats share the similar internal structure and are processed by the same isoextract reader. The `file_type` field in the JSON output reflects the actual extension (`"iarc"` or `"larc"`).
 
 ## Archive Version Variants
 
-Two major structural variants exist, distinguished by archive version and directory layout.
+Three major structural variants exist, distinguished by archive version and directory layout.
 
 ### V2 / V3-flat
 
@@ -36,15 +42,19 @@ ReadbacksDisplaySettings/DisplaySettings.xml
 Snapshot/<method_id>/B2273D87-…txt      ← UI persistence (not data-relevant)
 ```
 
+### V4 (LyticOS / `.larc`)
+
+Archive version 4, produced by LyticOS. Uses the `.larc` extension. Internal directory structure is the same as V3-nested; the version number and extension are the primary distinguishing markers.
+
 ### Version Detection
 
-Open `Info` and read `<Version>`. An integer value of `2` indicates V2/V3-flat layout; `3` typically means V3-nested, though the presence of `AcquisitionTask/` directory entries is a reliable structural indicator regardless of the declared version.
+Open `Info` and read `<Version>`. An integer value of `2` indicates V2/V3-flat layout; `3` typically means V3-nested; `4` indicates a LyticOS `.larc` archive (also V3-nested structure). The presence of `AcquisitionTask/` directory entries is a reliable structural indicator for V3-nested and V4 regardless of the declared version.
 
 ---
 
 ## XML Encoding Quirk
 
-All XML entry files in `.iarc` archives declare `encoding="utf-16"` in their XML prolog:
+All XML entry files in `.iarc` / `.larc` archives declare `encoding="utf-16"` in their XML prolog:
 
 ```xml
 <?xml version="1.0" encoding="utf-16"?>
@@ -395,7 +405,7 @@ This provides the explicit mapping of each `Beam*` column in the HDF5 data to an
 
 ## JSON Output Structure
 
-`isoextract` converts each `.iarc` archive to a single `.iarc.json` file with the following top-level structure:
+`isoextract` converts each `.iarc` / `.larc` archive to a single `.iarc.json` / `.larc.json` file with the following top-level structure:
 
 ```json
 {
