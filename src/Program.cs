@@ -89,6 +89,21 @@ static bool IsImexpFile(string path) =>
 int exitCode = 0;
 string cwd = Directory.GetCurrentDirectory();
 
+string? logPath = writeLog
+    ? (logPathArg is not null
+        ? Path.GetFullPath(logPathArg)
+        : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log"))
+    : null;
+string? logDisplayPath = writeLog ? (logPathArg ?? "isoextract.log") : null;
+
+StreamWriter? logWriter = null;
+object logLock = new();
+if (logPath is not null)
+{
+    logWriter = new StreamWriter(logPath, append: false) { AutoFlush = true };
+    logWriter.WriteLine("file,success,duration_ms,error");
+}
+
 int folderCount = paths.Count(p => Directory.Exists(Path.GetFullPath(p)));
 if (folderCount > 0)
     Console.WriteLine($"Searching {folderCount} folder{(folderCount == 1 ? "" : "s")} recursively...");
@@ -122,16 +137,21 @@ if (folderCount > 0)
                 && File.Exists(full + ".zip"))
                 return [(full + ".zip", Display(full))];
 
-            Console.Error.WriteLine($"Path not found: {Display(full)}");
+            Console.Error.WriteLine($"Path does not exist: {Display(full)}");
             Interlocked.Exchange(ref exitCode, 1);
             if (!dryRun)
                 try
                 {
                     string issueDir = Path.GetDirectoryName(full + ".issues.log") ?? ".";
                     Directory.CreateDirectory(issueDir);
-                    File.WriteAllText(full + ".issues.log", "error: file not found\n");
+                    File.WriteAllText(full + ".issues.log", "error: path does not exist\n");
                     File.Delete(full + ".json");
                 } catch { }
+            if (logWriter is not null)
+            {
+                string line = $"{CsvField(Display(full))},false,0,\"path does not exist\"";
+                lock (logLock) logWriter.WriteLine(line);
+            }
             return [];
         }
         if (full.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
@@ -186,21 +206,6 @@ AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             && Path.GetFileName(p).StartsWith("isoextract_isosolfs_"))
         try { File.Delete(p); } catch { }
 };
-
-string? logPath = writeLog
-    ? (logPathArg is not null
-        ? Path.GetFullPath(logPathArg)
-        : Path.Combine(Directory.GetCurrentDirectory(), "isoextract.log"))
-    : null;
-string? logDisplayPath = writeLog ? (logPathArg ?? "isoextract.log") : null;
-
-StreamWriter? logWriter = null;
-object logLock = new();
-if (logPath is not null)
-{
-    logWriter = new StreamWriter(logPath, append: false) { AutoFlush = true };
-    logWriter.WriteLine("file,success,duration_ms,error");
-}
 
 Parallel.ForEach(files, inputArg =>
 {
@@ -277,12 +282,16 @@ Parallel.ForEach(files, inputArg =>
                 string msg = $"Cannot extract .imexp notebooks on {osName} (yet), please run this on Windows and port the resulting .json files to your operating system";
                 Console.Error.WriteLine(msg);
                 Interlocked.Exchange(ref exitCode, 1);
+                if (!dryRun)
+                {
+                    File.WriteAllText(inputPath + ".issues.log", $"error: {msg}\n");
+                    File.Delete(inputPath + ".json");
+                }
                 if (logWriter is not null)
                 {
                     string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg.Replace("\"", "\"\"")}\"";
                     lock (logLock) logWriter.WriteLine(line);
                 }
-                if (!dryRun) File.Delete(inputPath + ".json");
                 return;
             }
 
@@ -360,7 +369,7 @@ Parallel.ForEach(files, inputArg =>
         {
             ["isoextract_version"] = assemblyVersion,
             ["file_type"] = "imexp",
-            ["file_size_bytes"] = new FileInfo(inputPath).Length,
+            ["file_size_bytes"] = File.Exists(imexpBase) ? new FileInfo(imexpBase).Length : new FileInfo(inputPath).Length,
         };
         var imexpRoot = new JsonObject();
         imexpRoot["meta"] = imexpMeta;
@@ -410,12 +419,17 @@ Parallel.ForEach(files, inputArg =>
 
     if (!File.Exists(inputPath))
     {
-        Console.Error.WriteLine($"File not found: {inputPath}");
+        Console.Error.WriteLine($"Path does not exist: {inputPath}");
         Interlocked.Exchange(ref exitCode, 1);
         if (!dryRun)
         {
-            File.WriteAllText(inputPath + ".issues.log", "error: file not found\n");
+            File.WriteAllText(inputPath + ".issues.log", "error: path does not exist\n");
             File.Delete(inputPath + ".json");
+        }
+        if (logWriter is not null)
+        {
+            string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"path does not exist\"";
+            lock (logLock) logWriter.WriteLine(line);
         }
         return;
     }

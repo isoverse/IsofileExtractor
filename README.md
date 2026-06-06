@@ -34,7 +34,9 @@ One or more files or directories can be provided. Directories are searched recur
 | `--prettyJSON` | Pretty-print JSON output (number arrays are kept on one line) |
 | `--log [path]` | Write a CSV summary of all processed files. Defaults to `isoextract.log` in the current directory; an explicit path can be provided: `--log results/run.log` |
 | `--file-list <path>` | Read additional file/directory paths from a text file (one per line; lines starting with `#` are ignored) |
-| `--dry-run` | Parse files without writing the JSON output. All other output (`--log`, `--objects`, `--tree`, issues logs) is still written normally |
+| `--dry-run` | Parse files without writing any JSON or issues log output. The `--log` CSV is still written normally, making `--dry-run --log` the recommended way to evaluate a batch before committing to a full run |
+
+> **Recommended workflow:** run with `--dry-run --log` first to parse all files and capture any warnings or errors in the log, without touching the output `.json` or `.issues.log` files. Once satisfied, re-run without `--dry-run` to write the final output.
 
 ### Advanced options
 
