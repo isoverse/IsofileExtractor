@@ -362,13 +362,21 @@ static partial class ImexpReader
         return result;
     }
 
+    // Columns that are present in every sample list and kept as flat snake_case fields on the row.
+    // All other columns go into "params" with their original PascalCase name.
+    static readonly HashSet<string> StandardColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "sample_line_region", "sample_line_definition_id", "guid",
+        "mark_to_pause", "identifier", "comment", "run_id",
+    };
+
     static JsonArray ParseSampleList(byte[] d)
     {
         var objs = ParseStream(d);
         if (!objs.TryGetValue(1, out var root)) return new JsonArray();
 
-        var columnNames = new List<string>();
-        var columnRows  = new List<object?[]>();
+        // Each column: (normalized snake_case key, original PascalCase label, row values)
+        var columns = new List<(string Key, string Label, object?[] Rows, string? Type)>();
 
         foreach (var colObj in GetObjItems(root.Fields.GetValueOrDefault(VL_Items), objs))
         {
@@ -379,34 +387,71 @@ static partial class ImexpReader
             var rawItems = GetItems(rowsAL?.Fields.GetValueOrDefault(IAL_Items), objs)
                            ?? Array.Empty<object?>();
 
-            columnNames.Add(NormalizeColumnName(rawName));
-            columnRows.Add(rawItems);
+            string label = StripColumnPrefix(rawName);
+            string key   = ToSnakeCase(label);
+            string? type = GetParamType(rawItems, objs);
+            columns.Add((key, label, rawItems, type));
         }
 
-        if (columnNames.Count == 0) return new JsonArray();
+        if (columns.Count == 0) return new JsonArray();
 
-        int nRows = columnRows.Max(r => r.Length);
+        int nRows = columns.Max(c => c.Rows.Length);
         var result = new JsonArray();
         for (int row = 0; row < nRows; row++)
         {
-            var rowObj = new JsonObject();
-            for (int col = 0; col < columnNames.Count; col++)
+            var rowObj    = new JsonObject();
+            var paramsArr = new JsonArray();
+            foreach (var (key, label, rows, type) in columns)
             {
-                object? val = row < columnRows[col].Length ? columnRows[col][row] : null;
-                rowObj[columnNames[col]] = BfValueToJson(val, objs);
+                object? val = row < rows.Length ? rows[row] : null;
+                if (StandardColumns.Contains(key))
+                    rowObj[key] = BfValueToJson(val, objs);
+                else
+                {
+                    var param = new JsonObject { ["label"] = label };
+                    if (type is not null) param["type"] = type;
+                    param["value"] = BfValueToJson(val, objs);
+                    paramsArr.Add(param);
+                }
             }
+            if (paramsArr.Count > 0) rowObj["params"] = paramsArr;
             result.Add(rowObj);
         }
         return result;
     }
 
-    // Strip plugin prefix (e.g. "TFS253Plus.RunId" → "RunId"), then convert
-    // PascalCase/camelCase to snake_case (spaces also become underscores).
-    static string NormalizeColumnName(string name)
+    // Returns the type name of the first non-null value in a column's row array.
+    static string? GetParamType(object?[] rows, Dictionary<int, BfObj> objs)
+    {
+        foreach (var item in rows)
+        {
+            object? val = item is BfRef r && objs.TryGetValue(r.Id, out var o) ? o : item;
+            if (val is null) continue;
+            return val switch
+            {
+                bool                                   => "bool",
+                int                                    => "int",
+                long                                   => "int",
+                double                                 => "double",
+                string                                 => "string",
+                BfObj b when b.ClassName == "__string" => "string",
+                BfObj b when b.ClassName == "System.Guid" => "guid",
+                _                                      => null,
+            };
+        }
+        return null;
+    }
+
+    // Strip plugin prefix (e.g. "TFS253Plus.RunId" → "RunId").
+    static string StripColumnPrefix(string name)
     {
         int dot = name.LastIndexOf('.');
-        if (dot >= 0) name = name[(dot + 1)..];
+        return dot >= 0 ? name[(dot + 1)..] : name;
+    }
 
+    // PascalCase/camelCase → snake_case; spaces become underscores.
+    static string ToSnakeCase(string name)
+    {
         var sb = new System.Text.StringBuilder(name.Length + 4);
         for (int i = 0; i < name.Length; i++)
         {
@@ -420,6 +465,8 @@ static partial class ImexpReader
         }
         return sb.ToString();
     }
+
+    static string NormalizeColumnName(string name) => ToSnakeCase(StripColumnPrefix(name));
 
     static JsonNode? BfValueToJson(object? val, Dictionary<int, BfObj> objs)
     {
@@ -483,8 +530,10 @@ static partial class ImexpReader
         var arr = new JsonArray();
         foreach (var (source, idxBytes, mdBytes, csfnBytes, adataBytes, smetaBytes) in pairs)
         {
-            string? entryId = null, entryType = null;
+            string? entryId = null, entryType = null, sessionTime = null;
             var parts = source.Split('/');
+            if (parts.Length > 0)
+                sessionTime = ParseSessionTime(parts[0]);
             for (int i = 0; i < parts.Length; i++)
             {
                 if (parts[i].StartsWith("Entry_", StringComparison.OrdinalIgnoreCase))
@@ -495,8 +544,9 @@ static partial class ImexpReader
                 }
             }
             var obj = new JsonObject { ["source"] = source };
-            if (entryId   is not null) obj["entry_id"] = entryId;
-            if (entryType is not null) obj["type"]     = entryType;
+            if (entryId     is not null) obj["guid"]         = entryId;
+            if (entryType   is not null) obj["type"]        = entryType;
+            if (sessionTime is not null) obj["session_time"] = sessionTime;
             if (csfnBytes.Length > 0)
                 try { obj["settings_id"] = ParseSettingsFolderName(csfnBytes); }
                 catch { /* omit on parse failure */ }
@@ -564,6 +614,16 @@ static partial class ImexpReader
             }
         }
         return list;
+    }
+
+    static string? ParseSessionTime(string dirName)
+    {
+        // Format: YYYYMMDD-HHMMSS-MMM  (e.g. 20250312-094429-745)
+        if (System.DateTime.TryParseExact(dirName, "yyyyMMdd-HHmmss-fff",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out var dt))
+            return dt.ToString("yyyy-MM-ddTHH:mm:ss.fff");
+        return null;
     }
 
     static string? ParseSettingsFolderName(byte[] d)
