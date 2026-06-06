@@ -117,8 +117,21 @@ if (folderCount > 0)
                     .Select(f => (f, Display(f))));
         if (!File.Exists(full))
         {
+            // .imexp missing but its .zip sidecar exists → process the zip transparently
+            if (Path.GetExtension(full).Equals(".imexp", StringComparison.OrdinalIgnoreCase)
+                && File.Exists(full + ".zip"))
+                return [(full + ".zip", Display(full))];
+
             Console.Error.WriteLine($"Path not found: {Display(full)}");
             Interlocked.Exchange(ref exitCode, 1);
+            if (!dryRun)
+                try
+                {
+                    string issueDir = Path.GetDirectoryName(full + ".issues.log") ?? ".";
+                    Directory.CreateDirectory(issueDir);
+                    File.WriteAllText(full + ".issues.log", "error: file not found\n");
+                    File.Delete(full + ".json");
+                } catch { }
             return [];
         }
         if (full.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
@@ -269,6 +282,7 @@ Parallel.ForEach(files, inputArg =>
                     string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg.Replace("\"", "\"\"")}\"";
                     lock (logLock) logWriter.WriteLine(line);
                 }
+                if (!dryRun) File.Delete(inputPath + ".json");
                 return;
             }
 
@@ -283,6 +297,7 @@ Parallel.ForEach(files, inputArg =>
                     string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg}\"";
                     lock (logLock) logWriter.WriteLine(line);
                 }
+                if (!dryRun) File.Delete(inputPath + ".json");
                 return;
             }
 
@@ -326,7 +341,11 @@ Parallel.ForEach(files, inputArg =>
                 if (Directory.Exists(extractedFolder))
                     Directory.Delete(extractedFolder, true);
             }
-            if (!conversionOk) return;
+            if (!conversionOk)
+            {
+                if (!dryRun) File.Delete(inputPath + ".json");
+                return;
+            }
         }
         inputPath = zipPath;
     }
@@ -393,6 +412,11 @@ Parallel.ForEach(files, inputArg =>
     {
         Console.Error.WriteLine($"File not found: {inputPath}");
         Interlocked.Exchange(ref exitCode, 1);
+        if (!dryRun)
+        {
+            File.WriteAllText(inputPath + ".issues.log", "error: file not found\n");
+            File.Delete(inputPath + ".json");
+        }
         return;
     }
 
