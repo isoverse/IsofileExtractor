@@ -1,0 +1,434 @@
+{
+  "meta": {
+    "isoextract_version": "0.2.0.0",
+    "file_type": "larc",
+    "file_size_bytes": 58194,
+    "complete": true
+  },
+  "archive_version": 4,
+  "created_date": "2026-06-05T15:10:29.8935341-05:00",
+  "processing_lists": [
+    {
+      "source": "ProcessingList_1",
+      "id": 1,
+      "name": "EA CN Demo",
+      "guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "n_tasks": 4,
+      "species": [
+        {
+          "name": "CO",
+          "detection_beam": "Beam1",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 28
+            },
+            {
+              "beam": "Beam3",
+              "mass": 30
+            }
+          ],
+          "ratios": [
+            {
+              "label": "30/28",
+              "numerator_beam": "Beam3",
+              "denominator_beam": "Beam1",
+              "delta_label": "RAW \u03B430"
+            }
+          ]
+        },
+        {
+          "name": "SO2",
+          "detection_beam": "Beam1",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 64
+            },
+            {
+              "beam": "Beam2",
+              "mass": 66
+            }
+          ],
+          "ratios": [
+            {
+              "label": "66/64",
+              "numerator_beam": "Beam2",
+              "denominator_beam": "Beam1",
+              "delta_label": "RAW \u03B466"
+            }
+          ]
+        },
+        {
+          "name": "CO2",
+          "detection_beam": "Beam1",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 44
+            },
+            {
+              "beam": "Beam2",
+              "mass": 45
+            },
+            {
+              "beam": "Beam3",
+              "mass": 46
+            }
+          ],
+          "ratios": [
+            {
+              "label": "45/44",
+              "numerator_beam": "Beam2",
+              "denominator_beam": "Beam1",
+              "delta_label": "RAW \u03B445"
+            },
+            {
+              "label": "46/44",
+              "numerator_beam": "Beam3",
+              "denominator_beam": "Beam1",
+              "delta_label": "RAW \u03B446"
+            }
+          ]
+        },
+        {
+          "name": "H2",
+          "detection_beam": "Beam4",
+          "beam_masses": [
+            {
+              "beam": "Beam4",
+              "mass": 2
+            },
+            {
+              "beam": "Beam3",
+              "mass": 3
+            }
+          ],
+          "ratios": [
+            {
+              "label": "3/2",
+              "numerator_beam": "Beam3",
+              "denominator_beam": "Beam4",
+              "delta_label": "Raw dH"
+            }
+          ]
+        },
+        {
+          "name": "N2",
+          "detection_beam": "Beam1",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 28
+            },
+            {
+              "beam": "Beam2",
+              "mass": 29
+            }
+          ],
+          "ratios": [
+            {
+              "label": "29/28",
+              "numerator_beam": "Beam2",
+              "denominator_beam": "Beam1",
+              "delta_label": "RAW \u03B429"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "methods": [
+    {
+      "source": "Snapshot/1/snapshot.xml",
+      "id": 1,
+      "name": "EA Analysis NC",
+      "global_id": "fe49ee74-6b36-4dd7-bf9c-42d6b91943e6",
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "flows": ["EA 2 Species", "Close Monitoring Gas With Delay", "Monitoring Gas Pulse"],
+      "params": [
+        {
+          "name": "EA Method",
+          "value": "2mg70sIRMS_fast"
+        },
+        {
+          "name": "EA Sample Weight",
+          "value": "1"
+        },
+        {
+          "name": "Sample Type",
+          "value": "Standard Chemical - 1mg"
+        }
+      ],
+      "beam_masses": [
+        {
+          "species": "CO2",
+          "beams": [
+            {
+              "beam": "Beam1",
+              "mass": 44
+            },
+            {
+              "beam": "Beam2",
+              "mass": 45
+            },
+            {
+              "beam": "Beam3",
+              "mass": 46
+            }
+          ]
+        },
+        {
+          "species": "N2",
+          "beams": [
+            {
+              "beam": "Beam1",
+              "mass": 28
+            },
+            {
+              "beam": "Beam2",
+              "mass": 29
+            },
+            {
+              "beam": "Beam3",
+              "mass": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "Snapshot/2/snapshot.xml",
+      "id": 2,
+      "name": "EA Analysis NC - wood",
+      "global_id": "a9ba1ee5-c82a-4339-8e46-23e65d59e468",
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "flows": ["EA 2 Species", "Close Monitoring Gas With Delay", "Monitoring Gas Pulse"],
+      "params": [
+        {
+          "name": "EA Method",
+          "value": "10mg120sIRMS"
+        },
+        {
+          "name": "EA Sample Weight",
+          "value": "1"
+        },
+        {
+          "name": "Sample Type",
+          "value": "Standard Chemical - 1mg"
+        }
+      ]
+    }
+  ],
+  "systems": [],
+  "tasks": [
+    {
+      "source": "AcquisitionTask/Task_0b7e6b49-7756-4cca-b387-4d6617cb28e6/AcquisitionTask.xml",
+      "name": "WSL-2 wood",
+      "id": 6632,
+      "global_id": "0b7e6b49-7756-4cca-b387-4d6617cb28e6",
+      "acquisition_start": "2014-10-08T18:27:23.4682755",
+      "acquisition_end": "2014-10-08T18:43:40.1319321",
+      "completion_state": "Success",
+      "method_id": 2,
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "sample_type": "Sample",
+      "system_description": "EA - visION Hanau",
+      "values": {
+        "EA Method": "10mg120sIRMS",
+        "EA Sample Weight": "29",
+        "Sample Type": "Wood - 25 mg"
+      },
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_0b7e6b49-7756-4cca-b387-4d6617cb28e6/61/AcquisitionDataSet.hdf5",
+          "id": 61,
+          "type": "Vario EA Results",
+          "status": "Completed",
+          "start": "2014-10-08T18:43:39.5988788",
+          "end": "2014-10-08T18:43:39.6098799"
+        },
+        {
+          "source": "AcquisitionTask/Task_0b7e6b49-7756-4cca-b387-4d6617cb28e6/62/AcquisitionDataSet.hdf5",
+          "id": 62,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T18:33:13.6212873",
+          "end": "2014-10-08T18:36:30.557979"
+        },
+        {
+          "source": "AcquisitionTask/Task_0b7e6b49-7756-4cca-b387-4d6617cb28e6/63/AcquisitionDataSet.hdf5",
+          "id": 63,
+          "type": "Vario TCD",
+          "status": "Completed",
+          "start": "2014-10-08T18:28:43.9493228",
+          "end": "2014-10-08T18:43:39.0818271"
+        },
+        {
+          "source": "AcquisitionTask/Task_0b7e6b49-7756-4cca-b387-4d6617cb28e6/64/AcquisitionDataSet.hdf5",
+          "id": 64,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T18:28:13.3952677",
+          "end": "2014-10-08T18:32:24.1103367"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_0e08e8b4-c625-4fd7-bf5b-9f4823f660cd/AcquisitionTask.xml",
+      "name": "USGS41",
+      "id": 6605,
+      "global_id": "0e08e8b4-c625-4fd7-bf5b-9f4823f660cd",
+      "acquisition_start": "2014-10-08T14:14:35.9865192",
+      "acquisition_end": "2014-10-08T14:24:49.0288173",
+      "completion_state": "Success",
+      "method_id": 1,
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "sample_type": "Sample",
+      "system_description": "EA - visION Hanau",
+      "values": {
+        "EA Method": "05mg70sIRMS_fast",
+        "EA Sample Weight": "1",
+        "Sample Type": "Glutamic Acid - 1mg"
+      },
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_0e08e8b4-c625-4fd7-bf5b-9f4823f660cd/101/AcquisitionDataSet.hdf5",
+          "id": 101,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T14:15:24.7763977",
+          "end": "2014-10-08T14:19:25.7924969"
+        },
+        {
+          "source": "AcquisitionTask/Task_0e08e8b4-c625-4fd7-bf5b-9f4823f660cd/102/AcquisitionDataSet.hdf5",
+          "id": 102,
+          "type": "Vario TCD",
+          "status": "Completed",
+          "start": "2014-10-08T14:15:55.5074705",
+          "end": "2014-10-08T14:24:48.6887833"
+        },
+        {
+          "source": "AcquisitionTask/Task_0e08e8b4-c625-4fd7-bf5b-9f4823f660cd/103/AcquisitionDataSet.hdf5",
+          "id": 103,
+          "type": "Vario EA Results",
+          "status": "Completed",
+          "start": "2014-10-08T14:24:48.8237968",
+          "end": "2014-10-08T14:24:48.8477992"
+        },
+        {
+          "source": "AcquisitionTask/Task_0e08e8b4-c625-4fd7-bf5b-9f4823f660cd/104/AcquisitionDataSet.hdf5",
+          "id": 104,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T14:20:14.8213993",
+          "end": "2014-10-08T14:23:15.8495003"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_1de1fdc3-0797-4e44-8357-52acbd0d4a6d/AcquisitionTask.xml",
+      "name": "IAEA600",
+      "id": 6617,
+      "global_id": "1de1fdc3-0797-4e44-8357-52acbd0d4a6d",
+      "acquisition_start": "2014-10-08T16:01:14.8274991",
+      "acquisition_end": "2014-10-08T16:11:29.4289531",
+      "completion_state": "Success",
+      "method_id": 1,
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "sample_type": "Sample",
+      "system_description": "EA - visION Hanau",
+      "values": {
+        "EA Method": "05mg70sIRMS_fast",
+        "EA Sample Weight": "0.4",
+        "Sample Type": "Caffeine - 0.4mg"
+      },
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_1de1fdc3-0797-4e44-8357-52acbd0d4a6d/105/AcquisitionDataSet.hdf5",
+          "id": 105,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T16:06:53.2463376",
+          "end": "2014-10-08T16:09:54.6304742"
+        },
+        {
+          "source": "AcquisitionTask/Task_1de1fdc3-0797-4e44-8357-52acbd0d4a6d/106/AcquisitionDataSet.hdf5",
+          "id": 106,
+          "type": "Vario EA Results",
+          "status": "Completed",
+          "start": "2014-10-08T16:11:29.2219324",
+          "end": "2014-10-08T16:11:29.3499452"
+        },
+        {
+          "source": "AcquisitionTask/Task_1de1fdc3-0797-4e44-8357-52acbd0d4a6d/107/AcquisitionDataSet.hdf5",
+          "id": 107,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T16:02:03.9484107",
+          "end": "2014-10-08T16:06:04.9905125"
+        },
+        {
+          "source": "AcquisitionTask/Task_1de1fdc3-0797-4e44-8357-52acbd0d4a6d/108/AcquisitionDataSet.hdf5",
+          "id": 108,
+          "type": "Vario TCD",
+          "status": "Completed",
+          "start": "2014-10-08T16:02:34.2764432",
+          "end": "2014-10-08T16:11:29.1329235"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_261a3286-0bc6-4aca-bba2-183c02597d8b/AcquisitionTask.xml",
+      "name": "GlutamicAcid04",
+      "id": 6630,
+      "global_id": "261a3286-0bc6-4aca-bba2-183c02597d8b",
+      "acquisition_start": "2014-10-08T18:00:50.7420188",
+      "acquisition_end": "2014-10-08T18:11:05.9675352",
+      "completion_state": "Success",
+      "method_id": 1,
+      "processing_list_guid": "{BC89E456-57C0-4FF1-9110-90C8E6AE1B69}",
+      "sample_type": "Sample",
+      "system_description": "EA - visION Hanau",
+      "values": {
+        "EA Method": "05mg70sIRMS_fast",
+        "EA Sample Weight": "1",
+        "Sample Type": "Glutamic Acid - 1mg"
+      },
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_261a3286-0bc6-4aca-bba2-183c02597d8b/109/AcquisitionDataSet.hdf5",
+          "id": 109,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T18:01:39.9509392",
+          "end": "2014-10-08T18:05:40.6070024"
+        },
+        {
+          "source": "AcquisitionTask/Task_261a3286-0bc6-4aca-bba2-183c02597d8b/110/AcquisitionDataSet.hdf5",
+          "id": 110,
+          "type": "Vario TCD",
+          "status": "Completed",
+          "start": "2014-10-08T18:02:10.36198",
+          "end": "2014-10-08T18:11:05.7795164"
+        },
+        {
+          "source": "AcquisitionTask/Task_261a3286-0bc6-4aca-bba2-183c02597d8b/111/AcquisitionDataSet.hdf5",
+          "id": 111,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-10-08T18:06:29.2768689",
+          "end": "2014-10-08T18:09:31.8601254"
+        },
+        {
+          "source": "AcquisitionTask/Task_261a3286-0bc6-4aca-bba2-183c02597d8b/112/AcquisitionDataSet.hdf5",
+          "id": 112,
+          "type": "Vario EA Results",
+          "status": "Completed",
+          "start": "2014-10-08T18:11:05.8665251",
+          "end": "2014-10-08T18:11:05.8795264"
+        }
+      ]
+    }
+  ]
+}

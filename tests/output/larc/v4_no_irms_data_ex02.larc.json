@@ -1,0 +1,252 @@
+{
+  "meta": {
+    "isoextract_version": "0.2.0.0",
+    "file_type": "larc",
+    "file_size_bytes": 31192,
+    "complete": true
+  },
+  "archive_version": 4,
+  "created_date": "2026-06-05T15:10:09.5722056-05:00",
+  "processing_lists": [
+    {
+      "source": "ProcessingList_1",
+      "id": 1,
+      "name": "GC Demo",
+      "guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "n_tasks": 6,
+      "species": [
+        {
+          "name": "N2",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 28
+            },
+            {
+              "beam": "Beam2",
+              "mass": 29
+            }
+          ],
+          "ratios": [
+            {
+              "label": "29/28",
+              "numerator_beam": "Beam2",
+              "denominator_beam": "Beam1",
+              "delta_label": "Raw d29"
+            }
+          ]
+        },
+        {
+          "name": "CO2",
+          "detection_beam": "Beam1",
+          "beam_masses": [
+            {
+              "beam": "Beam1",
+              "mass": 44
+            },
+            {
+              "beam": "Beam2",
+              "mass": 45
+            },
+            {
+              "beam": "Beam3",
+              "mass": 46
+            }
+          ],
+          "ratios": [
+            {
+              "label": "45/44",
+              "numerator_beam": "Beam2",
+              "denominator_beam": "Beam1",
+              "delta_label": "Raw d45"
+            },
+            {
+              "label": "46/44",
+              "numerator_beam": "Beam3",
+              "denominator_beam": "Beam1",
+              "delta_label": "Raw d46"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "methods": [],
+  "systems": [],
+  "tasks": [
+    {
+      "source": "AcquisitionTask/Task_4b26db23-65f9-4c80-93eb-3b3243d55c4b/AcquisitionTask.xml",
+      "name": "Steroid Mix A",
+      "id": 976,
+      "global_id": "4b26db23-65f9-4c80-93eb-3b3243d55c4b",
+      "acquisition_start": "2014-03-21T01:56:44",
+      "acquisition_end": "2014-03-21T01:56:44",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_4b26db23-65f9-4c80-93eb-3b3243d55c4b/98/AcquisitionDataSet.hdf5",
+          "id": 98,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-21T01:56:44",
+          "end": "2014-03-21T02:37:44"
+        },
+        {
+          "source": "AcquisitionTask/Task_4b26db23-65f9-4c80-93eb-3b3243d55c4b/97/AcquisitionDataSet.hdf5",
+          "id": 97,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-21T01:56:44",
+          "end": "2014-03-21T02:37:44"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_5dc9743a-b99d-434f-a92d-8998cd6a587b/AcquisitionTask.xml",
+      "name": "Steroid Mix B",
+      "id": 928,
+      "global_id": "5dc9743a-b99d-434f-a92d-8998cd6a587b",
+      "acquisition_start": "2014-03-19T15:24:25",
+      "acquisition_end": "2014-03-19T15:24:25",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_5dc9743a-b99d-434f-a92d-8998cd6a587b/90/AcquisitionDataSet.hdf5",
+          "id": 90,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-19T15:24:25",
+          "end": "2014-03-19T16:05:25"
+        },
+        {
+          "source": "AcquisitionTask/Task_5dc9743a-b99d-434f-a92d-8998cd6a587b/89/AcquisitionDataSet.hdf5",
+          "id": 89,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-19T15:24:25",
+          "end": "2014-03-19T16:05:25"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_6e7727d8-0478-475b-8e39-31744d40dec9/AcquisitionTask.xml",
+      "name": "Steroid Mix B",
+      "id": 929,
+      "global_id": "6e7727d8-0478-475b-8e39-31744d40dec9",
+      "acquisition_start": "2014-03-19T16:11:49",
+      "acquisition_end": "2014-03-19T16:11:49",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_6e7727d8-0478-475b-8e39-31744d40dec9/92/AcquisitionDataSet.hdf5",
+          "id": 92,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-19T16:11:49",
+          "end": "2014-03-19T16:52:49"
+        },
+        {
+          "source": "AcquisitionTask/Task_6e7727d8-0478-475b-8e39-31744d40dec9/91/AcquisitionDataSet.hdf5",
+          "id": 91,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-19T16:11:49",
+          "end": "2014-03-19T16:52:49"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_7a7957d0-7fb5-408a-b9c3-ac374b3b5bdd/AcquisitionTask.xml",
+      "name": "B3 Alkane Standard",
+      "id": 971,
+      "global_id": "7a7957d0-7fb5-408a-b9c3-ac374b3b5bdd",
+      "acquisition_start": "2014-03-20T22:11:53",
+      "acquisition_end": "2014-03-20T22:11:53",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_7a7957d0-7fb5-408a-b9c3-ac374b3b5bdd/96/AcquisitionDataSet.hdf5",
+          "id": 96,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-20T22:11:53",
+          "end": "2014-03-20T22:52:53"
+        },
+        {
+          "source": "AcquisitionTask/Task_7a7957d0-7fb5-408a-b9c3-ac374b3b5bdd/95/AcquisitionDataSet.hdf5",
+          "id": 95,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-20T22:11:53",
+          "end": "2014-03-20T22:52:53"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_91a2bcb3-b3f3-4538-a02f-e8d3585a927b/AcquisitionTask.xml",
+      "name": "B3 Alkane Standard",
+      "id": 970,
+      "global_id": "91a2bcb3-b3f3-4538-a02f-e8d3585a927b",
+      "acquisition_start": "2014-03-20T21:26:53",
+      "acquisition_end": "2014-03-20T21:26:53",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_91a2bcb3-b3f3-4538-a02f-e8d3585a927b/94/AcquisitionDataSet.hdf5",
+          "id": 94,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-20T21:26:53",
+          "end": "2014-03-20T22:07:53"
+        },
+        {
+          "source": "AcquisitionTask/Task_91a2bcb3-b3f3-4538-a02f-e8d3585a927b/93/AcquisitionDataSet.hdf5",
+          "id": 93,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-20T21:26:53",
+          "end": "2014-03-20T22:07:53"
+        }
+      ]
+    },
+    {
+      "source": "AcquisitionTask/Task_961fdc6c-5cd7-4a51-ad48-54f212a5934f/AcquisitionTask.xml",
+      "name": "Steroid Mix A",
+      "id": 977,
+      "global_id": "961fdc6c-5cd7-4a51-ad48-54f212a5934f",
+      "acquisition_start": "2014-03-21T02:41:46",
+      "acquisition_end": "2014-03-21T02:41:46",
+      "completion_state": "Success",
+      "processing_list_guid": "8D49BA34-3D46-469E-94CB-63B2312914E0",
+      "sample_type": "Sample",
+      "datasets": [
+        {
+          "source": "AcquisitionTask/Task_961fdc6c-5cd7-4a51-ad48-54f212a5934f/99/AcquisitionDataSet.hdf5",
+          "id": 99,
+          "type": "Acquire",
+          "status": "Completed",
+          "start": "2014-03-21T02:41:46",
+          "end": "2014-03-21T03:22:46"
+        },
+        {
+          "source": "AcquisitionTask/Task_961fdc6c-5cd7-4a51-ad48-54f212a5934f/100/AcquisitionDataSet.hdf5",
+          "id": 100,
+          "type": "7890 FID",
+          "status": "Completed",
+          "start": "2014-03-21T02:41:46",
+          "end": "2014-03-21T03:22:46"
+        }
+      ]
+    }
+  ]
+}
