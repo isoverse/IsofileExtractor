@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 257353,
     "complete": true
@@ -11673,7 +11673,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -12303,7 +12303,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -12933,7 +12933,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -13563,7 +13563,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -14193,7 +14193,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -14823,7 +14823,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -15453,7 +15453,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }
@@ -16083,7 +16083,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "N\u00002\u0000\u002B\u0000\u0000\u0000"
+                                          "data_string": "N2\u002B"
                                         }
                                       }
                                     }

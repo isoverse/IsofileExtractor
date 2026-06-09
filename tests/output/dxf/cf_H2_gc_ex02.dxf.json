@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 546673,
     "complete": true
@@ -11784,7 +11784,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -12376,7 +12376,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -12933,7 +12933,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -13525,7 +13525,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -14117,7 +14117,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -14709,7 +14709,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -15301,7 +15301,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -15893,7 +15893,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -16485,7 +16485,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -17042,7 +17042,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -17576,7 +17576,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -18110,7 +18110,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -18644,7 +18644,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -19178,7 +19178,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -19712,7 +19712,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -20246,7 +20246,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -20780,7 +20780,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -21314,7 +21314,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -21848,7 +21848,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -22382,7 +22382,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -22916,7 +22916,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -23450,7 +23450,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -23984,7 +23984,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -24518,7 +24518,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }
@@ -25052,7 +25052,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                          "data_string": "H2 Lab.Tank"
                                         }
                                       }
                                     }

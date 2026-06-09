@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "cf",
     "file_size_bytes": 560369,
     "complete": true
@@ -76,7 +76,7 @@
                 "clip_precision": 0,
                 "quality": 0,
                 "pitch_and_family": 0,
-                "face_name": "Arial\u0000s Serif"
+                "face_name": "Arial"
               },
               "x168": 16,
               "x1b8": 1,
@@ -27118,7 +27118,7 @@
                           "clip_precision": 0,
                           "quality": 0,
                           "pitch_and_family": 0,
-                          "face_name": "Arial\u0000s Serif"
+                          "face_name": "Arial"
                         },
                         "x168": 16,
                         "x1b8": 1,
@@ -27784,7 +27784,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "N2 Lab.Tank"
                                   }
                                 }
                               }
@@ -28366,7 +28366,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "N2 Lab.Tank"
                                   }
                                 }
                               }
@@ -28948,7 +28948,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "N2 Lab.Tank"
                                   }
                                 }
                               }
@@ -34288,7 +34288,7 @@
                           "clip_precision": 0,
                           "quality": 0,
                           "pitch_and_family": 0,
-                          "face_name": "Arial\u0000s Serif"
+                          "face_name": "Arial"
                         },
                         "x168": 16,
                         "x1b8": 1,
@@ -35137,7 +35137,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "C\u0000O\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "CO2 Lab.Tank"
                                   }
                                 }
                               }
@@ -35954,7 +35954,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "C\u0000O\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "CO2 Lab.Tank"
                                   }
                                 }
                               }
@@ -36701,7 +36701,7 @@
                                         "free_info_string": ""
                                       }
                                     },
-                                    "data_string": "C\u0000O\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                    "data_string": "CO2 Lab.Tank"
                                   }
                                 }
                               }
@@ -36775,7 +36775,7 @@
                 "clip_precision": 0,
                 "quality": 0,
                 "pitch_and_family": 0,
-                "face_name": "Arial\u0000s Serif"
+                "face_name": "Arial"
               },
               "x168": 16,
               "x1b8": 1,
@@ -36819,7 +36819,7 @@
                 "clip_precision": 0,
                 "quality": 0,
                 "pitch_and_family": 0,
-                "face_name": "Arial\u0000s Serif"
+                "face_name": "Arial"
               },
               "x168": 16,
               "x1b8": 1,
@@ -36863,7 +36863,7 @@
                 "clip_precision": 0,
                 "quality": 0,
                 "pitch_and_family": 0,
-                "face_name": "Arial\u0000s Serif"
+                "face_name": "Arial"
               },
               "x168": 16,
               "x1b8": 1,

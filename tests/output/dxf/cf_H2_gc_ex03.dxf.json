@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 872025,
     "complete": true
@@ -11005,7 +11005,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -11562,7 +11562,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -12096,7 +12096,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -12630,7 +12630,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -13164,7 +13164,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -13698,7 +13698,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -14232,7 +14232,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -14766,7 +14766,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -15300,7 +15300,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -15834,7 +15834,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -16368,7 +16368,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -16902,7 +16902,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -17436,7 +17436,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -17970,7 +17970,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -18504,7 +18504,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -19038,7 +19038,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -19572,7 +19572,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -20106,7 +20106,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -20640,7 +20640,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -21174,7 +21174,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -21708,7 +21708,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -22242,7 +22242,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -22776,7 +22776,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -23310,7 +23310,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }
@@ -23844,7 +23844,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000-\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "H2-zero"
                                         }
                                       }
                                     }

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 337177,
     "complete": true
@@ -19832,7 +19832,7 @@
                                                 "is_extended_data": 0
                                               }
                                             },
-                                            "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                            "data_string": "N2 Lab.Tank"
                                           }
                                         }
                                       }
@@ -20483,7 +20483,7 @@
                                                 "is_extended_data": 0
                                               }
                                             },
-                                            "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                            "data_string": "N2 Lab.Tank"
                                           }
                                         }
                                       }
@@ -21091,7 +21091,7 @@
                                                   "is_extended_data": 0
                                                 }
                                               },
-                                              "data_string": "N\u0000i\u0000t\u0000r\u0000o\u0000g\u0000e\u0000n\u0000\u0000\u0000"
+                                              "data_string": "Nitrogen"
                                             },
                                             {
                                               "idx": 16,
@@ -21113,7 +21113,7 @@
                                                   "is_extended_data": 0
                                                 }
                                               },
-                                              "data_string": "N\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                              "data_string": "N2 Lab.Tank"
                                             }
                                           ]
                                         }
@@ -22064,7 +22064,7 @@
                                                   "is_extended_data": 0
                                                 }
                                               },
-                                              "data_string": "C\u0000a\u0000r\u0000b\u0000o\u0000n\u0000\u0000\u0000"
+                                              "data_string": "Carbon"
                                             },
                                             {
                                               "idx": 25,
@@ -22086,7 +22086,7 @@
                                                   "is_extended_data": 0
                                                 }
                                               },
-                                              "data_string": "C\u0000O\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                              "data_string": "CO2 Lab.Tank"
                                             }
                                           ]
                                         }
@@ -22955,7 +22955,7 @@
                                                 "is_extended_data": 0
                                               }
                                             },
-                                            "data_string": "C\u0000O\u00002\u0000 \u0000L\u0000a\u0000b\u0000.\u0000T\u0000a\u0000n\u0000k\u0000\u0000\u0000"
+                                            "data_string": "CO2 Lab.Tank"
                                           }
                                         }
                                       }

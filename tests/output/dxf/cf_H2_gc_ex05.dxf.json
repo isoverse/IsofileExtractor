@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 359166,
     "complete": true
@@ -10431,7 +10431,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -11023,7 +11023,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -11580,7 +11580,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -12114,7 +12114,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -12648,7 +12648,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -13182,7 +13182,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -13716,7 +13716,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -14250,7 +14250,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -14784,7 +14784,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }
@@ -15318,7 +15318,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "H\u00002\u0000 \u0000F\u0000e\u0000b\u00002\u00000\u00002\u00004\u0000r\u0000e\u0000f\u0000\u0000\u0000"
+                                          "data_string": "H2 Feb2024ref"
                                         }
                                       }
                                     }

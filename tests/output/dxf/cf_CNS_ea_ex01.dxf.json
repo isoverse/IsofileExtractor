@@ -1,6 +1,6 @@
 {
   "meta": {
-    "isoextract_version": "0.2.0.0",
+    "isoextract_version": "0.2.1.0",
     "file_type": "dxf",
     "file_size_bytes": 439388,
     "complete": true
@@ -31744,7 +31744,7 @@
                                                 "ampere_calculation": 0
                                               }
                                             },
-                                            "data_string": "N\u00002\u0000_\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                            "data_string": "N2_zero"
                                           }
                                         }
                                       }
@@ -32324,7 +32324,7 @@
                                                 "ampere_calculation": 0
                                               }
                                             },
-                                            "data_string": "N\u00002\u0000_\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                            "data_string": "N2_zero"
                                           }
                                         }
                                       }
@@ -33259,7 +33259,7 @@
                                               "ampere_calculation": 0
                                             }
                                           },
-                                          "data_string": "C\u0000O\u00002\u0000_\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                          "data_string": "CO2_zero"
                                         }
                                       }
                                     }
@@ -33868,7 +33868,7 @@
                                                 "ampere_calculation": 0
                                               }
                                             },
-                                            "data_string": "S\u0000O\u00002\u0000_\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                            "data_string": "SO2_zero"
                                           }
                                         }
                                       }
@@ -34402,7 +34402,7 @@
                                                 "ampere_calculation": 0
                                               }
                                             },
-                                            "data_string": "S\u0000O\u00002\u0000_\u0000z\u0000e\u0000r\u0000o\u0000\u0000\u0000"
+                                            "data_string": "SO2_zero"
                                           }
                                         }
                                       }

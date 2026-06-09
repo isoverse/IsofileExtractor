@@ -3698,8 +3698,12 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CEvalDataStringTransferPart", 1);
         if (Unabridged) jo["version"] = version;
         long n = isofile.ReadUInt32();
+        // n is a byte count; the payload is UTF-16LE (with a trailing NUL
+        // terminator). Decode as Unicode and drop the terminator — decoding as
+        // Latin1 would leave embedded NUL bytes that downstream consumers
+        // (e.g. R, which cannot hold NUL in a string) choke on.
         jo["data_string"] = n > 0
-            ? Encoding.Latin1.GetString(isofile.ReadBytes((int)n))
+            ? Encoding.Unicode.GetString(isofile.ReadBytes((int)n)).TrimEnd('\0')
             : "";
         return jo;
     }
@@ -4150,7 +4154,12 @@ static class Readers
         logFont["clip_precision"] = isofile.ReadUInt8();
         logFont["quality"] = isofile.ReadUInt8();
         logFont["pitch_and_family"] = isofile.ReadUInt8();
-        logFont["face_name"] = Encoding.Unicode.GetString(isofile.ReadBytes(64)).TrimEnd('\0');
+        // lfFaceName is a fixed 32-WCHAR buffer; the name ends at the first NUL
+        // terminator and the remaining bytes are uninitialized buffer content.
+        // Cut at the first NUL (not just TrimEnd) so no embedded NUL survives.
+        var faceName = Encoding.Unicode.GetString(isofile.ReadBytes(64));
+        int faceNameEnd = faceName.IndexOf('\0');
+        logFont["face_name"] = faceNameEnd >= 0 ? faceName.Substring(0, faceNameEnd) : faceName;
         jo["log_font"] = logFont;
 
         jo["x168"] = isofile.ReadInt32();
