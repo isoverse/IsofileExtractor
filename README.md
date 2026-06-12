@@ -1,4 +1,5 @@
 [![isoextract](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # isoextract
 
@@ -133,9 +134,15 @@ Live-reload during development (rebuilds and reruns on every save):
 make dev
 ```
 
+## License
+
+isoextract is released under the MIT License — see [LICENSE](LICENSE).
+
+Release builds bundle a separate, proprietary `isosolfs` helper (Callback Technologies' CBFS Vault, used only for `.imexp` extraction) that is **not** covered by the MIT License; see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
+
 ## isoverse <a href='http://www.isoverse.org'><img src='docs/isoverse_logo_thumb.png' align="right" width="100" alt="isoverse logo"/></a>
 
-This package is part of the isoverse suite of data tools for stable isotopes. If you like the functionality that isoverse packages provide, please help us spread the word and include an isoverse or individual package logo on one of your posters or slides. All logos are posted in high resolution in [this repository](https://github.com/isoverse/logos). If you have suggestions for new features or other constructive feedback, please let us know on this short [feeback form](https://www.isoverse.org/feedback/).
+This program is part of the isoverse suite of data tools for stable isotopes. If you like the functionality that isoverse packages provide, please help us spread the word and include an isoverse or individual package logo on one of your posters or slides. All logos are posted in high resolution in [this repository](https://github.com/isoverse/logos). If you have suggestions for new features or other constructive feedback, please let us know on this short [feeback form](https://www.isoverse.org/feedback/).
 
 ## Funding <a href='https://www.nsf.gov/'><img src='docs/NSF_logo.svg' align="right" width="100" alt="NSF logo"/></a>
 

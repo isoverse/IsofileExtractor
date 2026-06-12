@@ -1,0 +1,39 @@
+THIRD-PARTY NOTICES
+===================
+
+isoextract itself is licensed under the MIT License (see LICENSE). It uses and/or
+is distributed with the following third-party components, which are NOT covered
+by isoextract's MIT License and remain subject to their own license terms.
+
+
+1. CBFS Vault 2026 (.NET Edition) — bundled via the `isosolfs` helper  [PROPRIETARY]
+-----------------------------------------------------------------------------------
+To read Thermo Fisher Qtegra `.imexp` (SolFS) containers, isoextract release
+builds ship a separate helper executable, `isosolfs`, alongside the isoextract
+binary. That helper embeds the proprietary CBFS Vault 2026 runtime libraries from
+Callback Technologies, Inc.:
+
+  - callback.CBFSVault.dll                                  (managed .NET assembly)
+  - cbfsvault26.dll / libcbfsvault.26.0.dylib /
+    libcbfsvault.so.26.0                                    (native libraries, per OS)
+
+These libraries are redistributed as an unmodified, compiled run-time component
+under Callback Technologies' Royalty-Free Application Distribution license. They
+are proprietary and are NOT open source. End users may not use, copy, modify,
+reverse engineer, disassemble, sublicense, rent, lease, or otherwise distribute
+or transfer any portion of these libraries except as an integral run-time part of
+isoextract, and remain bound by Callback Technologies' license terms.
+
+  Vendor:  Callback Technologies, Inc. — https://www.callback.com/
+
+The source of the `isosolfs` helper is maintained in a separate, private
+repository and is not part of this MIT-licensed project. isoextract builds and
+runs without the helper; only `.imexp` extraction requires it.
+
+
+2. PureHDF  [MIT]
+-----------------
+isoextract depends on the PureHDF library (NuGet package `PureHDF`), used to read
+HDF5-based input files. PureHDF is open source under the MIT License.
+
+  Project: https://github.com/Apollo3zehn/PureHDF
