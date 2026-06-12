@@ -10,6 +10,15 @@
     <PublishSingleFile>true</PublishSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
     <Version>0.2.1</Version>
+
+    <!-- License / authorship metadata (embedded in the built assembly) -->
+    <Product>isoextract</Product>
+    <Description>Command-line tool for extracting data from stable isotope ratio mass spectrometry (IRMS) binary data files.</Description>
+    <Authors>Sebastian Kopf</Authors>
+    <Company>isoverse</Company>
+    <Copyright>Copyright (c) 2026 Sebastian Kopf</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/isoverse/IsofileExtractor</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="PureHDF" Version="2.1.2" />
