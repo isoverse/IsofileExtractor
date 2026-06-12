@@ -181,32 +181,34 @@ var options = new JsonSerializerOptions
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
 
-// Lazily resolve isosolfs.exe: prefer a file next to the executable, fall back to the
-// embedded resource (bundled in win-x64 publish builds).
+// Resolve the self-contained isosolfs helper shipped next to the executable with the same
+// architecture suffix: isoextract-<rid>[.exe] -> isosolfs-<rid>[.exe].
 var isosolfsLazy = new Lazy<string?>(() =>
 {
-    string exeDir = Path.GetDirectoryName(
-        System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
-        ?? AppContext.BaseDirectory) ?? AppContext.BaseDirectory;
-    string sideBySide = Path.Combine(exeDir, "isosolfs.exe");
-    if (File.Exists(sideBySide)) return sideBySide;
+    string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
+        ?? AppContext.BaseDirectory;
+    string exeDir = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory;
+    string exeName = Path.GetFileName(exePath);
+    string helperName = exeName.StartsWith("isoextract", StringComparison.OrdinalIgnoreCase)
+        ? "isosolfs" + exeName.Substring("isoextract".Length)
+        : (OperatingSystem.IsWindows() ? "isosolfs.exe" : "isosolfs");
 
-    using var stream = System.Reflection.Assembly.GetExecutingAssembly()
-        .GetManifestResourceStream("isosolfs.exe");
-    if (stream is null) return null;
+    string helper = Path.Combine(exeDir, helperName);
+    if (!File.Exists(helper)) return null;
 
-    string tempPath = Path.Combine(Path.GetTempPath(), $"isoextract_isosolfs_{Environment.ProcessId}.exe");
-    using var outFile = File.Create(tempPath);
-    stream.CopyTo(outFile);
-    return tempPath;
+    if (!OperatingSystem.IsWindows())
+    {
+        // ensure the execute bit survived distribution (e.g. unzipping a release)
+        try
+        {
+            UnixFileMode mode = File.GetUnixFileMode(helper);
+            File.SetUnixFileMode(helper,
+                mode | UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute);
+        }
+        catch { /* best effort */ }
+    }
+    return helper;
 }, LazyThreadSafetyMode.ExecutionAndPublication);
-
-AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-{
-    if (isosolfsLazy.IsValueCreated && isosolfsLazy.Value is string p
-            && Path.GetFileName(p).StartsWith("isoextract_isosolfs_"))
-        try { File.Delete(p); } catch { }
-};
 
 Parallel.ForEach(files, inputArg =>
 {
@@ -275,31 +277,11 @@ Parallel.ForEach(files, inputArg =>
         string zipPath = inputPath + ".zip";
         if (!File.Exists(zipPath))
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                string osName = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "macOS"
-                              : RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "Linux"
-                              : RuntimeInformation.OSDescription;
-                string msg = $"Cannot extract .imexp notebooks on {osName} (yet), please run this on Windows and port the resulting .json files to your operating system";
-                Console.Error.WriteLine(msg);
-                Interlocked.Exchange(ref exitCode, 1);
-                if (!dryRun)
-                {
-                    File.WriteAllText(inputPath + ".issues.log", $"error: {msg}\n");
-                    File.Delete(inputPath + ".json");
-                }
-                if (logWriter is not null)
-                {
-                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg.Replace("\"", "\"\"")}\"";
-                    lock (logLock) logWriter.WriteLine(line);
-                }
-                return;
-            }
-
             string? isosolfsPath = isosolfsLazy.Value;
             if (isosolfsPath is null)
             {
-                string msg = "isosolfs.exe not bundled in this build and not found next to isoextract.exe";
+                string helper = OperatingSystem.IsWindows() ? "isosolfs.exe" : "isosolfs";
+                string msg = $"{helper} helper not found next to isoextract; cannot extract .imexp notebooks";
                 Console.Error.WriteLine(msg);
                 Interlocked.Exchange(ref exitCode, 1);
                 if (logWriter is not null)
