@@ -132,3 +132,12 @@ Live-reload during development (rebuilds and reruns on every save):
 ```sh
 make dev
 ```
+
+## isoverse <a href='http://www.isoverse.org'><img src='docs/isoverse_logo_thumb.png' align="right" width="100" alt="isoverse logo"/></a>
+
+This package is part of the isoverse suite of data tools for stable isotopes. If you like the functionality that isoverse packages provide, please help us spread the word and include an isoverse or individual package logo on one of your posters or slides. All logos are posted in high resolution in [this repository](https://github.com/isoverse/logos). If you have suggestions for new features or other constructive feedback, please let us know on this short [feeback form](https://www.isoverse.org/feedback/).
+
+## Funding <a href='https://www.nsf.gov/'><img src='docs/NSF_logo.svg' align="right" width="100" alt="NSF logo"/></a>
+
+This project is supported by a grant from the US National Science Foundation ([EAR-2411458](https://www.nsf.gov/awardsearch/show-award?AWD_ID=2411458)) to Sebastian Kopf. 
+
