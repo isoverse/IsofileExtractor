@@ -1,3 +1,4 @@
 # Exclude assets and test files from package releases
+/assets/
 /tests/data/       export-ignore
 /tests/output/     export-ignore

@@ -3,6 +3,10 @@ obj/
 out/
 tmp/
 
+# Proprietary CBFS Vault isosolfs helper binaries (build inputs, shipped side-by-side;
+# must never be committed to this open-source repo). Populated per-RID at build time.
+assets/isosolfs/
+
 # generated output files
 *.json
 *.objects.csv
@@ -13,3 +17,8 @@ tmp/
 
 # except for log file
 *.log
+
+# TEMP
+iarc_examples
+sercon_examples
+qtegra_examples

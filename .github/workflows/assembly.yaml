@@ -118,4 +118,89 @@ jobs:
           name: log-macos
           path: isoextract-macos.log
 
+  verify-linux-arm64:
+    name: Verify on Linux (arm64)
+    runs-on: ubuntu-24.04-arm
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: isoextract
+      - name: Make binary executable
+        run: chmod +x ./isoextract-linux-arm64
+      - name: Run against all test files
+        run: ./isoextract-linux-arm64 tests/data --log isoextract-linux-arm64.log
+      - name: Check for failures
+        run: |
+          cat isoextract-linux-arm64.log
+          if grep -q ",false," isoextract-linux-arm64.log; then
+            echo "One or more files failed:" >&2
+            grep ",false," isoextract-linux-arm64.log >&2
+            exit 1
+          fi
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-linux-arm64
+          path: isoextract-linux-arm64.log
+
+  verify-macos-arm64:
+    name: Verify on MacOS (arm64)
+    runs-on: macos-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: isoextract
+      - name: Make binary executable
+        run: chmod +x ./isoextract-osx-arm64
+      - name: Run against all test files
+        run: ./isoextract-osx-arm64 tests/data --log isoextract-macos-arm64.log
+      - name: Check for failures
+        run: |
+          cat isoextract-macos-arm64.log
+          if grep -q ",false," isoextract-macos-arm64.log; then
+            echo "One or more files failed:" >&2
+            grep ",false," isoextract-macos-arm64.log >&2
+            exit 1
+          fi
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-macos-arm64
+          path: isoextract-macos-arm64.log
+
+  verify-windows-arm64:
+    name: Verify on Windows (arm64)
+    runs-on: windows-11-arm
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: isoextract
+      - name: Run against all test files
+        run: .\isoextract-win-arm64.exe tests\data --log isoextract-windows-arm64.log
+      - name: Check for failures
+        run: |
+          Get-Content isoextract-windows-arm64.log
+          if (Select-String -Path isoextract-windows-arm64.log -Pattern ",false," -Quiet) {
+            Write-Error "One or more files failed"
+            exit 1
+          }
+        shell: pwsh
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-windows-arm64
+          path: isoextract-windows-arm64.log
+
   # not uploading the artifacts for releases since not all new releases require new executables

@@ -146,7 +146,8 @@ if (folderCount > 0)
                     Directory.CreateDirectory(issueDir);
                     File.WriteAllText(full + ".issues.log", "error: path does not exist\n");
                     File.Delete(full + ".json");
-                } catch { }
+                }
+                catch { }
             if (logWriter is not null)
             {
                 string line = $"{CsvField(Display(full))},false,0,\"path does not exist\"";
