@@ -1,7 +1,8 @@
 [![isoextract](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-# isoextract
+# isoextract <img src="docs/isoextractor_logo_thumb.png" align="right" width="100" alt="isoextract logo"/> </a>
+
 
 A self-contained command-line tool for extracting data from stable isotope ratio mass spectrometry (IRMS) binary data files. Supports multiple vendor software formats. Each input file is parsed and the extracted data is written to a JSON output file in the same folder.
 
