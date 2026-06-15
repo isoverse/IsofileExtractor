@@ -59,6 +59,7 @@ static class Readers
             ["CData"] = ReadCData,
             ["CCalibrationPoint"] = ReadCCalibrationPoint,
             ["CMolecule"] = ReadCMolecule,
+            ["CElement"] = ReadCElement,
             ["CTimeObject"] = ReadCTimeObject,
             ["CISLScriptMessageData"] = ReadCISLScriptMessageData,
             ["CComponent"] = ReadCComponent,
@@ -108,6 +109,7 @@ static class Readers
             ["CGasSettings"] = ReadCGasSettings,
             ["CPkDataItemList"] = ReadCPkDataItemList,
             ["CAllMoleculeWeights"] = ReadCAllMoleculeWeights,
+            ["CMoleculeWeight"] = ReadCMoleculeWeight,
             ["CMethod"] = ReadCMethod,
             ["CConfiguration"] = ReadCConfiguration,
             ["CComponentList"] = ReadCComponentList,
@@ -720,6 +722,44 @@ static class Readers
         int version = isofile.ReadSchemaVersion("CMolecule", 1);
         if (Unabridged) jo["version"] = version;
         jo["molecule"] = isofile.ReadMfcString();
+        return jo;
+    }
+
+    // CElement (MoleculeDll): CData parent + own schema version (raw int32; current writer emits v2).
+    // Field layout (this+0x94 .. 0xf0):
+    //   0x94  CString  element name      — serialized only when version > 1 (SetElementData/GetElementName)
+    //   0x98  uint32   frequency         — atom count of this element (SetFrequency)
+    //   0xa0..0xf0     ISOTOPE_STRUCT (0x50 bytes, SetElementData/GetElementData), read field-by-field:
+    //     0xa0  byte[8]
+    //     0xa8  byte[48]
+    //     0xd8  double
+    //     0xe0  double
+    //     0xe8  double
+    // In v1 the name is NOT stored; an ELEMENTTYPE enum (int32) precedes the frequency and the name is
+    // derived at runtime via GetElementName(). We capture the raw enum so no bytes are lost.
+    static JsonObject ReadCElement(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        ReadParent(jo, isofile, "CData");
+        int version = isofile.ReadSchemaVersion("CElement", 2);
+        if (Unabridged) jo["version"] = version;
+
+        if (version == 1)
+            jo["element_type"] = isofile.ReadInt32();   // ELEMENTTYPE enum → name via GetElementName()
+
+        jo["frequency"] = isofile.ReadUInt32();          // this+0x98
+
+        if (version > 1)
+            jo["element"] = isofile.ReadMfcString();     // this+0x94
+
+        // ISOTOPE_STRUCT element data (0x50 bytes); internal layout unknown, captured by offset.
+        jo["xa0"] = Convert.ToBase64String(isofile.ReadBytes(8));
+        jo["xa8"] = Convert.ToBase64String(isofile.ReadBytes(48));
+        jo["xd8"] = isofile.ReadDouble();
+        jo["xe0"] = isofile.ReadDouble();
+        jo["xe8"] = isofile.ReadDouble();
+
         return jo;
     }
 
@@ -1510,7 +1550,9 @@ static class Readers
         var jo = new JsonObject();
         TrackPartial(jo);
         var block = ReadParent(jo, isofile, "CBlockData");
-        ValidateBlockNBlockObjects(block, 0);
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, idx: i, groupTotal: blockN, pattern: "CMoleculeWeight");
         int version = isofile.ReadSchemaVersion("CAllMoleculeWeights", 2);
         if (Unabridged) jo["version"] = version;
         if (version >= 2)
@@ -1518,6 +1560,24 @@ static class Readers
             isofile.ReadInt32(); // heap pointer snapshots, discard
             isofile.ReadInt32();
         }
+        return jo;
+    }
+
+    // CMoleculeWeight (MoleculeDll): CBlockData parent whose block holds this molecule's
+    // CElement list, followed by schema version (int32, always 1) + molecule name CString
+    // (this+0xa8; SetMoleculeName/GetMoleculeName). On load the version is skipped without
+    // validation, but it is always written as 1.
+    static JsonObject ReadCMoleculeWeight(IsodatFile isofile)
+    {
+        var jo = new JsonObject();
+        TrackPartial(jo);
+        var block = ReadParent(jo, isofile, "CBlockData");
+        int blockN = NBlockObjects(block);
+        for (int i = 1; i <= blockN; i++)
+            ReadObjectInto(block["objects"]!.AsObject(), isofile, pattern: "CElement", idx: i, groupTotal: blockN);
+        int version = isofile.ReadSchemaVersion("CMoleculeWeight", 1);
+        if (Unabridged) jo["version"] = version;
+        jo["molecule"] = isofile.ReadMfcString(); // this+0xa8
         return jo;
     }
 
