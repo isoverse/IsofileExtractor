@@ -167,7 +167,7 @@ make test
 
 isoextract is released under the MIT License — see [LICENSE](LICENSE).
 
-`.imexp` extraction relies on a separate, proprietary `isosolfs` helper (built on Callback Technologies' CBFS Vault). It is distributed in its own release, **not** bundled with isoextract, and is **not** covered by the MIT License; see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
+`.imexp` extraction relies on a separate, proprietary `isosolfs` helper (built on Callback Technologies' CBFS Vault). It is distributed in its own release and is **not** covered by the MIT License; see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
 
 ## isoverse <a href='http://www.isoverse.org'><img src='docs/isoverse_logo_thumb.png' align="right" width="100" alt="isoverse logo"/></a>
 
