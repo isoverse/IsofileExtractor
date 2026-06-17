@@ -1,19 +1,12 @@
+[![isoextract-linux-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml)
+[![isoextract-linux-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml)
+[![isoextract-osx-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml)
+[![isoextract-osx-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml)
+[![isoextract-win-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml)
+[![isoextract-win-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # isoextract <img src="docs/isoextractor_logo_thumb.png" align="right" width="100" alt="isoextract logo"/> </a>
-
-### Build &amp; test status (per architecture)
-
-| Architecture | Status |
-|--------------|--------|
-| `linux-x64`   | [![isoextract-linux-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml) |
-| `linux-arm64` | [![isoextract-linux-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml) |
-| `osx-x64`     | [![isoextract-osx-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml) |
-| `osx-arm64`   | [![isoextract-osx-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml) |
-| `win-x64`     | [![isoextract-win-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml) |
-| `win-arm64`   | [![isoextract-win-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml) |
-
-> `linux-arm64` has no `isosolfs` helper (the CBFS Vault product ships no linux-arm64 native), so its tests cover everything except `.imexp` extraction.
 
 
 A self-contained command-line tool for extracting data from stable isotope ratio mass spectrometry (IRMS) binary data files. Supports multiple vendor software formats. Each input file is parsed and the extracted data is written to a JSON output file in the same folder.
