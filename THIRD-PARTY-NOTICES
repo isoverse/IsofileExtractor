@@ -6,12 +6,12 @@ is distributed with the following third-party components, which are NOT covered
 by isoextract's MIT License and remain subject to their own license terms.
 
 
-1. CBFS Vault 2026 (.NET Edition) — bundled via the `isosolfs` helper  [PROPRIETARY]
------------------------------------------------------------------------------------
-To read Thermo Fisher Qtegra `.imexp` (SolFS) containers, isoextract release
-builds ship a separate helper executable, `isosolfs`, alongside the isoextract
-binary. That helper embeds the proprietary CBFS Vault 2026 runtime libraries from
-Callback Technologies, Inc.:
+1. CBFS Vault 2026 (.NET Edition) — used via the separate `isosolfs` helper  [PROPRIETARY]
+-----------------------------------------------------------------------------------------
+To read Thermo Fisher Qtegra `.imexp` (SolFS) containers, isoextract invokes a
+separate helper executable, `isosolfs`, distributed in its own release (not
+bundled with the isoextract binary). That helper embeds the proprietary CBFS Vault
+2026 runtime libraries from Callback Technologies, Inc.:
 
   - callback.CBFSVault.dll                                  (managed .NET assembly)
   - cbfsvault26.dll / libcbfsvault.26.0.dylib /

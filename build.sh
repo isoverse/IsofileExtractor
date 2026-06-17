@@ -9,7 +9,7 @@
 # Docker usage:
 #   docker pull mcr.microsoft.com/dotnet/sdk:8.0
 #   docker run --rm -v $PWD:/app -w /app mcr.microsoft.com/dotnet/sdk:8.0 \
-#     /app/build.sh project=/app output=/app/out runtime=osx-x64
+#     /app/build.sh project=/app output=/app/dist runtime=osx-x64
 
 set -euo pipefail
 SECONDS=0
@@ -18,7 +18,7 @@ echo "--- STARTING BUILD SCRIPT ---"
 
 # Defaults
 project_folder="$PWD"
-output_folder="$PWD/out"
+output_folder="$PWD/dist"
 runtimes="linux-x64 linux-arm64 osx-x64 osx-arm64 win-x64 win-arm64"
 
 for arg in "$@"; do
@@ -44,10 +44,10 @@ for runtime in $runtimes; do
   echo "Finished compiling $runtime"
 done
 
-# Export: flat output folder with per-RID isoextract + isosolfs binaries side-by-side.
-# Names carry the RID (isoextract-<rid>, isosolfs-<rid>), so isoextract resolves its matching
-# helper by mirroring its own filename. The proprietary isosolfs binaries are build inputs
-# expected at assets/isosolfs/<rid>/ (git-ignored); isoextract builds fine without them.
+# Export: flat output folder with per-RID isoextract binaries (isoextract-<rid>[.exe]).
+# The isosolfs helper is distributed separately (it lives in its own GitHub release) and is
+# NOT bundled here. To enable .imexp extraction, drop a matching isosolfs-<rid>[.exe] next to
+# isoextract, or point isoextract at it with --isosolfs-path.
 mkdir -p "$output_folder"
 for runtime in $runtimes; do
   echo "Packaging $runtime..."
@@ -59,16 +59,8 @@ for runtime in $runtimes; do
 
   cp "$source_path/isoextract$suffix" "$output_folder/isoextract-$runtime$suffix"
 
-  isosolfs_src="$project_folder/assets/isosolfs/$runtime/isosolfs$suffix"
-  if [[ -f "$isosolfs_src" ]]; then
-    cp "$isosolfs_src" "$output_folder/isosolfs-$runtime$suffix"
-  else
-    echo "WARNING: isosolfs helper missing for $runtime ($isosolfs_src); .imexp extraction will not work in this build"
-  fi
-
   if [[ "$runtime" == osx-* || "$runtime" == linux-* ]]; then
     chmod +x "$output_folder/isoextract-$runtime$suffix"
-    [[ -f "$output_folder/isosolfs-$runtime$suffix" ]] && chmod +x "$output_folder/isosolfs-$runtime$suffix"
   fi
 done
 

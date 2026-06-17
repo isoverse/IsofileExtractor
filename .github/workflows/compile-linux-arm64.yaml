@@ -1,0 +1,22 @@
+name: isoextract-linux-arm64
+
+# Per-architecture compile + test for linux-arm64. Thin wrapper that delegates to the reusable
+# base workflow (compile.yaml).
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/compile-linux-arm64.yaml'
+      - '.github/workflows/compile.yaml'
+      - 'src/**'
+      - 'build.sh'
+      - 'tests/data/**'
+
+jobs:
+  compile:
+    uses: ./.github/workflows/compile.yaml
+    with:
+      rid: linux-arm64
+      os: ubuntu-24.04-arm
+      has_isosolfs: false

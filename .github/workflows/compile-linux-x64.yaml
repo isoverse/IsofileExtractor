@@ -1,0 +1,21 @@
+name: isoextract-linux-x64
+
+# Per-architecture compile + test for linux-x64. Thin wrapper that delegates to the reusable
+# base workflow (compile.yaml).
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/compile-linux-x64.yaml'
+      - '.github/workflows/compile.yaml'
+      - 'src/**'
+      - 'build.sh'
+      - 'tests/data/**'
+
+jobs:
+  compile:
+    uses: ./.github/workflows/compile.yaml
+    with:
+      rid: linux-x64
+      os: ubuntu-latest

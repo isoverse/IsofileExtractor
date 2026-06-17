@@ -1,0 +1,87 @@
+name: isoextract compile + test (reusable)
+
+# Reusable base workflow: builds isoextract for one RID on a native runner, downloads the
+# matching isosolfs helper from a release, and runs isoextract over the test corpus
+# (tests/data). Called by the per-architecture compile-<rid>.yaml workflows so all the
+# build/test logic lives here.
+
+env:
+  # isosolfs release the helper binaries are pulled from. Bump this one line when a newer
+  # isosolfs release ships.
+  ISOSOLFS_RELEASE: isosolfs-v0.9.0
+
+on:
+  workflow_call:
+    inputs:
+      rid:
+        description: 'Runtime identifier to build and test (e.g. osx-x64)'
+        required: true
+        type: string
+      os:
+        description: 'Runner label for runs-on (e.g. macos-latest)'
+        required: true
+        type: string
+      has_isosolfs:
+        description: 'Whether the isosolfs release provides a helper for this RID (false for linux-arm64)'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  compile:
+    name: ${{ inputs.rid }}
+    runs-on: ${{ inputs.os }}
+    env:
+      RID: ${{ inputs.rid }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build isoextract (${{ inputs.rid }})
+        run: bash build.sh runtime="$RID"
+
+      - name: Download isosolfs helper (${{ env.ISOSOLFS_RELEASE }})
+        if: ${{ inputs.has_isosolfs }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SUFFIX=""; case "$RID" in win-*) SUFFIX=".exe" ;; esac
+          gh release download "$ISOSOLFS_RELEASE" --repo "${{ github.repository }}" \
+            --pattern "isosolfs-$RID$SUFFIX" --dir dist
+          if [ -z "$SUFFIX" ]; then chmod +x "dist/isosolfs-$RID"; fi
+          ls -l "dist/isosolfs-$RID$SUFFIX"
+
+      - name: Run isoextract over the test corpus
+        run: |
+          set +e
+          BIN="dist/isoextract-$RID"; [ -f "$BIN.exe" ] && BIN="$BIN.exe"
+          chmod +x "$BIN" 2>/dev/null
+          if [ "${{ inputs.has_isosolfs }}" = "true" ]; then
+            TARGET=tests/data
+          else
+            # No isosolfs helper for this RID → test everything except the .imexp notebooks.
+            TARGET=$(ls -d tests/data/*/ | grep -v '/imexp/')
+          fi
+          LOG="isoextract-$RID.log"
+          "./$BIN" $TARGET --log "$LOG"
+          echo "::group::$LOG"; cat "$LOG"; echo "::endgroup::"
+          if grep -q ",false," "$LOG"; then
+            echo "::error::$RID: one or more files failed to parse"
+            grep ",false," "$LOG"
+            exit 1
+          fi
+          echo "✅ $RID: all files parsed successfully"
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-${{ inputs.rid }}
+          path: isoextract-${{ inputs.rid }}.log
+          if-no-files-found: ignore

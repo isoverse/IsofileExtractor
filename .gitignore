@@ -1,10 +1,10 @@
 bin/
 obj/
-out/
+dist/
 tmp/
 
-# Proprietary CBFS Vault isosolfs helper binaries (build inputs, shipped side-by-side;
-# must never be committed to this open-source repo). Populated per-RID at build time.
+# Proprietary CBFS Vault isosolfs helper binaries used for local .imexp testing (the helper
+# ships in its own release, never bundled here)
 assets/isosolfs/
 
 # generated output files
@@ -17,8 +17,3 @@ assets/isosolfs/
 
 # except for log file
 *.log
-
-# TEMP
-iarc_examples
-sercon_examples
-qtegra_examples
