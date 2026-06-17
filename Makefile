@@ -4,13 +4,13 @@ DOCKER    := mcr.microsoft.com/dotnet/sdk:8.0
 UNAME     := $(shell uname -s)
 ifeq ($(UNAME), Darwin)
   RUNTIME    := osx-x64
-  EXECUTABLE := out/isoextract-$(RUNTIME)
+  EXECUTABLE := dist/isoextract-$(RUNTIME)
 else ifeq ($(UNAME), Linux)
   RUNTIME    := linux-x64
-  EXECUTABLE := out/isoextract-$(RUNTIME)
+  EXECUTABLE := dist/isoextract-$(RUNTIME)
 else
   RUNTIME    := win-x64
-  EXECUTABLE := out/isoextract-$(RUNTIME).exe
+  EXECUTABLE := dist/isoextract-$(RUNTIME).exe
 endif
 
 .PHONY: dev build run version clean publish test check-docker build-docker build-all
@@ -18,7 +18,7 @@ endif
 # ── Development ───────────────────────────────────────────────────────────────
 
 # Rebuild and rerun on src file save
-TEST_FILE := tests/data/scn
+TEST_FILE := tests/data/cdos
 dev:
 	dotnet watch --project $(PROJECT) run -- $(TEST_FILE) --objects --tree --unabridged --prettyJSON --log
 
@@ -37,7 +37,7 @@ version: build
 # Remove build artifacts
 clean:
 	dotnet clean $(PROJECT)
-	rm -rf bin obj src/bin src/obj
+	rm -rf bin obj src/bin src/obj dist out
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 
@@ -47,15 +47,17 @@ test: build
 
 # ── Release builds ────────────────────────────────────────────────────────────
 
-# Self-contained binaries for all runtimes via Docker → out/isoextract-{linux,osx,win}-x64[.exe]
+# Self-contained, single-file isoextract binaries for every runtime via Docker, into
+# dist/isoextract-<rid>[.exe]. The isosolfs helper is NOT bundled — it ships in its own
+# release; drop a matching isosolfs-<rid> next to isoextract (or use --isosolfs-path).
 build-all: check-docker
 	docker run --rm -v $(CURDIR):/app -w /app $(DOCKER) \
-	  /app/build.sh project=/app output=/app/out
+	  /app/build.sh project=/app output=/app/dist
 
 # Same as build-all but for the current OS runtime only
 build-docker: check-docker
 	docker run --rm -v $(CURDIR):/app -w /app $(DOCKER) \
-	  /app/build.sh project=/app output=/app/out runtime=$(RUNTIME)
+	  /app/build.sh project=/app output=/app/dist runtime=$(RUNTIME)
 
 check-docker:
 	@docker image inspect $(DOCKER) > /dev/null 2>&1 || \

@@ -13,11 +13,17 @@ if [[ ! -f "$DLL" ]]; then
     exit 1
 fi
 
+# The .imexp test files need the proprietary isosolfs helper, kept under assets/isosolfs/ as
+# git-ignored build inputs (named isosolfs-<rid>). Point isoextract at that folder via
+# --isosolfs-path; it selects the binary matching the host architecture.
+ISOSOLFS_DIR="assets/isosolfs"
+[[ -d "$ISOSOLFS_DIR" ]] || echo "Warning: $ISOSOLFS_DIR not found; .imexp tests will fail (proprietary build input)" >&2
+
 rm -rf "$OUTPUT_DIR"
 mkdir "$OUTPUT_DIR"
 
 # Run extractor; don't abort on non-zero — failures are detected via the log
-dotnet "$DLL" "$INPUT_DIR" --tree --objects --prettyJSON --log || true
+dotnet "$DLL" "$INPUT_DIR" --isosolfs-path "$ISOSOLFS_DIR" --tree --objects --prettyJSON --log || true
 
 # Move all generated sidecar files preserving subdirectory structure
 find "$INPUT_DIR" -type f \( \

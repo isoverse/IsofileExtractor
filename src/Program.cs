@@ -11,7 +11,7 @@ if (args.Length == 1 && args[0] is "--version" or "-v")
     return 0;
 }
 
-var usage = "Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]";
+var usage = "Usage: isoextract [--version] [--objects] [--tree] [--unabridged] [--full] [--keep-extracted] [--isosolfs-path <dir>] [--prettyJSON] [--dry-run] [--log [<path>]] [--file-list <path>] <file|dir> [...]";
 
 if (args.Length == 0)
 {
@@ -24,10 +24,16 @@ bool dumpTree = args.Contains("--tree");
 bool prettyJson = args.Contains("--prettyJSON");
 bool dryRun = args.Contains("--dry-run");
 Readers.Unabridged = args.Contains("--unabridged");
+// .imexp handling: by default isosolfs unpacks only the subset isoextract parses (--minimal)
+// and the extracted folder is removed after reading. --full unpacks the whole notebook;
+// --keep-extracted leaves the isosolfs output folder in place.
+bool fullExtract = args.Contains("--full");
+bool keepExtracted = args.Contains("--keep-extracted");
 
 bool writeLog = false;
 string? logPathArg = null;
 string? fileListArg = null;
+string? isosolfsDirArg = null;
 var pathList = new List<string>();
 for (int i = 0; i < args.Length; i++)
 {
@@ -45,6 +51,15 @@ for (int i = 0; i < args.Length; i++)
             return 1;
         }
         fileListArg = args[++i];
+    }
+    else if (args[i] == "--isosolfs-path")
+    {
+        if (i + 1 >= args.Length)
+        {
+            Console.Error.WriteLine("--isosolfs-path requires a directory argument");
+            return 1;
+        }
+        isosolfsDirArg = args[++i];
     }
     else if (!args[i].StartsWith("--"))
         pathList.Add(args[i]);
@@ -77,10 +92,6 @@ HashSet<string> isodatExtensions = new(StringComparer.OrdinalIgnoreCase)
 static bool IsBchDir(string path) =>
     Directory.Exists(path) &&
     string.Equals(Path.GetExtension(path), ".bch", StringComparison.OrdinalIgnoreCase);
-
-static bool IsImexpZip(string path) =>
-    File.Exists(path) &&
-    path.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase);
 
 static bool IsImexpFile(string path) =>
     File.Exists(path) &&
@@ -124,19 +135,10 @@ if (folderCount > 0)
                     .Where(d => Path.GetExtension(d).Equals(".bch", StringComparison.OrdinalIgnoreCase))
                     .Select(d => (d, Display(d))))
                 .Concat(Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
-                    .Where(f => f.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
-                    .Select(f => (f, Display(f))))
-                .Concat(Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories)
-                    .Where(f => Path.GetExtension(f).Equals(".imexp", StringComparison.OrdinalIgnoreCase)
-                             && !File.Exists(f + ".zip"))
+                    .Where(f => Path.GetExtension(f).Equals(".imexp", StringComparison.OrdinalIgnoreCase))
                     .Select(f => (f, Display(f))));
         if (!File.Exists(full))
         {
-            // .imexp missing but its .zip sidecar exists → process the zip transparently
-            if (Path.GetExtension(full).Equals(".imexp", StringComparison.OrdinalIgnoreCase)
-                && File.Exists(full + ".zip"))
-                return [(full + ".zip", Display(full))];
-
             Console.Error.WriteLine($"Path does not exist: {Display(full)}");
             Interlocked.Exchange(ref exitCode, 1);
             if (!dryRun)
@@ -155,8 +157,6 @@ if (folderCount > 0)
             }
             return [];
         }
-        if (full.EndsWith(".imexp.zip", StringComparison.OrdinalIgnoreCase))
-            return [(full, Display(full))];
         if (Path.GetExtension(full).Equals(".imexp", StringComparison.OrdinalIgnoreCase))
             return [(full, Display(full))];
         if (!isodatExtensions.Contains(Path.GetExtension(full), StringComparer.OrdinalIgnoreCase))
@@ -181,19 +181,31 @@ var options = new JsonSerializerOptions
 string assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly()
     .GetName().Version?.ToString() ?? "unknown";
 
-// Resolve the self-contained isosolfs helper shipped next to the executable with the same
-// architecture suffix: isoextract-<rid>[.exe] -> isosolfs-<rid>[.exe].
+// Resolve the isosolfs helper. It carries the running architecture as a RID suffix
+// (isosolfs-<os>-<arch>[.exe]) so it matches isoextract — e.g. isoextract-osx-x64, or
+// `dotnet isoextract.dll` on an osx-x64 host, both use isosolfs-osx-x64. It is looked up in
+// --isosolfs-path if given, otherwise in the directory isoextract itself lives in.
+string isosolfsRid;
+{
+    string os = OperatingSystem.IsWindows() ? "win"
+              : OperatingSystem.IsMacOS()   ? "osx"
+              : "linux";
+    string arch = RuntimeInformation.ProcessArchitecture switch
+    {
+        Architecture.Arm64 => "arm64",
+        Architecture.X64   => "x64",
+        Architecture.Arm   => "arm",
+        Architecture.X86   => "x86",
+        var a              => a.ToString().ToLowerInvariant(),
+    };
+    isosolfsRid = $"{os}-{arch}";
+}
+string isosolfsHelperName = OperatingSystem.IsWindows() ? $"isosolfs-{isosolfsRid}.exe" : $"isosolfs-{isosolfsRid}";
+string isosolfsSearchDir = isosolfsDirArg is not null ? Path.GetFullPath(isosolfsDirArg) : AppContext.BaseDirectory;
+
 var isosolfsLazy = new Lazy<string?>(() =>
 {
-    string exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
-        ?? AppContext.BaseDirectory;
-    string exeDir = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory;
-    string exeName = Path.GetFileName(exePath);
-    string helperName = exeName.StartsWith("isoextract", StringComparison.OrdinalIgnoreCase)
-        ? "isosolfs" + exeName.Substring("isoextract".Length)
-        : (OperatingSystem.IsWindows() ? "isosolfs.exe" : "isosolfs");
-
-    string helper = Path.Combine(exeDir, helperName);
+    string helper = Path.Combine(isosolfsSearchDir, isosolfsHelperName);
     if (!File.Exists(helper)) return null;
 
     if (!OperatingSystem.IsWindows())
@@ -274,92 +286,61 @@ Parallel.ForEach(files, inputArg =>
 
     if (IsImexpFile(inputPath))
     {
-        string zipPath = inputPath + ".zip";
-        if (!File.Exists(zipPath))
+        string outputPath = inputPath + ".json";
+        string? isosolfsPath = isosolfsLazy.Value;
+        if (isosolfsPath is null)
         {
-            string? isosolfsPath = isosolfsLazy.Value;
-            if (isosolfsPath is null)
+            string msg = $"{isosolfsHelperName} not found in {isosolfsSearchDir} " +
+                $"(use --isosolfs-path <dir>); cannot extract .imexp notebooks";
+            Console.Error.WriteLine(msg);
+            Interlocked.Exchange(ref exitCode, 1);
+            if (logWriter is not null)
             {
-                string helper = OperatingSystem.IsWindows() ? "isosolfs.exe" : "isosolfs";
-                string msg = $"{helper} helper not found next to isoextract; cannot extract .imexp notebooks";
-                Console.Error.WriteLine(msg);
-                Interlocked.Exchange(ref exitCode, 1);
-                if (logWriter is not null)
-                {
-                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg}\"";
-                    lock (logLock) logWriter.WriteLine(line);
-                }
-                if (!dryRun) File.Delete(inputPath + ".json");
-                return;
+                string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{msg}\"";
+                lock (logLock) logWriter.WriteLine(line);
             }
-
-            string extractedFolder = Path.Combine(
-                Path.GetDirectoryName(inputPath) ?? "",
-                Path.GetFileNameWithoutExtension(inputPath));
-
-            bool conversionOk = false;
-            try
-            {
-                Console.WriteLine($"Unpacking SolFS: {displayPath}...");
-                var psi = new System.Diagnostics.ProcessStartInfo(isosolfsPath)
-                {
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                };
-                psi.ArgumentList.Add(inputPath);
-                psi.ArgumentList.Add("--extract");
-                using var proc = System.Diagnostics.Process.Start(psi)!;
-                proc.WaitForExit();
-                if (proc.ExitCode != 0)
-                    throw new Exception($"isosolfs.exe exited with code {proc.ExitCode}: {proc.StandardError.ReadToEnd().Trim()}");
-                System.IO.Compression.ZipFile.CreateFromDirectory(extractedFolder, zipPath);
-                conversionOk = true;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error converting {Path.GetFileName(inputPath)} to .zip: {ex.Message}");
-                Interlocked.Exchange(ref exitCode, 1);
-                if (logWriter is not null)
-                {
-                    string err = ex.Message.Replace("\"", "\"\"");
-                    string line = $"{CsvField(displayPath)},false,{sw.ElapsedMilliseconds},\"{err}\"";
-                    lock (logLock) logWriter.WriteLine(line);
-                }
-            }
-            finally
-            {
-                if (Directory.Exists(extractedFolder))
-                    Directory.Delete(extractedFolder, true);
-            }
-            if (!conversionOk)
-            {
-                if (!dryRun) File.Delete(inputPath + ".json");
-                return;
-            }
+            if (!dryRun) File.Delete(outputPath);
+            return;
         }
-        inputPath = zipPath;
-    }
 
-    if (IsImexpZip(inputPath))
-    {
-        string imexpBase = inputPath[..^".zip".Length];           // foo.imexp
-        string displayBase = displayPath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-            ? displayPath[..^".zip".Length] : displayPath;        // handles both foo.imexp and foo.imexp.zip inputs
-        string outputPath = imexpBase + ".json";
+        // isosolfs --extract writes the notebook contents into a folder named after the archive
+        // (without extension), next to it; isoextract reads straight from that folder.
+        string extractedFolder = Path.Combine(
+            Path.GetDirectoryName(inputPath) ?? "",
+            Path.GetFileNameWithoutExtension(inputPath));
+
         var imexpMeta = new JsonObject
         {
             ["isoextract_version"] = assemblyVersion,
             ["file_type"] = "imexp",
-            ["file_size_bytes"] = File.Exists(imexpBase) ? new FileInfo(imexpBase).Length : new FileInfo(inputPath).Length,
+            ["file_size_bytes"] = new FileInfo(inputPath).Length,
         };
         var imexpRoot = new JsonObject();
         imexpRoot["meta"] = imexpMeta;
         Exception? imexpEx = null;
+        bool extracted = false;
         try
         {
-            ImexpReader.Read(inputPath, imexpRoot);
+            Console.WriteLine($"Unpacking SolFS: {displayPath}...");
+            var psi = new System.Diagnostics.ProcessStartInfo(isosolfsPath)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            psi.ArgumentList.Add(inputPath);
+            psi.ArgumentList.Add("--extract");
+            // Default to only the files isoextract parses (--minimal); --full unpacks everything.
+            if (!fullExtract)
+                psi.ArgumentList.Add("--minimal");
+            using var proc = System.Diagnostics.Process.Start(psi)!;
+            proc.WaitForExit();
+            if (proc.ExitCode != 0)
+                throw new Exception($"isosolfs exited with code {proc.ExitCode}: {proc.StandardError.ReadToEnd().Trim()}");
+            extracted = true;
+
+            ImexpReader.Read(extractedFolder, imexpRoot);
         }
         catch (Exception ex) { imexpEx = ex; }
         finally
@@ -370,11 +351,11 @@ Parallel.ForEach(files, inputArg =>
                 string json = imexpRoot.ToJsonString(options);
                 if (prettyJson) json = CollapseNumberArrays(json);
                 File.WriteAllText(outputPath, json);
-                Console.WriteLine($"Written: {displayBase}.json{(imexpEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Written: {displayPath}.json{(imexpEx is not null ? " (incomplete)" : "")}");
             }
             else
             {
-                Console.WriteLine($"Parsed (dry run): {displayBase}{(imexpEx is not null ? " (incomplete)" : "")}");
+                Console.WriteLine($"Parsed (dry run): {displayPath}{(imexpEx is not null ? " (incomplete)" : "")}");
             }
             if (imexpEx is not null)
             {
@@ -383,7 +364,7 @@ Parallel.ForEach(files, inputArg =>
             }
             if (!dryRun)
             {
-                string issuesLogPath = imexpBase + ".issues.log";
+                string issuesLogPath = inputPath + ".issues.log";
                 if (imexpEx is not null)
                     File.WriteAllText(issuesLogPath, $"error: {imexpEx.Message}\n");
                 else
@@ -395,6 +376,11 @@ Parallel.ForEach(files, inputArg =>
                 string error = imexpEx?.Message ?? "";
                 string line = $"{CsvField(displayPath)},{success.ToString().ToLowerInvariant()},{sw.ElapsedMilliseconds},\"{error.Replace("\"", "\"\"")}\"";
                 lock (logLock) logWriter.WriteLine(line);
+            }
+            // Remove the isosolfs output folder unless the user asked to keep it (--keep-extracted).
+            if (extracted && !keepExtracted && Directory.Exists(extractedFolder))
+            {
+                try { Directory.Delete(extractedFolder, true); } catch { /* best effort */ }
             }
         }
         return;

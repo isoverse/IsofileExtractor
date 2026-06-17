@@ -1,4 +1,5 @@
-// ImexpReaders.cs  —  extract all data from Qtegra .imexp.zip notebooks
+// ImexpReaders.cs  —  extract all data from an unpacked Qtegra .imexp notebook
+//   (the folder isosolfs --extract produces)
 //
 // Navigates the BinaryFormatter object graph (parsed by ImexpFiles.cs) using
 // GUID-prefixed field keys derived from the Qtegra/TFS 253 Plus DLLs:
@@ -11,7 +12,6 @@
 //   TFS253Plus.Contracts.dll         (SampleListColumnStorage, AdditionalSampleDataSerializable,
 //                                     LinearityCorrection*, PeakCenter*)
 
-using System.IO.Compression;
 using System.Text.Json.Nodes;
 
 static partial class ImexpReader
@@ -145,25 +145,9 @@ static partial class ImexpReader
     static List<(string RelPath, byte[] Data)> GatherEntries(string path)
     {
         var list = new List<(string, byte[])>();
-        if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
-        {
-            using var zip = ZipFile.OpenRead(path);
-            foreach (var e in zip.Entries.OrderBy(e => e.FullName, StringComparer.Ordinal))
-            {
-                if (!string.Equals(Path.GetFileName(e.FullName), "StoredSettings.bin",
-                        StringComparison.OrdinalIgnoreCase)) continue;
-                using var ms = new MemoryStream((int)e.Length);
-                using var s = e.Open();
-                s.CopyTo(ms);
-                list.Add((e.FullName, ms.ToArray()));
-            }
-        }
-        else
-        {
-            foreach (var f in Directory.GetFiles(path, "StoredSettings.bin",
-                         SearchOption.AllDirectories).Order())
-                list.Add((Path.GetRelativePath(path, f).Replace('\\', '/'), File.ReadAllBytes(f)));
-        }
+        foreach (var f in Directory.GetFiles(path, "StoredSettings.bin",
+                     SearchOption.AllDirectories).Order())
+            list.Add((Path.GetRelativePath(path, f).Replace('\\', '/'), File.ReadAllBytes(f)));
         return list;
     }
 
@@ -321,30 +305,15 @@ static partial class ImexpReader
         var candidates = new Dictionary<string, List<(string RelPath, byte[] Data)>>(
             StringComparer.OrdinalIgnoreCase);
 
-        if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        foreach (var f in Directory.GetFiles(path, "*.samples", SearchOption.AllDirectories)
+                     .Where(f => string.Equals(
+                         Path.GetFileName(Path.GetDirectoryName(f)), "SampleList",
+                         StringComparison.OrdinalIgnoreCase)))
         {
-            using var zip = ZipFile.OpenRead(path);
-            foreach (var e in zip.Entries)
-            {
-                if (!e.FullName.Contains("/SampleList/")) continue;
-                string name = Path.GetFileName(e.FullName);
-                if (!name.EndsWith(".samples", StringComparison.OrdinalIgnoreCase)) continue;
-                if (!candidates.TryGetValue(name, out var cl)) candidates[name] = cl = new();
-                cl.Add((e.FullName, LoadZipEntry(e)));
-            }
-        }
-        else
-        {
-            foreach (var f in Directory.GetFiles(path, "*.samples", SearchOption.AllDirectories)
-                         .Where(f => string.Equals(
-                             Path.GetFileName(Path.GetDirectoryName(f)), "SampleList",
-                             StringComparison.OrdinalIgnoreCase)))
-            {
-                string name    = Path.GetFileName(f);
-                string relPath = Path.GetRelativePath(path, f).Replace('\\', '/');
-                if (!candidates.TryGetValue(name, out var cl)) candidates[name] = cl = new();
-                cl.Add((relPath, File.ReadAllBytes(f)));
-            }
+            string name    = Path.GetFileName(f);
+            string relPath = Path.GetRelativePath(path, f).Replace('\\', '/');
+            if (!candidates.TryGetValue(name, out var cl)) candidates[name] = cl = new();
+            cl.Add((relPath, File.ReadAllBytes(f)));
         }
 
         static string TopDir(string relPath)
@@ -572,46 +541,18 @@ static partial class ImexpReader
         GatherTracePairs(string path)
     {
         var list = new List<(string, byte[], byte[], byte[], byte[], byte[])>();
-        if (path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+        foreach (var mdFile in Directory.GetFiles(path, "MeasureData.bin", SearchOption.AllDirectories).Order())
         {
-            using var zip = ZipFile.OpenRead(path);
-            var byDir = new Dictionary<string, Dictionary<string, ZipArchiveEntry>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var e in zip.Entries)
-            {
-                string dir  = e.FullName.Contains('/') ? e.FullName[..e.FullName.LastIndexOf('/')] : "";
-                string name = Path.GetFileName(e.FullName);
-                if (!byDir.TryGetValue(dir, out var files)) byDir[dir] = files = new();
-                files[name] = e;
-            }
-            foreach (var (dir, files) in byDir.OrderBy(kv => kv.Key, StringComparer.Ordinal))
-            {
-                if (!files.TryGetValue("MeasureData.bin", out var mdEntry)) continue;
-                files.TryGetValue("MeasureDataIndexLines.bin",      out var idxEntry);
-                files.TryGetValue("CapturedSettingsFolderName.bin", out var csfnEntry);
-                files.TryGetValue("AdditionalData",                 out var adataEntry);
-                files.TryGetValue("SampleMetadata",                 out var smetaEntry);
-                byte[] idxBytes   = idxEntry   is not null ? LoadZipEntry(idxEntry)   : Array.Empty<byte>();
-                byte[] csfnBytes  = csfnEntry  is not null ? LoadZipEntry(csfnEntry)  : Array.Empty<byte>();
-                byte[] adataBytes = adataEntry is not null ? LoadZipEntry(adataEntry) : Array.Empty<byte>();
-                byte[] smetaBytes = smetaEntry is not null ? LoadZipEntry(smetaEntry) : Array.Empty<byte>();
-                list.Add((dir, idxBytes, LoadZipEntry(mdEntry), csfnBytes, adataBytes, smetaBytes));
-            }
-        }
-        else
-        {
-            foreach (var mdFile in Directory.GetFiles(path, "MeasureData.bin", SearchOption.AllDirectories).Order())
-            {
-                string dir       = Path.GetDirectoryName(mdFile)!;
-                string idxFile   = Path.Combine(dir, "MeasureDataIndexLines.bin");
-                string csfnFile  = Path.Combine(dir, "CapturedSettingsFolderName.bin");
-                string adataFile = Path.Combine(dir, "AdditionalData");
-                string smetaFile = Path.Combine(dir, "SampleMetadata");
-                byte[] idxBytes   = File.Exists(idxFile)   ? File.ReadAllBytes(idxFile)   : Array.Empty<byte>();
-                byte[] csfnBytes  = File.Exists(csfnFile)  ? File.ReadAllBytes(csfnFile)  : Array.Empty<byte>();
-                byte[] adataBytes = File.Exists(adataFile) ? File.ReadAllBytes(adataFile) : Array.Empty<byte>();
-                byte[] smetaBytes = File.Exists(smetaFile) ? File.ReadAllBytes(smetaFile) : Array.Empty<byte>();
-                list.Add((Path.GetRelativePath(path, dir).Replace('\\', '/'), idxBytes, File.ReadAllBytes(mdFile), csfnBytes, adataBytes, smetaBytes));
-            }
+            string dir       = Path.GetDirectoryName(mdFile)!;
+            string idxFile   = Path.Combine(dir, "MeasureDataIndexLines.bin");
+            string csfnFile  = Path.Combine(dir, "CapturedSettingsFolderName.bin");
+            string adataFile = Path.Combine(dir, "AdditionalData");
+            string smetaFile = Path.Combine(dir, "SampleMetadata");
+            byte[] idxBytes   = File.Exists(idxFile)   ? File.ReadAllBytes(idxFile)   : Array.Empty<byte>();
+            byte[] csfnBytes  = File.Exists(csfnFile)  ? File.ReadAllBytes(csfnFile)  : Array.Empty<byte>();
+            byte[] adataBytes = File.Exists(adataFile) ? File.ReadAllBytes(adataFile) : Array.Empty<byte>();
+            byte[] smetaBytes = File.Exists(smetaFile) ? File.ReadAllBytes(smetaFile) : Array.Empty<byte>();
+            list.Add((Path.GetRelativePath(path, dir).Replace('\\', '/'), idxBytes, File.ReadAllBytes(mdFile), csfnBytes, adataBytes, smetaBytes));
         }
         return list;
     }
@@ -631,13 +572,6 @@ static partial class ImexpReader
         var objs = ParseStream(d);
         if (!objs.TryGetValue(1, out var root)) return null;
         return GetString(root.Fields.GetValueOrDefault(SFC_FolderName), objs);
-    }
-
-    static byte[] LoadZipEntry(ZipArchiveEntry e)
-    {
-        using var ms = new MemoryStream((int)e.Length);
-        using var s  = e.Open(); s.CopyTo(ms);
-        return ms.ToArray();
     }
 
     // ── IndexLines ───────────────────────────────────────────────────────────
