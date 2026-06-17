@@ -1,6 +1,6 @@
 # Qtegra `.imexp` Archive Structure
 
-`.imexp` files (or `.imexp.zip` exports) are notebooks produced by **Qtegra** software (Thermo Fisher Scientific), which manages ICP-OES, ICP-MS, and IRMS instrument systems. The underlying storage engine is **SolFS** (a virtual filesystem embedded in a single file); the `.imexp.zip` export is a ZIP dump of the entire SolFS volume.
+`.imexp` files are notebooks produced by **Qtegra** software (Thermo Fisher Scientific), which manages ICP-OES, ICP-MS, and IRMS instrument systems. The underlying storage engine is **SolFS** (a virtual filesystem embedded in a single file). `isoextract` unpacks the SolFS volume with its bundled `isosolfs` helper and reads the extracted files directly.
 
 This document focuses on data from **IRMS systems**, which appear under the plugin name **`TFS253Plus`** throughout the Qtegra file structure. Some structural conventions (versioned timestamp directories, SolFS layout, BinaryFormatter serialization) are likely shared with ICP-OES and ICP-MS notebooks, but the plugin-specific data formats described here are IRMS-specific.
 
@@ -178,7 +178,7 @@ This rule applies to sample lists. Entry data (`Entry_<uuid>/TFS253Plus/`) is ti
 
 ## JSON Output Structure
 
-`isoextract` converts each `.imexp.zip` archive to a single `.imexp.json` file (the `.zip` extension is dropped) with the following top-level structure:
+`isoextract` converts each `.imexp` notebook to a single `.imexp.json` file with the following top-level structure:
 
 ```json
 {

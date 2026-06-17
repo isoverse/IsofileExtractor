@@ -1,7 +1,19 @@
-[![isoextract](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/assembly.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 # isoextract <img src="docs/isoextractor_logo_thumb.png" align="right" width="100" alt="isoextract logo"/> </a>
+
+### Build &amp; test status (per architecture)
+
+| Architecture | Status |
+|--------------|--------|
+| `linux-x64`   | [![isoextract-linux-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-x64.yaml) |
+| `linux-arm64` | [![isoextract-linux-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-linux-arm64.yaml) |
+| `osx-x64`     | [![isoextract-osx-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-x64.yaml) |
+| `osx-arm64`   | [![isoextract-osx-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-osx-arm64.yaml) |
+| `win-x64`     | [![isoextract-win-x64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-x64.yaml) |
+| `win-arm64`   | [![isoextract-win-arm64](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml/badge.svg?branch=main)](https://github.com/isoverse/IsofileExtractor/actions/workflows/compile-win-arm64.yaml) |
+
+> `linux-arm64` has no `isosolfs` helper (the CBFS Vault product ships no linux-arm64 native), so its tests cover everything except `.imexp` extraction.
 
 
 A self-contained command-line tool for extracting data from stable isotope ratio mass spectrometry (IRMS) binary data files. Supports multiple vendor software formats. Each input file is parsed and the extracted data is written to a JSON output file in the same folder.
@@ -19,6 +31,13 @@ A self-contained command-line tool for extracting data from stable isotope ratio
 | `.did`    | Dual inlet               | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 | `.caf`    | Dual inlet (legacy)      | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
 | `.scn`    | Scan                     | Thermo Fisher Isodat      | [isodat_structure.md](docs/isodat_structure.md) |
+
+> **`.imexp` files** also need the `isosolfs` helper — a separate, closed-source binary that
+> unpacks the proprietary SolFS container. It is **not** bundled with isoextract; download the
+> `isosolfs-<rid>` matching your platform from the
+> [isosolfs release](https://github.com/isoverse/IsofileExtractor/releases) and place it next
+> to the `isoextract` binary (or point to it with `--isosolfs-path`). All other formats work
+> with isoextract alone. There is no `isosolfs` build for `linux-arm64`.
 
 ## Usage
 
@@ -45,6 +64,9 @@ One or more files or directories can be provided. Directories are searched recur
 | Option | Description |
 |--------|-------------|
 | `--unabridged` | Include verbose fields normally omitted: schema version numbers, app IDs, raw flags, etc. |
+| `--isosolfs-path <dir>` | (`.imexp` only) Directory holding the `isosolfs` helper. isoextract uses the binary matching its own architecture (`isosolfs-<rid>`, e.g. `isosolfs-osx-x64`). Defaults to isoextract's own directory; the helper is a [separate download](https://github.com/isoverse/IsofileExtractor/releases), so put `isosolfs-<rid>` there or pass this option |
+| `--full` | (`.imexp` only) Unpack the entire notebook with `isosolfs` instead of only the files isoextract reads. Has no effect on the JSON output; useful with `--keep-extracted` to inspect the full notebook contents |
+| `--keep-extracted` | (`.imexp` only) Keep the folder `isosolfs` unpacks next to the notebook instead of deleting it after reading |
 | `--objects` | (Isodat only) Write a `.objects.csv` output file for each input file, listing every deserialized C++ object with its byte offset, class name, schema version, and parent–child relationships |
 | `--tree` | (Isodat only) Write a `.tree.txt` output file for each input file showing the object hierarchy as an indented tree |
 
@@ -126,20 +148,33 @@ Requires the [.NET 8 SDK](https://dotnet.microsoft.com/download).
 # Development build (produces bin/release/isoextract.dll, run with dotnet)
 make build
 
-# Release build for all three runtimes (linux-x64, osx-x64, win-x64) via Docker
+# Self-contained, single-file binaries for every runtime via Docker, into
+# dist/isoextract-<rid>[.exe] (linux-x64, linux-arm64, osx-x64, osx-arm64, win-x64, win-arm64)
 make build-all
+
+# ...or just the current OS/arch
+make build-docker
 ```
+
+`make build-all` produces the `isoextract` binaries only — the `isosolfs` helper is released
+separately (see the [`.imexp` note](#supported-file-formats)) and is not bundled.
 
 Live-reload during development (rebuilds and reruns on every save):
 ```sh
 make dev
 ```
 
+Run the test suite (`tests/data` against the bundled fixtures; `.imexp` tests use the local
+`isosolfs` helper in `assets/isosolfs/`):
+```sh
+make test
+```
+
 ## License
 
 isoextract is released under the MIT License — see [LICENSE](LICENSE).
 
-Release builds bundle a separate, proprietary `isosolfs` helper (Callback Technologies' CBFS Vault, used only for `.imexp` extraction) that is **not** covered by the MIT License; see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
+`.imexp` extraction relies on a separate, proprietary `isosolfs` helper (built on Callback Technologies' CBFS Vault). It is distributed in its own release, **not** bundled with isoextract, and is **not** covered by the MIT License; see [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES).
 
 ## isoverse <a href='http://www.isoverse.org'><img src='docs/isoverse_logo_thumb.png' align="right" width="100" alt="isoverse logo"/></a>
 
