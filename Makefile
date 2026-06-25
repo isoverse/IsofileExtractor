@@ -24,7 +24,7 @@ endif
 # ── Development ───────────────────────────────────────────────────────────────
 
 # Rebuild and rerun on src file save
-TEST_FILE := tests/data/cdos
+TEST_FILE := tests/data/dxf
 dev:
 	dotnet watch --project $(PROJECT) run -- $(TEST_FILE) --objects --tree --unabridged --prettyJSON --log
 

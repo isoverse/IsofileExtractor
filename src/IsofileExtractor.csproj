@@ -9,7 +9,7 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
 
     <!-- License / authorship metadata (embedded in the built assembly) -->
     <Product>isoextract</Product>

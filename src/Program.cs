@@ -319,6 +319,7 @@ Parallel.ForEach(files, inputArg =>
         imexpRoot["meta"] = imexpMeta;
         Exception? imexpEx = null;
         bool extracted = false;
+        var imexpWarnings = new List<string>();
         try
         {
             Console.WriteLine($"Unpacking SolFS: {displayPath}...");
@@ -335,10 +336,20 @@ Parallel.ForEach(files, inputArg =>
             if (!fullExtract)
                 psi.ArgumentList.Add("--minimal");
             using var proc = System.Diagnostics.Process.Start(psi)!;
+            // Drain both pipes concurrently so a child that fills one buffer can't deadlock us.
+            var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+            var stderrTask = proc.StandardError.ReadToEndAsync();
             proc.WaitForExit();
+            string isosolfsOut = stdoutTask.GetAwaiter().GetResult();
+            string isosolfsErr = stderrTask.GetAwaiter().GetResult();
             if (proc.ExitCode != 0)
-                throw new Exception($"isosolfs exited with code {proc.ExitCode}: {proc.StandardError.ReadToEnd().Trim()}");
+                throw new Exception($"isosolfs exited with code {proc.ExitCode}: {isosolfsErr.Trim()}");
             extracted = true;
+
+            // isosolfs still exits 0 and extracts the rest when it hits an unreadable/corrupted
+            // folder, reporting each one as a warning on stdout. Surface those into this file's
+            // .issues.log so downstream knows the notebook was only partially unpacked.
+            imexpWarnings.AddRange(ParseIsosolfsWarnings(isosolfsOut));
 
             ImexpReader.Read(extractedFolder, imexpRoot);
         }
@@ -357,6 +368,12 @@ Parallel.ForEach(files, inputArg =>
             {
                 Console.WriteLine($"Parsed (dry run): {displayPath}{(imexpEx is not null ? " (incomplete)" : "")}");
             }
+            if (imexpWarnings.Count > 0)
+            {
+                Console.Error.WriteLine($"{imexpWarnings.Count} warning(s) in {Path.GetFileName(inputPath)}:");
+                foreach (string w in imexpWarnings)
+                    Console.Error.WriteLine($"  {w}");
+            }
             if (imexpEx is not null)
             {
                 Console.Error.WriteLine($"Error processing {Path.GetFileName(inputPath)}: {imexpEx.Message}");
@@ -365,8 +382,14 @@ Parallel.ForEach(files, inputArg =>
             if (!dryRun)
             {
                 string issuesLogPath = inputPath + ".issues.log";
-                if (imexpEx is not null)
-                    File.WriteAllText(issuesLogPath, $"error: {imexpEx.Message}\n");
+                if (imexpEx is not null || imexpWarnings.Count > 0)
+                {
+                    using var w = new StreamWriter(issuesLogPath);
+                    foreach (string warning in imexpWarnings)
+                        w.WriteLine($"warning: {warning}");
+                    if (imexpEx is not null)
+                        w.WriteLine($"error: {imexpEx.Message}");
+                }
                 else
                     File.Delete(issuesLogPath);
             }
@@ -581,6 +604,36 @@ return exitCode;
 
 static string CsvField(string value) =>
     $"\"{value.Replace("\"", "\"\"")}\"";
+
+// Extracts the "problematic folder" details from isosolfs --extract stdout. isosolfs keeps
+// going (exit 0) when a folder is unreadable/corrupted, printing:
+//   WARNING: Archive has N problematic folder(s) that cannot be accessed:
+//     \path - reason
+//     ...
+// followed by its normal output. Each indented detail line becomes one warning. This is
+// coupled to isosolfs's output format (the two tools ship together).
+static List<string> ParseIsosolfsWarnings(string stdout)
+{
+    var warnings = new List<string>();
+    if (string.IsNullOrEmpty(stdout)) return warnings;
+
+    bool inBlock = false;
+    foreach (string raw in stdout.Replace("\r\n", "\n").Split('\n'))
+    {
+        if (raw.StartsWith("WARNING:", StringComparison.Ordinal))
+        {
+            inBlock = true;
+            continue;
+        }
+        if (!inBlock) continue;
+        // Detail lines are indented; the block ends at the first non-indented line.
+        if (raw.StartsWith("  ", StringComparison.Ordinal))
+            warnings.Add($"SolFS unpack: {raw.Trim()}");
+        else
+            inBlock = false;
+    }
+    return warnings;
+}
 
 // Replaces multi-line pretty-printed number arrays with a single compact line.
 static string CollapseNumberArrays(string json)
