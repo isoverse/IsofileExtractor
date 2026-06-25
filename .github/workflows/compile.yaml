@@ -8,7 +8,7 @@ name: isoextract compile + test (reusable)
 env:
   # isosolfs release the helper binaries are pulled from. Bump this one line when a newer
   # isosolfs release ships.
-  ISOSOLFS_RELEASE: isosolfs-v0.9.0
+  ISOSOLFS_RELEASE: isosolfs-v1.0.0
 
 on:
   workflow_call:
