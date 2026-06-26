@@ -133,17 +133,14 @@ For `.dxf` files, `CGasConfiguration` may be wrapped in a `CNumericValue` node d
 
 ## Resistor Values
 
-Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes.
+Faraday cup feedback resistor values appear in two distinct locations in the JSON output, serving different purposes: the values that can be configured/calibrated in the Isodat configurator, and the fixed nominal resistors baked into the instrument's hardware definition.
 
-### Calibrated cup resistors — `CEvalIntegrationUnitHWInfo[N]/resistor`
+### Configured cup resistors — `CEvalIntegrationUnitHWInfo[N]/resistor`
 
-The gain-calibrated resistance for each cup **used in this specific measurement** is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number - 0-based, corresponding to the trace index in the raw data arrays), and `cup` (the physical cup position number). The `mass` and `channel` fields together provide the channel-to-mass mapping: the trace at index `channel` in the raw data measures ions at m/z `mass`. These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array.
+The configured resistance for each cup is stored as a float (in ohms) inside `CEvalIntegrationUnitHWInfo`. These are the per-cup feedback resistances that can be changed in the Isodat configurator. Each entry also carries `mass` (the m/z measured on that cup), `channel` (the integration-unit input channel number - 0-based, corresponding to the trace index in the raw data arrays), and `cup` (the physical cup position number). The `mass` and `channel` fields together provide the channel-to-mass mapping: the trace at index `channel` in the raw data measures ions at m/z `mass`. These are instrument-specific hardware indices and do **not** directly correspond to the 0-based position in the `CCupHardwarePart` array. The configured resistor values are only as accurate as the user entered them. An out-of-date or incorrect configuration may not match the hardware at all. Despite this caveat, we recommend that conversion of raw voltages to ion currents use these `CEvalIntegrationUnitHWInfo/resistor` values (rather than the nominal `CCupHardwarePart/resistor` values).
 
-The calibrated values are derived from the instrument's gain calibration routine with all DIO resistor switches already in their measurement position, so they reflect the actual resistance of whichever resistor is physically connected at measurement time. If a cup uses an alternate resistor bank (DIO switch in position 1), the calibrated value already reflects that alternate resistor — there is no separate stored calibration for each switch position. The calibrated values typically deviate from the nominal by up to ~1% (e.g. 297 MΩ calibrated vs. 300 MΩ nominal); in some configurations the deviation is larger.
+The count of `CEvalIntegrationUnitHWInfo` covers only the cups configured for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
 
-The count of `CEvalIntegrationUnitHWInfo` covers only the cups gain-calibrated for the measurement in question. This number varies by gas and measurement type (e.g. 2 cups for H₂, 3 for CO₂, 7 for clumped-isotope CO₂). These values are present in all file types except `.scn`.
-
-For accurate conversion of raw voltages to ion currents, use the calibrated `CEvalIntegrationUnitHWInfo/resistor` values rather than the nominal `CCupHardwarePart/resistor` values.
 
 The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitHWInfoList → CEvalIntegrationUnitHWInfo[N]/resistor`:
 
@@ -157,7 +154,7 @@ The path runs through `CEvalIntegrationUnitHWInfoStore → CEvalIntegrationUnitH
 
 For `.did` files, the `CEvalIntegrationUnitHWInfoStore` node may be wrapped inside an additional `CNumericValue` object depending on the Isodat version; both path variants must be tried.
 
-For `.scn` files, there is no calibrated resistor table. Nominal cup resistors from `CCupHardwarePart` are used instead, and the channel-to-mass mapping is obtained from `CChannelGasConfPart` inside the `CGasConfiguration`. Each row of `CChannelGasConfPart` carries `mass` (integer m/z), `cup` (physical cup position), and `idx` (1-based channel/trace index - note that this needs to be adjusted to to 0-base to fit the raw data stored in .scn files):
+For `.scn` files, there is no configured resistor table. Nominal cup resistors from `CCupHardwarePart` are used instead, and the channel-to-mass mapping is obtained from `CChannelGasConfPart` inside the `CGasConfiguration`. Each row of `CChannelGasConfPart` carries `mass` (integer m/z), `cup` (physical cup position), and `idx` (1-based channel/trace index - note that this needs to be adjusted to to 0-base to fit the raw data stored in .scn files):
 
 | Extension | Path to `CChannelGasConfPart` |
 |-----------|-------------------------------|
@@ -165,7 +162,7 @@ For `.scn` files, there is no calibrated resistor table. Nominal cup resistors f
 
 ### Nominal cup resistors — `CCupHardwarePart[N]/resistor`
 
-The configured (nominal) resistance for each detector cup is stored as an integer (in ohms) inside `CCupHardwarePart`. This array always covers **all physical cups** in the instrument collector array. Cups that are not installed or not connected carry the sentinel value `200` (200 Ω), which is far below any real feedback resistor and can be used to identify inactive cups. These values should only be used for .scn files that do not carry calibrated cup resistors.
+The nominal resistance for each detector cup is stored as an integer (in ohms) inside `CCupHardwarePart`. These are the fixed nominal resistors from the instrument's original hardware definition; they cannot be changed or calibrated by the user. Treat them only as fallback values, to be used when no configured resistor is available. This array always covers **all physical cups** in the instrument collector array. Cups that are not installed or not connected carry the sentinel value `200` (200 Ω), which is far below any real feedback resistor and can be used to identify inactive cups. In practice they are needed only for `.scn` files, which do not carry a configured resistor table.
 
 The path to reach them runs through `CIntegrationUnitScanPart → CIntegrationUnitHardwarePart → CCupHardwarePart[N]/resistor`. The root of that path depends on file type:
 
