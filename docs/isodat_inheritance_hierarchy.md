@@ -113,6 +113,7 @@
     - CReferenceRefillDevice
     - CUserDevice
   - CChangeOver2Device
+  - CGCInterfaceDevice (same as CBufferedRefillDevice)
   - CHDevice
   - CConFloDevice
   - CDualInletDevice
@@ -200,6 +201,7 @@
 - CEvaluationPart
   - CDeviceMethodPart
     - CActiveDeviceMethodPart (same as CDeviceMethodPart)
+      - CGCInterfaceDeviceMethodPart (same as CGCExtendedInterfaceDeviceMethodPart)
       - CHDeviceMethodPart
       - CHeMDeviceMethodPart
       - CPreconDeviceMethodPart
@@ -220,6 +222,7 @@
 - CDeviceEvaluationPart
   - CHDeviceEvaluationPart
   - CGCExtendedInterfaceDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)
+  - CGCInterfaceDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)
   - CConFloDeviceEvaluationPart
     - CCarbonateDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)
     - CDualInletDeviceEvaluationPart (same as CConFloDeviceEvaluationPart)

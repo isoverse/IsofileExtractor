@@ -154,6 +154,7 @@ static class Readers
             ["CMultiReferenceDevice"] = ReadCBufferedRefillDevice,
             ["CUserDevice"] = ReadCBufferedRefillDevice,
             ["CGCExtendedInterfaceDevice"] = ReadCBufferedRefillDevice,
+            ["CGCInterfaceDevice"] = ReadCBufferedRefillDevice,       // parent CActiveDevice; Serialize = CBufferedRefillDevice::Serialize (vftable-confirmed, DevicesDll)
             ["CReferenceRefillDevice"] = ReadCBufferedRefillDevice,
             ["CCarbonateDevice"] = ReadCBufferedRefillDevice,
             ["CXCaliburDevice"] = ReadCXCaliburDevice,
@@ -312,6 +313,7 @@ static class Readers
             ["CGenericGcDeviceMethodPart"] = ReadCGenericGcDeviceMethodPart,
             ["CGasBenchDeviceMethodPart"] = ReadCGasBenchDeviceMethodPart,
             ["CGCExtendedInterfaceDeviceMethodPart"] = ReadCGCExtendedInterfaceDeviceMethodPart,
+            ["CGCInterfaceDeviceMethodPart"] = ReadCGCExtendedInterfaceDeviceMethodPart, // Serialize = CGCExtendedInterfaceDeviceMethodPart::Serialize (vftable-confirmed, DevicesDll)
             ["CFlashEA_DeviceMethodPart"] = ReadCFlashEA_DeviceMethodPart,
             ["CFlashEaIsoLink_DeviceMethodPart"] = ReadCFlashEaIsoLink_DeviceMethodPart,
             ["CMultiReferenceDeviceMethodPart"] = ReadCMultiReferenceDeviceMethodPart,
@@ -329,6 +331,7 @@ static class Readers
             ["CDeviceEvaluationPart"] = ReadCDeviceEvaluationPart,
             ["CConFloDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CGCExtendedInterfaceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
+            ["CGCInterfaceDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,      // Serialize = CConFloDeviceEvaluationPart::Serialize (vftable-confirmed, DevicesDll)
             ["CMsDeviceEvaluationPart"] = ReadCMsDeviceEvaluationPart,
             ["CGenericGcDeviceEvaluationPart"] = ReadCConFloDeviceEvaluationPart,
             ["CFlashEA_DeviceEvaluationPart"] = ReadCFlashEA_DeviceEvaluationPart,
