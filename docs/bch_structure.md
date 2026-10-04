@@ -375,7 +375,9 @@ results
 |-------|---------|
 | `source` | relative path to `Results/ReprocessedData.prn` |
 | `system_description` | line 0 of the `.prn` (e.g. `"SerCon 'Callisto CF-IRMS' system : IN1215 Gulf Bio"`) |
-| `timestamp` | line 1 of the `.prn` (`HH:MM:SS\tMM-DD-YYYY`) |
+| `timestamp` | line 1 of the `.prn` (`HH:MM:SS\tMM-DD-YYYY`), passed through as-is (see below) |
+
+> ⚠️ **Time zone: unknown.** The `.prn` timestamp is plain text in the acquisition computer's local time with no time zone or UTC offset, and nothing else in the `.bch` folder records the time zone, so the original time zone **cannot be determined**. `isoextract` passes the string through unchanged; `isoreader2` parses it **as if it were UTC**, i.e. the resulting time is the local wall-clock time labeled as UTC and may be off from the true UTC instant by the (unknown) UTC offset of the acquisition computer.
 
 ### `collectors`
 

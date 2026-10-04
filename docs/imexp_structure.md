@@ -17,7 +17,7 @@ The archive contains two kinds of top-level entries:
 
 ### Timestamp Directories
 
-Each versioned snapshot is named with a millisecond-precision UTC timestamp: `YYYYMMDD-HHMMSS-mmm` (e.g. `20260226-001349-777`). Multiple timestamps accumulate as the notebook is saved repeatedly. Lexicographic ordering equals chronological ordering, so the **latest** timestamp directory contains the most recent version of session-level files.
+Each versioned snapshot is named with a millisecond-precision timestamp: `YYYYMMDD-HHMMSS-mmm` (e.g. `20260226-001349-777`). **This timestamp is in the local timezone of the acquisition computer, with no offset recorded** (verified against the test corpus: the directory name is consistently 6 h behind the UTC `CapturedSettings_<datetime>` folder created seconds later in the same session). By contrast, `CapturedSettings_<datetime>` folder names and the `MeasureData.bin` trace timestamps are UTC. Multiple timestamps accumulate as the notebook is saved repeatedly. Lexicographic ordering equals chronological ordering, so the **latest** timestamp directory contains the most recent version of session-level files.
 
 A full-featured timestamp directory contains:
 
@@ -145,7 +145,9 @@ Segments (one per non-sentinel index record):
       [double counterIntensity]   ← present only if hasCounter
 ```
 
-The `TraceSet` size is fixed within a segment (channel layout is constant per segment). The time axis is derived from the `.NET ticks` component of the timestamp (divide by 1 × 10⁷ to get seconds); time is stored as seconds elapsed since the first time point in the segment.
+The `TraceSet` size is fixed within a segment (channel layout is constant per segment). The time axis is derived from the `.NET ticks` component of the timestamp (divide by 1 × 10⁷ to get seconds); time is stored as seconds elapsed since the first time point in the segment. The integer ticks are subtracted before converting to floating point — converting two ~6 × 10¹⁷ tick values to `double` independently loses precision and introduces jitter of several microseconds.
+
+Qtegra writes these timestamps with `DateTimeKind.Local` (kind bits `10`). For `Local` values, `DateTime.ToBinary()` stores the tick count **already converted to UTC** (local ticks minus the machine's UTC offset at that moment), so masking off the kind bits (`binary & 0x3FFFFFFFFFFFFFFF`) yields UTC ticks directly. They are therefore an absolute instant, independent of the timezone of the acquisition computer or of the machine running the extraction.
 
 ### `CapturedSettingsFolderName.bin` — Settings Cross-Reference
 
@@ -288,6 +290,8 @@ One object per `Entry_<uuid>/` directory. Entries are sourced from all timestamp
   "session_time": "2025-03-12T09:44:29.745",
   "settings_id": "CapturedSettings_2025-03-12-14-44-36-981",
   "segments": [ … ],
+  "acquisition_start": "2025-03-12T14:46:02.1234567Z",
+  "acquisition_end": "2025-03-12T14:59:40.7654321Z",
   "additional_data": { … }
 }
 ```
@@ -296,8 +300,14 @@ One object per `Entry_<uuid>/` directory. Entries are sourced from all timestamp
 |-------|--------|-------|
 | `guid` | Directory name (`Entry_<uuid>`) | UUID stripped of the `Entry_` prefix |
 | `type` | Subdirectory name inside `Entry_<uuid>/` | Typically `TFS253Plus` |
-| `session_time` | Top-level timestamp directory name | ISO 8601 datetime parsed from `YYYYMMDD-HHMMSS-mmm`; the batch run timestamp for this session |
-| `settings_id` | `CapturedSettingsFolderName.bin` | Name of the `CapturedSettings_<datetime>` folder used for this acquisition; cross-references `settings[].settings_id` |
+| `session_time` | Top-level timestamp directory name | ISO 8601 datetime parsed from `YYYYMMDD-HHMMSS-mmm`. ⚠️ **Only the timestamp of the snapshot folder this entry was saved in — do not use it as the acquisition time; use `acquisition_start` instead.** Also in the acquisition computer's local time with no timezone offset |
+| `settings_id` | `CapturedSettingsFolderName.bin` | Name of the `CapturedSettings_<datetime>` folder used for this acquisition (the `<datetime>` part is UTC); cross-references `settings[].settings_id` |
+| `acquisition_start` | `segments[]` | `start_time_utc` of the first segment that has one; UTC (`Z` suffix). Omitted if no segment has a timestamp |
+| `acquisition_end` | `segments[]` | `end_time_utc` of the last segment that has one; UTC (`Z` suffix) |
+
+> ⚠️ **Do not use `session_time` as the acquisition time — use `acquisition_start`.** `session_time` is just the timestamp of the snapshot folder (`<timestamp>/`) the entry happens to be stored in. Several entries acquired over many hours can share the same `session_time` (in the test corpus, entries with `session_time` `2023-09-05T20:15:13.792` were acquired 2–3+ hours later), so it says nothing reliable about when a given entry was measured.
+>
+> In addition, **`session_time` is in the original (local) timezone.** It is taken verbatim from the timestamp directory name, which Qtegra writes in the acquisition computer's local time without an offset. Use `acquisition_start` / `acquisition_end` (or the per-segment `start_time_utc` / `end_time_utc`) for the actual, timezone-unambiguous acquisition times. `isoreader2` uses `acquisition_start` as the analysis `timestamp` and ignores `session_time`.
 
 #### `segments[]`
 
@@ -310,6 +320,8 @@ Each segment corresponds to one non-sentinel record in `MeasureDataIndexLines.bi
   "integration_index": 0,
   "n_timepoints": 977,
   "time_s": [0.0, 0.1, 0.2, …],
+  "start_time_utc": "2025-03-12T14:46:02.1234567Z",
+  "end_time_utc": "2025-03-12T14:47:39.7234567Z",
   "channels": [
     {
       "mass": 28.0,
@@ -325,7 +337,7 @@ Each segment corresponds to one non-sentinel record in `MeasureDataIndexLines.bi
 }
 ```
 
-`time_s` is seconds elapsed since the first time point of the segment (derived from the `.NET ticks` component of the BinaryFormatter timestamp). `detector` is `"analog"`, `"counter"`, or `"none"`. `intensity` values are in **counts per second (cps)** as stored in `MeasureData.bin` — not converted to current (Amperes) or voltage.
+`time_s` is seconds elapsed since the first time point of the segment (derived from the `.NET ticks` component of the `TraceSet` timestamp). `start_time_utc` / `end_time_utc` are the absolute timestamps of the first and last time point, formatted as ISO 8601 UTC with full 100 ns tick precision (`yyyy-MM-ddTHH:mm:ss.fffffffZ`). `detector` is `"analog"`, `"counter"`, or `"none"`. `intensity` values are in **counts per second (cps)** as stored in `MeasureData.bin` — not converted to current (Amperes) or voltage.
 
 Index fields from `MeasureDataIndexLines.bin`:
 

@@ -90,6 +90,8 @@ After the last expected object, the file must be fully read. Any remaining bytes
 
 For `.dxf`, `.cf`, `.did`, and `.caf` files the measurement timestamp is at `CFileHeader/p/objects/CTimeObject/datetime` (ISO 8601 string). For `.scn` files, which have no `CFileHeader`, it is at `CScanStorage/timestamp_start`. A `timestamp_end` field is also present on `CScanStorage`.
 
+**Time zone: UTC (known).** All Isodat timestamps are MFC `CTime` values, stored as 32-bit Unix seconds (`time_t`), which by definition count from 1970-01-01 00:00 UTC independent of the acquisition computer's time zone. `isoextract` writes them as ISO 8601 with an explicit `+00:00` offset (e.g. `2018-07-14T23:34:17.0000000+00:00`), so they are absolute instants. The local time zone of the acquisition computer is not recorded.
+
 ## Sequence Line Information
 
 Sample metadata (run identifier, method names, injection details, etc.) is stored in different structures depending on file type.

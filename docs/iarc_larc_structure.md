@@ -290,6 +290,12 @@ Same XML structure as V2/V3-flat. The directory path encodes the task UUID; this
 </SerialisableTask>
 ```
 
+### Timestamps and Time Zones
+
+`AcquisitionStartDate` / `AcquisitionEndDate` (task) and `AcquireStartDate` / `AcquireEndDate` (data set) are written **without a UTC offset** (e.g. `2014-10-08T14:14:35.9865192`): they are local times of the acquisition computer. The only timestamp with an offset is the archive's `Info/CreatedDate` (e.g. `2015-04-16T09:24:13.2333399+01:00`), which records when the archive was **created/exported**, not when the data was acquired. `isoextract` passes all of these strings through unchanged (`created_date`, `tasks[].acquisition_start/end`, `tasks[].datasets[].start/end`).
+
+> ⚠️ **Time zone: inferred, not known.** `isoreader2` converts the acquisition times to UTC by assuming they share the UTC offset of `created_date` (and treats them as UTC if `created_date` has no offset). This is correct when the archive was exported on the acquisition computer in the same daylight-saving period (true for all `.iarc` test files, which were created hours to days after their last acquisition), but it is **wrong when an archive was exported in a different time zone or season**: e.g. `v4_no_irms_data_ex01.larc` was re-exported in 2026 at `-05:00` from data acquired in 2014 that the original export of the same data (`v2_CN_ex01.iarc`) places at `+01:00`, so its converted acquisition times are 6 h off. Compare `created_date` with the acquisition dates to judge whether the inferred offset is plausible.
+
 ### Cross-References
 
 | Field | Links to |

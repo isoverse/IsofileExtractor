@@ -515,14 +515,29 @@ static partial class ImexpReader
             var obj = new JsonObject { ["source"] = source };
             if (entryId     is not null) obj["guid"]         = entryId;
             if (entryType   is not null) obj["type"]        = entryType;
+            // this directory timestamp is the notebook session folder, not
+            // the beginning of the acquisition (use aquisition_start/end instead)
             if (sessionTime is not null) obj["session_time"] = sessionTime;
+
             if (csfnBytes.Length > 0)
                 try { obj["settings_id"] = ParseSettingsFolderName(csfnBytes); }
                 catch { /* omit on parse failure */ }
             try
             {
                 var indexLines = ParseIndexLines(idxBytes);
-                obj["segments"] = ParseMeasureData(mdBytes, indexLines);
+                var segments = ParseMeasureData(mdBytes, indexLines);
+                obj["segments"] = segments;
+                var first = segments
+                    .OfType<JsonObject>()
+                    .Select(segment => segment["start_time_utc"]?.GetValue<string>())
+                    .FirstOrDefault(value => value is not null);
+                var last = segments
+                    .OfType<JsonObject>()
+                    .Reverse()
+                    .Select(segment => segment["end_time_utc"]?.GetValue<string>())
+                    .FirstOrDefault(value => value is not null);
+                if (first is not null) obj["acquisition_start"] = first;
+                if (last is not null) obj["acquisition_end"] = last;
             }
             catch (Exception ex) { obj["error"] = ex.Message; }
             if (adataBytes.Length > 0)
@@ -719,12 +734,16 @@ static partial class ImexpReader
         }
 
         var timeArr = new JsonArray();
-        double t0s = rawTicks[0] / 1e7;
         for (int t = 0; t < nPoints; t++)
-            timeArr.Add((JsonNode)Math.Round(rawTicks[t] / 1e7 - t0s, 7));
+            // Subtract integer ticks before converting to double. Converting the
+            // two ~6e17 tick values independently loses precision and introduced
+            // roughly 8 microseconds of artificial jitter in the old output.
+            timeArr.Add((JsonNode)((rawTicks[t] - rawTicks[0]) / 10_000_000.0));
 
         obj["n_timepoints"] = nPoints;
         obj["time_s"]       = timeArr;
+        obj["start_time_utc"] = FormatTraceTimestampUtc(rawTicks[0]);
+        obj["end_time_utc"] = FormatTraceTimestampUtc(rawTicks[^1]);
 
         var channelsArr = new JsonArray();
         for (int ch = 0; ch < nChannels; ch++)
@@ -739,6 +758,18 @@ static partial class ImexpReader
             });
         }
         obj["channels"] = channelsArr;
+    }
+
+    static string FormatTraceTimestampUtc(long ticks)
+    {
+        // ticks = DateTime.ToBinary() payload with the kind bits masked off.
+        // ToBinary stores UTC ticks directly for Utc values and offset-adjusted
+        // UTC ticks for Local values. Qtegra TraceSet timestamps use Local
+        // (kind bits 10), so the payload is the portable acquisition instant
+        // even when extraction happens in another timezone.
+        return new DateTime(ticks, DateTimeKind.Utc)
+            .ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'",
+                      System.Globalization.CultureInfo.InvariantCulture);
     }
 
     // ════════════════════════════════════════════════════════════════════════

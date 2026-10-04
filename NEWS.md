@@ -1,5 +1,13 @@
 # News
 
+## 0.3.3
+
+- `.imexp` entries now include `acquisition_start` / `acquisition_end` (UTC, from the first/last
+  segment) and each segment includes `start_time_utc` / `end_time_utc`. `session_time` is only the
+  local-time timestamp of the snapshot folder and should not be used as the acquisition time.
+- Fixes floating-point jitter (~µs) in the `.imexp` segment `time_s` axis.
+- Documents the time zone of the timestamps of every file format (`docs/*_structure.md`).
+
 ## 0.3.2
 
 - Adds Isodat readers for the `CGCInterfaceDevice` peripheral (GC II-III Interface).
